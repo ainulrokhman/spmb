@@ -16,8 +16,8 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
 | Aktor | Peran |
 | --- | --- |
 | Super Admin | Pengelola penuh seluruh unit dan master data |
-| Panitia | Petugas verifikasi & seleksi pendaftar, pengelola data operasional |
-| Pendaftar (orang tua / calon siswa) | Mendaftar, melengkapi formulir & berkas, memantau status, daftar ulang |
+| Panitia | Petugas verifikasi pendaftar, **terikat pada unit yang ditugaskan kepadanya** |
+| Wali (orang tua) | Pemilik akun pendaftaran; **satu akun dapat mendaftarkan lebih dari satu anak**; login memakai **nomor HP** |
 
 ### Prinsip desain
 
@@ -98,7 +98,15 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
 
 - Halaman info publik menampilkan unit yang membuka pendaftaran beserta
   gelombang yang sedang berjalan.
-- Pendaftar membuat akun (role **Pendaftar**) lalu mengisi pendaftaran:
+- Pendaftaran memakai **akun Wali** (role **Wali** pada tabel `users`,
+  dengan kolom `phone` unik sebagai identitas login). Wali **login
+  dengan nomor HP + kata sandi**; akun staf/panitia tetap login dengan
+  email seperti bawaan sistem.
+- Satu akun wali dapat membuat **banyak pendaftaran — satu pendaftaran
+  per anak** — dan anak-anak itu boleh mendaftar di satuan/gelombang
+  yang berbeda. Data anak tersimpan pada pendaftarannya masing-masing;
+  data wali (nama, nomor HP, hubungan dengan anak) tersimpan pada akun.
+- Wali membuat akun lalu mengisi pendaftaran untuk tiap anak:
   1. Pilih Satuan (jenjang + program Reguler/Boarding melekat pada
      satuan yang dipilih)
   2. Pilih Gelombang & Jalur (dan Jurusan bila satuan memilikinya)
@@ -119,21 +127,28 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
 
 ## 4. Modul Verifikasi & Seleksi (Panitia)
 
+- **Panitia terikat unit**: penugasan diatur lewat pivot
+  `user_school_units` (satu panitia dapat ditugaskan ke beberapa unit).
+  Daftar pendaftar, verifikasi, dan laporan yang dilihat panitia hanya
+  untuk unit tugasnya; Super Admin dan Admin yayasan melihat semua
+  unit. Penugasan diatur dari halaman manajemen user.
 - Daftar pendaftar per unit/gelombang/jalur dengan filter status
   (DataTable).
 - Verifikasi per berkas: Setujui / Tolak + catatan. Berkas ditolak
-  mengubah status pendaftaran menjadi **Perlu Perbaikan** dan pendaftar
+  mengubah status pendaftaran menjadi **Perlu Perbaikan** dan wali
   dapat mengunggah ulang berkas tersebut.
-- Penetapan kelulusan oleh panitia pada pendaftaran berstatus
-  Terverifikasi. Sistem memberi peringatan bila jumlah lulus melebihi
-  kuota gelombang (tidak mengunci, hanya peringatan).
+- **Seleksi/penetapan kelulusan DITUNDA** — mekanismenya (berbasis
+  **poin** maupun **manual**) diputuskan menyusul dalam rancangan
+  tersendiri. Selama belum diputuskan, status akhir yang dikelola
+  modul ini adalah Terverifikasi.
 
 ## 5. Modul Pengumuman & Daftar Ulang
 
 - Halaman cek kelulusan publik: nomor pendaftaran + tanggal lahir.
-- Pendaftar berstatus **Lulus** melakukan daftar ulang dari akunnya:
-  sistem menyusun tagihan biaya (lihat Bab 6), pendaftar memilih opsi
-  komponen pilihan dan mengisi komponen bebas, lalu mengonfirmasi.
+- Wali yang anaknya berstatus **Lulus** melakukan daftar ulang dari
+  akunnya: sistem menyusun tagihan biaya (lihat Bab 6), wali memilih
+  opsi komponen pilihan dan mengisi komponen bebas, lalu membayar
+  melalui Midtrans.
 - Daftar ulang tercatat dengan waktu konfirmasi; status pendaftaran
   menjadi **Daftar Ulang (terkonfirmasi)**.
 
@@ -182,9 +197,12 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
 - Tagihan berisi rincian per komponen dan total; tersimpan sebagai
   potret (snapshot) — perubahan pemetaan biaya sesudahnya tidak
   mengubah tagihan yang sudah terbit.
-- Status pembayaran: `Belum Bayar → Menunggu Konfirmasi → Lunas`
-  (konfirmasi manual oleh panitia; pembayaran via gateway adalah
-  keputusan terpisah, lihat Bab 8).
+- **Pembayaran melalui Midtrans** (Snap): wali membayar dari halaman
+  daftar ulang; status tagihan diperbarui otomatis lewat notifikasi
+  webhook Midtrans (tanda tangan diverifikasi). Status pembayaran:
+  `Belum Bayar → Menunggu Pembayaran → Lunas / Kedaluwarsa / Gagal`.
+  Kunci Midtrans (server key & client key, sandbox/production)
+  disimpan di `.env`, tidak di kode.
 
 ## 7. Dashboard & Laporan
 
@@ -193,22 +211,19 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
 - Export CSV daftar pendaftar dan rekap tagihan; cetak formulir dan
   bukti daftar ulang.
 
-## 8. Keputusan Terbuka (menunggu pemilik proyek)
+## 8. Keputusan (sudah diputuskan pemilik proyek)
 
-1. ~~Format nomor pendaftaran~~ — **SUDAH DIPUTUSKAN** (Bab 3):
-   kode unit 2 digit + tahun awal 2 digit + nomor urut 3 digit.
-2. Pendaftaran memakai akun pendaftar (usulan rancangan ini) atau
-   formulir tanpa akun.
-3. Seleksi cukup verifikasi berkas & penetapan manual (usulan v1), atau
-   perlu nilai/peringkat.
-4. INFAQ bermode `bebas` — benar, atau `pilihan`/`fixed`.
-5. Pembayaran: konfirmasi manual dulu (usulan v1) atau langsung
-   gateway (Midtrans dll.).
-6. Panitia bersifat global (semua unit) dulu di v1, atau perlu dibatasi
-   per unit sejak awal.
-7. Gelombang dibuka/ditutup otomatis mengikuti tanggal, atau manual
-   oleh panitia (usulan: keduanya — tanggal sebagai bawaan, saklar
-   manual sebagai penimpa).
+1. **Format nomor pendaftaran** — kode unit 2 digit + tahun awal
+   2 digit + nomor urut 3 digit (Bab 3).
+2. **Akun pendaftaran** — memakai **akun Wali**; satu akun dapat
+   mendaftarkan lebih dari satu anak; login dengan **nomor HP** (Bab 3).
+3. **INFAQ** — bermode `bebas` (Bab 6).
+4. **Pembayaran** — melalui **Midtrans** (Bab 6.4).
+5. **Panitia** — dibatasi **sesuai unit** tugasnya (Bab 4).
+6. **Gelombang** — mengikuti usulan rancangan: otomatis berdasarkan
+   tanggal, dengan saklar manual sebagai penimpa.
+7. **Seleksi** — **DITUNDA**: mekanismenya (poin maupun manual) akan
+   dirancang tersendiri menyusul (Bab 4).
 
 ## 9. Peta Fase Implementasi
 
@@ -218,13 +233,17 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
 | 1B | Gelombang, Jenis Berkas + Syarat Berkas per Unit |
 | 1C | Bidang Formulir per Unit |
 | 1D | Komponen Biaya + Pemetaan Biaya per Unit |
-| 2 | Akun pendaftar, formulir dinamis, unggah berkas, nomor pendaftaran |
-| 3 | Verifikasi berkas & penetapan kelulusan |
-| 4 | Pengumuman, daftar ulang & tagihan, konfirmasi pembayaran |
+| 1E | Penugasan Panitia per Unit (pivot user–unit + pengaturan di manajemen user) |
+| 2 | Akun Wali (registrasi & login nomor HP), pendaftaran multi-anak, formulir dinamis, unggah berkas, nomor pendaftaran |
+| 3 | Verifikasi berkas oleh panitia sesuai unit tugasnya |
+| 4 | Pengumuman, daftar ulang & tagihan, pembayaran Midtrans |
 | 5 | Dashboard SPMB & laporan/export |
+| Menyusul | Seleksi (poin/manual) — dirancang tersendiri |
 
 ## 10. Di Luar Cakupan v1
 
-- Payment gateway dan notifikasi WhatsApp/email otomatis.
+- Notifikasi WhatsApp/email otomatis (pengingat status & pembayaran).
+- Login wali dengan OTP (v1: nomor HP + kata sandi).
+- Cicilan tagihan (v1: satu tagihan dibayar lunas via Midtrans).
 - Multi-yayasan (satu instalasi untuk banyak yayasan).
 - Aplikasi mobile.
