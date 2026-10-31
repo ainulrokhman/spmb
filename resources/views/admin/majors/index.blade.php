@@ -96,7 +96,7 @@
                 { data: 'unit_name', name: 'school_unit_id' },
                 { data: 'name', name: 'name' },
                 { data: 'code', name: 'code' },
-                { data: 'is_active', name: 'is_active', searchable: false }
+                { data: 'is_active', name: 'is_active', searchable: false },
                 { data: 'actions', name: 'actions', orderable: false, searchable: false, class: 'text-end' }
             ],
             dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3"l>rt<"d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top"ip>',
