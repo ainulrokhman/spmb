@@ -7,6 +7,7 @@ use App\Contracts\AdmissionTrackServiceInterface;
 use App\Contracts\AdmissionWaveServiceInterface;
 use App\Contracts\DocumentRequirementServiceInterface;
 use App\Contracts\DocumentTypeServiceInterface;
+use App\Contracts\FormFieldServiceInterface;
 use App\Contracts\MajorServiceInterface;
 use App\Contracts\PermissionServiceInterface;
 use App\Contracts\ProfileServiceInterface;
@@ -18,6 +19,7 @@ use App\Services\AdmissionTrackService;
 use App\Services\AdmissionWaveService;
 use App\Services\DocumentRequirementService;
 use App\Services\DocumentTypeService;
+use App\Services\FormFieldService;
 use App\Services\MajorService;
 use App\Services\PermissionService;
 use App\Services\ProfileService;
@@ -46,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AdmissionWaveServiceInterface::class, AdmissionWaveService::class);
         $this->app->bind(DocumentTypeServiceInterface::class, DocumentTypeService::class);
         $this->app->bind(DocumentRequirementServiceInterface::class, DocumentRequirementService::class);
+        $this->app->bind(FormFieldServiceInterface::class, FormFieldService::class);
     }
 
     /**
