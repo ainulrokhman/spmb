@@ -16,14 +16,14 @@
         </div>
 
         <div class="d-flex align-items-center gap-3 flex-wrap">
-            <select id="unit-filter" aria-label="Filter berdasarkan unit sekolah" class="form-select bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 rounded-pill" style="width: 220px;">
+            <select id="unit-filter" aria-label="Filter berdasarkan unit sekolah" class="form-select" style="width: 220px;">
                 <option value="">Semua Unit</option>
                 @foreach($units as $unit)
                     <option value="{{ $unit->id }}">{{ $unit->name }}</option>
                 @endforeach
             </select>
 
-            <a href="#" id="preview-button" class="btn btn-outline-secondary d-none align-items-center gap-2 py-2 px-3 fw-medium" style="border-radius: 8px;" target="_blank">
+            <a href="#" id="preview-button" class="btn btn-outline-secondary d-none align-items-center gap-2 py-2 px-3 fw-medium" target="_blank">
                 <i class="bi bi-eye"></i> Pratinjau Formulir
             </a>
 
@@ -32,17 +32,16 @@
                        aria-label="Cari form fields"
                        name="search"
                        value=""
-                       class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill"
+                       class="form-control"
                        placeholder="Cari bidang formulir..."
                        style="width: 250px;">
-                <i class="bi bi-search position-absolute text-muted" style="left: 18px; top: 50%; transform: translateY(-50%);"></i>
-                <a href="#" id="clear-search" class="position-absolute text-muted hover-text-dark d-none" style="right: 18px; top: 50%; transform: translateY(-50%);">
+                <a href="#" id="clear-search" class="position-absolute text-muted d-none" style="right: 18px; top: 50%; transform: translateY(-50%);">
                     <i class="bi bi-x-circle-fill"></i>
                 </a>
             </form>
 
             @can('form-field-create')
-            <a href="{{ route('admin.form-fields.create') }}" class="btn btn-primary d-inline-flex align-items-center gap-2 py-2 px-3 fw-medium" style="border-radius: 8px;">
+            <a href="{{ route('admin.form-fields.create') }}" class="btn btn-primary">
                 <i class="bi bi-ui-checks fs-5"></i> Tambah Bidang Formulir
             </a>
             @endcan

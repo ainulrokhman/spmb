@@ -49,7 +49,7 @@
                                     @endforeach
                                 </select>
                                 @if($mapping)
-                                    <a href="{{ route('admin.fee-amounts.index', ['school_unit_id' => $schoolUnit->id, 'fee_component_id' => $component->id]) }}" class="btn btn-light border py-2 px-3 fw-medium" style="border-radius: 8px;">
+                                    <a href="{{ route('admin.fee-amounts.index', ['school_unit_id' => $schoolUnit->id, 'fee_component_id' => $component->id]) }}" class="btn btn-light border py-2 px-3 fw-medium">
                                         <i class="bi bi-cash-stack text-success"></i> Nominal
                                     </a>
                                 @endif
@@ -62,10 +62,10 @@
             </div>
 
             <div class="d-flex justify-content-end gap-2">
-                <a href="{{ route('admin.school-units.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <a href="{{ route('admin.school-units.index') }}" class="btn btn-secondary">
                     Batal
                 </a>
-                <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <button type="submit" class="btn btn-primary">
                     Simpan Pemetaan <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>

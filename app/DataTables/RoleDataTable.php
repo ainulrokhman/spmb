@@ -43,7 +43,7 @@ class RoleDataTable
     {
         return function ($role) {
             return '<div class="d-flex align-items-center">
-                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <div>
                         <i class="bi bi-shield-lock fs-5"></i>
                     </div>
                     <div>
@@ -60,7 +60,7 @@ class RoleDataTable
     private function permissionsCountColumn(): \Closure
     {
         return function ($role) {
-            return '<span class="badge bg-info bg-opacity-10 text-info fw-medium py-2 px-3 fs-7 border border-info border-opacity-20 rounded-pill">'.$role->permissions_count.' Hak Akses</span>';
+            return '<span class="badge bg-info">'.$role->permissions_count.' Hak Akses</span>';
         };
     }
 
@@ -70,7 +70,7 @@ class RoleDataTable
     private function usersCountColumn(): \Closure
     {
         return function ($role) {
-            return '<div class="text-center"><span class="badge bg-secondary bg-opacity-10 text-secondary fw-bold py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">'.$role->users_count.' Pengguna</span></div>';
+            return '<div class="text-center"><span class="badge bg-secondary">'.$role->users_count.' Pengguna</span></div>';
         };
     }
 
@@ -81,7 +81,7 @@ class RoleDataTable
     {
         return function ($role) {
             if ($role->name === SystemAccess::SUPER_ADMIN_ROLE) {
-                return '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10 rounded-pill py-1 px-2 text-xs">all-permissions (Bypass)</span>';
+                return '<span class="badge bg-danger">all-permissions (Bypass)</span>';
             }
             $allPerms = $role->permissions;
             $previewPerms = $allPerms->take(3);
@@ -89,10 +89,10 @@ class RoleDataTable
 
             $html = '<div class="d-flex flex-wrap gap-1" style="max-width: 320px;">';
             foreach ($previewPerms as $perm) {
-                $html .= '<span class="badge bg-light text-secondary border rounded-pill py-1 px-2 text-xs">'.e($perm->name).'</span>';
+                $html .= '<span class="badge bg-light text-secondary border">'.e($perm->name).'</span>';
             }
             if ($remainingCount > 0) {
-                $html .= '<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 rounded-pill py-1 px-2 text-xs fw-bold">+'.$remainingCount.' lainnya</span>';
+                $html .= '<span class="badge bg-primary">+'.$remainingCount.' lainnya</span>';
             }
             if ($previewPerms->isEmpty()) {
                 $html .= '<span class="text-muted small italic">None</span>';
@@ -114,15 +114,15 @@ class RoleDataTable
                 $html .= '<button class="btn btn-sm btn-light border" disabled title="SuperAdmin permissions are locked"><i class="bi bi-lock-fill text-muted me-1"></i> Locked</button>';
             } else {
                 if (auth()->user()->can('role-edit')) {
-                    $html .= '<a href="'.route('admin.roles.edit', $role->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Role"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                    $html .= '<a href="'.route('admin.roles.edit', $role->id).'" class="btn btn-sm btn-light border" title="Edit Role"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
                 }
                 if (auth()->user()->can('role-delete')) {
                     if ($this->roleService->isSystemRole($role)) {
-                        $html .= '<button class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" disabled title="Cannot delete system role"><i class="bi bi-trash-fill text-muted"></i></button>';
+                        $html .= '<button class="btn btn-sm btn-light border" disabled title="Cannot delete system role"><i class="bi bi-trash-fill text-muted"></i></button>';
                     } else {
                         $html .= '<form action="'.route('admin.roles.destroy', $role->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus peran ini? Pengguna yang memilikinya akan kehilangan hak akses tersebut.\')">';
                         $html .= csrf_field().method_field('DELETE');
-                        $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Role"><i class="bi bi-trash text-danger"></i></button>';
+                        $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete Role"><i class="bi bi-trash text-danger"></i></button>';
                         $html .= '</form>';
                     }
                 }

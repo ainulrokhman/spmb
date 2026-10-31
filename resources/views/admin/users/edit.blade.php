@@ -127,7 +127,7 @@
                                                {{ $isChecked ? 'checked' : '' }}
                                                {{ $isDisabled ? 'disabled' : '' }}>
                                         <div class="ms-3">
-                                            <label class="form-check-label fw-bold text-body mb-0" for="role-{{ $role->id }}" style="cursor: pointer;">
+                                            <label class="form-check-label fw-bold text-body mb-0" for="role-{{ $role->id }}">
                                                 {{ $role->name }}
                                                 @if($isDisabled)
                                                     <span class="badge bg-secondary ms-2 small">System Locked</span>
@@ -160,10 +160,10 @@
 
             <!-- Form Actions -->
             <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
-                <a href="{{ route('admin.users.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
                     Batal
                 </a>
-                <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <button type="submit" class="btn btn-primary">
                     Simpan Perubahan <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>

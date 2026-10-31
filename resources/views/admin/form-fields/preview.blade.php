@@ -88,7 +88,7 @@
         @endforelse
 
         <div class="d-flex justify-content-end">
-            <a href="{{ route('admin.form-fields.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+            <a href="{{ route('admin.form-fields.index') }}" class="btn btn-secondary">
                 Back to Form Fields
             </a>
         </div>

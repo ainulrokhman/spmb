@@ -40,7 +40,7 @@ class PermissionDataTable
     {
         return function ($permission) {
             return '<div class="d-flex align-items-center">
-                    <div class="bg-info bg-opacity-10 text-info rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <div>
                         <i class="bi bi-key fs-5"></i>
                     </div>
                     <div>
@@ -59,7 +59,7 @@ class PermissionDataTable
         return function ($permission) {
             $html = '<div class="d-flex flex-wrap gap-1" style="max-width: 250px;">';
             foreach ($permission->roles as $role) {
-                $html .= '<span class="badge bg-light text-secondary border rounded-pill py-1 px-2 text-xs">'.e($role->name).'</span>';
+                $html .= '<span class="badge bg-light text-secondary border">'.e($role->name).'</span>';
             }
             if ($permission->roles->isEmpty()) {
                 $html .= '<span class="text-muted small italic">Not assigned</span>';
@@ -79,15 +79,15 @@ class PermissionDataTable
             $isProtected = $this->permissionService->isPermissionProtected($permission);
             $html = '<div class="d-flex justify-content-end gap-2">';
             if ($isProtected) {
-                $html .= '<span class="badge bg-light text-secondary border d-flex align-items-center py-2 px-3 rounded-2 text-xs"><i class="bi bi-lock-fill text-warning me-1"></i> Core</span>';
+                $html .= '<span class="badge bg-light text-secondary border"><i class="bi bi-lock-fill text-warning me-1"></i> Core</span>';
             } else {
                 if (auth()->user()->can('permission-edit')) {
-                    $html .= '<a href="'.route('admin.permissions.edit', $permission->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Permission"><i class="bi bi-pencil-square text-primary"></i></a>';
+                    $html .= '<a href="'.route('admin.permissions.edit', $permission->id).'" class="btn btn-sm btn-light border" title="Edit Permission"><i class="bi bi-pencil-square text-primary"></i></a>';
                 }
                 if (auth()->user()->can('permission-delete')) {
                     $html .= '<form action="'.route('admin.permissions.destroy', $permission->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus hak akses ini? Hak akses ini akan terlepas dari semua peran yang menggunakannya.\')">';
                     $html .= csrf_field().method_field('DELETE');
-                    $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Permission"><i class="bi bi-trash text-danger"></i></button>';
+                    $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete Permission"><i class="bi bi-trash text-danger"></i></button>';
                     $html .= '</form>';
                 }
             }

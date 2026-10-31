@@ -59,15 +59,15 @@ class UserDataTable
         return function ($user) {
             $html = '<div class="d-flex flex-wrap gap-1">';
             foreach ($user->roles as $role) {
-                $badgeClass = 'bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-10';
+                $badgeClass = 'bg-secondary';
                 if ($role->name === SystemAccess::SUPER_ADMIN_ROLE) {
-                    $badgeClass = 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20';
+                    $badgeClass = 'bg-danger';
                 } elseif ($role->name === SystemAccess::ADMIN_ROLE) {
-                    $badgeClass = 'bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20';
+                    $badgeClass = 'bg-primary';
                 } elseif ($role->name === SystemAccess::USER_ROLE) {
-                    $badgeClass = 'bg-success bg-opacity-10 text-success border border-success border-opacity-20';
+                    $badgeClass = 'bg-success';
                 }
-                $html .= '<span class="badge '.$badgeClass.' rounded-pill py-1.5 px-2.5 small fw-semibold">'.e($role->name).'</span>';
+                $html .= '<span class="badge '.$badgeClass.' ">'.e($role->name).'</span>';
             }
             if ($user->roles->isEmpty()) {
                 $html .= '<span class="text-muted small italic">No roles assigned</span>';
@@ -96,17 +96,17 @@ class UserDataTable
         return function ($user) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('user-edit')) {
-                $html .= '<a href="'.route('admin.users.edit', $user->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit User"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.users.edit', $user->id).'" class="btn btn-sm btn-light border" title="Edit User"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('user-delete')) {
                 if (auth()->id() === $user->id) {
-                    $html .= '<button class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" disabled title="You cannot delete yourself"><i class="bi bi-trash-fill text-muted"></i></button>';
+                    $html .= '<button class="btn btn-sm btn-light border" disabled title="You cannot delete yourself"><i class="bi bi-trash-fill text-muted"></i></button>';
                 } elseif ($user->email === SystemAccess::SUPER_ADMIN_EMAIL) {
-                    $html .= '<button class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" disabled title="Cannot delete Super Admin account"><i class="bi bi-trash-fill text-muted"></i></button>';
+                    $html .= '<button class="btn btn-sm btn-light border" disabled title="Cannot delete Super Admin account"><i class="bi bi-trash-fill text-muted"></i></button>';
                 } else {
                     $html .= '<form action="'.route('admin.users.destroy', $user->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus pengguna '.e($user->name).'?\')">';
                     $html .= csrf_field().method_field('DELETE');
-                    $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete User"><i class="bi bi-trash text-danger"></i></button>';
+                    $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete User"><i class="bi bi-trash text-danger"></i></button>';
                     $html .= '</form>';
                 }
             }
