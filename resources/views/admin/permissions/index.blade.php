@@ -27,11 +27,10 @@
                     <input type="text" 
                            name="search" 
                            value="" 
-                           class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill" 
+                           class="form-control" 
                            placeholder="Search permissions..." 
                            style="width: 220px;">
-                    <i class="bi bi-search position-absolute text-muted" style="left: 18px; top: 50%; transform: translateY(-50%);"></i>
-                    <a href="#" id="clear-search" class="position-absolute text-muted hover-text-dark d-none" style="right: 18px; top: 50%; transform: translateY(-50%);">
+                    <a href="#" id="clear-search" class="position-absolute text-muted d-none" style="right: 18px; top: 50%; transform: translateY(-50%);">
                         <i class="bi bi-x-circle-fill"></i>
                     </a>
                 </form>
@@ -97,7 +96,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 py-2.5 fw-medium d-flex align-items-center justify-content-center gap-2" style="border-radius: 8px;">
+                    <button type="submit" class="btn btn-primary w-100">
                         <i class="bi bi-plus-circle"></i> Add Permission
                     </button>
                 </form>

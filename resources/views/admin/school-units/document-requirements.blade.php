@@ -61,10 +61,10 @@
             </div>
 
             <div class="d-flex justify-content-end gap-2">
-                <a href="{{ route('admin.school-units.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <a href="{{ route('admin.school-units.index') }}" class="btn btn-secondary">
                     Batal
                 </a>
-                <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;" {{ $documentTypes->isEmpty() ? 'disabled' : '' }}>
+                <button type="submit" class="btn btn-primary" {{ $documentTypes->isEmpty() ? 'disabled' : '' }}>
                     Simpan Syarat <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>

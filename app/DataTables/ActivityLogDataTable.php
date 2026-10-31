@@ -68,7 +68,7 @@ class ActivityLogDataTable
 
             $eventLabel = ['created' => 'Dibuat', 'updated' => 'Diperbarui', 'deleted' => 'Dihapus'][$event] ?? $event;
 
-            return '<span class="badge '.$badgeClass.' bg-opacity-10 text-'.str_replace('bg-', '', $badgeClass).' border border-'.str_replace('bg-', '', $badgeClass).' border-opacity-20 px-2.5 py-1.5 small fw-semibold text-uppercase">'.e($eventLabel).'</span>';
+            return '<span class=\"badge '.$badgeClass.'\">'.e($eventLabel).'</span>';
         };
     }
 
@@ -120,7 +120,7 @@ class ActivityLogDataTable
             $propertiesJson = json_encode($log->properties ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
             return '<div class="d-flex justify-content-end">
-                    <button class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2 view-details-btn" 
+                    <button class="btn btn-sm btn-light border view-details-btn" 
                             data-id="'.$log->id.'" 
                             data-properties=\''.$propertiesJson.'\' 
                             data-causer="'.e($log->causer->name ?? 'System').'" 

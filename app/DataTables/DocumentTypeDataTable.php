@@ -32,7 +32,7 @@ class DocumentTypeDataTable
     private function codeColumn(): \Closure
     {
         return function ($documentType) {
-            return '<span class="badge bg-dark bg-opacity-10 text-dark fw-medium py-2 px-3 fs-7 border border-dark border-opacity-10 rounded-pill">'.e($documentType->code).'</span>';
+            return '<span class="badge bg-dark">'.e($documentType->code).'</span>';
         };
     }
 
@@ -53,10 +53,10 @@ class DocumentTypeDataTable
     {
         return function ($documentType) {
             if ($documentType->is_active) {
-                return '<span class="badge bg-success bg-opacity-10 text-success fw-medium py-2 px-3 fs-7 border border-success border-opacity-20 rounded-pill">Aktif</span>';
+                return '<span class="badge bg-success">Aktif</span>';
             }
 
-            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Nonaktif</span>';
+            return '<span class="badge bg-secondary">Nonaktif</span>';
         };
     }
 
@@ -68,12 +68,12 @@ class DocumentTypeDataTable
         return function ($documentType) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('document-type-edit')) {
-                $html .= '<a href="'.route('admin.document-types.edit', $documentType->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Document Type"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.document-types.edit', $documentType->id).'" class="btn btn-sm btn-light border" title="Edit Document Type"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('document-type-delete')) {
                 $html .= '<form action="'.route('admin.document-types.destroy', $documentType->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus jenis berkas ini? Syarat berkas unit yang menggunakannya juga akan terhapus.\')">';
                 $html .= csrf_field().method_field('DELETE');
-                $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Document Type"><i class="bi bi-trash text-danger"></i></button>';
+                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete Document Type"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';
             }
             $html .= '</div>';

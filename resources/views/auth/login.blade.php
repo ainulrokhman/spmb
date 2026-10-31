@@ -5,41 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk | SPMB</title>
 
-    <!-- Google Fonts: Outfit -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        body {
-            font-family: 'Outfit', sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .btn-outline-secondary {
-            border-color: rgba(0, 0, 0, 0.12);
-        }
-        [data-bs-theme="dark"] .btn-outline-secondary {
-            border-color: rgba(255, 255, 255, 0.15);
-            color: #cbd5e1;
-        }
-        [data-bs-theme="dark"] .btn-outline-secondary:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: #ffffff;
-        }
-        /* Style fixes for floating label with input-group */
-        .input-group > .form-floating {
-            flex: 1 1 auto;
-            width: 1%;
-        }
-        .input-group > .form-floating > .form-control {
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-    </style>
 
     <script>
         const STORAGE_KEY = 'theme';
@@ -164,7 +131,7 @@
                     <div class="row align-items-center mb-3">
                         <div class="col-8">
                             <div class="form-check mb-0">
-                                <input class="form-check-input" type="checkbox" id="remember" name="remember" style="cursor: pointer;">
+                                <input class="form-check-input" type="checkbox" id="remember" name="remember">
                                 <label class="form-check-label text-muted small" for="remember" style="cursor: pointer; user-select: none;">
                                     Ingat Saya
                                 </label>

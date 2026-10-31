@@ -13,7 +13,6 @@
     <!-- Info Box 1: Users -->
     <div class="col-12 col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm h-100 overflow-hidden position-relative">
-            <div class="position-absolute start-0 top-0 bottom-0 bg-primary" style="width: 4px;"></div>
             <div class="card-body d-flex align-items-center justify-content-between p-4">
                 <div>
                     <span class="text-muted text-uppercase fs-7 fw-bold d-block mb-1">Total Pengguna</span>
@@ -26,7 +25,7 @@
                     <small class="text-muted">Akun terdaftar</small>
                     @endcan
                 </div>
-                <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3">
+                <div class="text-primary">
                     <i class="bi bi-people fs-3"></i>
                 </div>
             </div>
@@ -36,7 +35,6 @@
     <!-- Info Box 2: Roles -->
     <div class="col-12 col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm h-100 overflow-hidden position-relative">
-            <div class="position-absolute start-0 top-0 bottom-0 bg-success" style="width: 4px;"></div>
             <div class="card-body d-flex align-items-center justify-content-between p-4">
                 <div>
                     <span class="text-muted text-uppercase fs-7 fw-bold d-block mb-1">Total Peran</span>
@@ -49,7 +47,7 @@
                     <small class="text-muted">Tingkatan keamanan</small>
                     @endcan
                 </div>
-                <div class="bg-success bg-opacity-10 text-success rounded-3 p-3">
+                <div class="text-success">
                     <i class="bi bi-shield-lock fs-3"></i>
                 </div>
             </div>
@@ -59,7 +57,6 @@
     <!-- Info Box 3: Permissions -->
     <div class="col-12 col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm h-100 overflow-hidden position-relative">
-            <div class="position-absolute start-0 top-0 bottom-0 bg-warning" style="width: 4px;"></div>
             <div class="card-body d-flex align-items-center justify-content-between p-4">
                 <div>
                     <span class="text-muted text-uppercase fs-7 fw-bold d-block mb-1">Hak Akses</span>
@@ -72,7 +69,7 @@
                     <small class="text-muted">Aksi sistem</small>
                     @endcan
                 </div>
-                <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3">
+                <div class="text-warning">
                     <i class="bi bi-key fs-3"></i>
                 </div>
             </div>
@@ -82,7 +79,6 @@
     <!-- Info Box 4: Current Session -->
     <div class="col-12 col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm h-100 overflow-hidden position-relative">
-            <div class="position-absolute start-0 top-0 bottom-0 bg-info" style="width: 4px;"></div>
             <div class="card-body d-flex align-items-center justify-content-between p-4">
                 <div>
                     <span class="text-muted text-uppercase fs-7 fw-bold d-block mb-1">Peran Anda</span>
@@ -91,7 +87,7 @@
                     </h3>
                     <small class="text-muted">Logged in as {{ auth()->user()->email }}</small>
                 </div>
-                <div class="bg-info bg-opacity-10 text-info rounded-3 p-3">
+                <div class="text-info">
                     <i class="bi bi-person-badge fs-3"></i>
                 </div>
             </div>
@@ -126,8 +122,8 @@
                         <span class="text-secondary fw-semibold">Penjualan Toko Online</span>
                         <span class="text-body fw-bold">75% ($93k)</span>
                     </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-primary rounded-pill" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress" >
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
 
@@ -136,8 +132,8 @@
                         <span class="text-secondary fw-semibold">Penjualan Klien Enterprise / API</span>
                         <span class="text-body fw-bold">45% ($56k)</span>
                     </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-success rounded-pill" role="progressbar" style="width: 45%;" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress" >
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 45%;" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
 
@@ -146,8 +142,8 @@
                         <span class="text-secondary fw-semibold">Reseller & Afiliasi</span>
                         <span class="text-body fw-bold">20% ($25k)</span>
                     </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-info rounded-pill" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress" >
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
 
@@ -189,7 +185,7 @@
                             @if(isset($user->avatar) && $user->avatar)
                                 <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" alt="Avatar">
                             @else
-                                <div class="bg-{{ $color }} bg-opacity-10 text-{{ $color }} rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
+                                <div>
                                     {{ strtoupper($initials) }}
                                 </div>
                             @endif
@@ -209,7 +205,7 @@
                 </div>
                 @can('user-list')
                 <div class="text-center mt-4">
-                    <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-outline-primary w-100 py-2 fw-medium" style="border-radius: 8px;">
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-outline-primary w-100 py-2 fw-medium">
                         Lihat Semua Pengguna
                     </a>
                 </div>

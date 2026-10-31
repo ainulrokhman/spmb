@@ -108,7 +108,7 @@
                                                id="role-{{ $role->id }}"
                                                {{ $role->name === \App\Support\SystemAccess::USER_ROLE ? 'checked' : '' }}>
                                         <div class="ms-3">
-                                            <label class="form-check-label fw-bold text-body mb-0" for="role-{{ $role->id }}" style="cursor: pointer;">
+                                            <label class="form-check-label fw-bold text-body mb-0" for="role-{{ $role->id }}">
                                                 {{ $role->name }}
                                             </label>
                                             <span class="text-muted d-block small mt-0.5">
@@ -138,10 +138,10 @@
 
             <!-- Form Actions -->
             <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
-                <a href="{{ route('admin.users.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
                     Batal
                 </a>
-                <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <button type="submit" class="btn btn-primary">
                     Simpan Pengguna <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>

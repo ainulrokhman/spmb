@@ -59,10 +59,10 @@
                         <p class="text-muted small mb-0">Tetapkan atau cabut kemampuan sistem tertentu</p>
                     </div>
                     <div>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 me-2" onclick="toggleAllPermissions(true)">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAllPermissions(true)">
                             Select All
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="toggleAllPermissions(false)">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAllPermissions(false)">
                             Deselect All
                         </button>
                     </div>
@@ -123,10 +123,10 @@
 
             <!-- Form Actions -->
             <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
-                <a href="{{ route('admin.roles.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">
                     Batal
                 </a>
-                <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <button type="submit" class="btn btn-primary">
                     Simpan Perubahan <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>

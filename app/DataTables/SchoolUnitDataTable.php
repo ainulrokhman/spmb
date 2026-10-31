@@ -34,7 +34,7 @@ class SchoolUnitDataTable
     {
         return function ($schoolUnit) {
             return '<div class="d-flex align-items-center">
-                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <div>
                         <i class="bi bi-building fs-5"></i>
                     </div>
                     <div>
@@ -51,7 +51,7 @@ class SchoolUnitDataTable
     private function codeColumn(): \Closure
     {
         return function ($schoolUnit) {
-            return '<span class="badge bg-dark bg-opacity-10 text-dark fw-bold py-2 px-3 fs-7 border border-dark border-opacity-10 rounded-pill">'.e($schoolUnit->code).'</span>';
+            return '<span class="badge bg-dark">'.e($schoolUnit->code).'</span>';
         };
     }
 
@@ -63,7 +63,7 @@ class SchoolUnitDataTable
         return function ($schoolUnit) {
             $color = $schoolUnit->program === 'Boarding' ? 'warning' : 'info';
 
-            return '<span class="badge bg-'.$color.' bg-opacity-10 text-'.$color.' fw-medium py-2 px-3 fs-7 border border-'.$color.' border-opacity-20 rounded-pill">'.e($schoolUnit->program).'</span>';
+            return '<span class=\"badge bg-'.$color.'\">'.e($schoolUnit->program).'</span>';
         };
     }
 
@@ -74,10 +74,10 @@ class SchoolUnitDataTable
     {
         return function ($schoolUnit) {
             if ($schoolUnit->is_active) {
-                return '<span class="badge bg-success bg-opacity-10 text-success fw-medium py-2 px-3 fs-7 border border-success border-opacity-20 rounded-pill">Aktif</span>';
+                return '<span class="badge bg-success">Aktif</span>';
             }
 
-            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Nonaktif</span>';
+            return '<span class="badge bg-secondary">Nonaktif</span>';
         };
     }
 
@@ -89,14 +89,14 @@ class SchoolUnitDataTable
         return function ($schoolUnit) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('school-unit-edit')) {
-                $html .= '<a href="'.route('admin.school-units.document-requirements.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Document Requirements"><i class="bi bi-folder2-open text-warning"></i> Berkas</a>';
-                $html .= '<a href="'.route('admin.school-units.fees.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Fee Mappings"><i class="bi bi-cash-stack text-success"></i> Biaya</a>';
-                $html .= '<a href="'.route('admin.school-units.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit School Unit"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.school-units.document-requirements.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Document Requirements"><i class="bi bi-folder2-open text-warning"></i> Berkas</a>';
+                $html .= '<a href="'.route('admin.school-units.fees.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Fee Mappings"><i class="bi bi-cash-stack text-success"></i> Biaya</a>';
+                $html .= '<a href="'.route('admin.school-units.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Edit School Unit"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('school-unit-delete')) {
                 $html .= '<form action="'.route('admin.school-units.destroy', $schoolUnit->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus unit sekolah ini? Jalur pendaftaran dan jurusannya juga akan terhapus.\')">';
                 $html .= csrf_field().method_field('DELETE');
-                $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete School Unit"><i class="bi bi-trash text-danger"></i></button>';
+                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete School Unit"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';
             }
             $html .= '</div>';

@@ -17,7 +17,7 @@
 
         <div class="d-flex align-items-center gap-3 flex-wrap">
 
-            <select id="unit-filter" class="form-select bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 rounded-pill" style="width: 220px;">
+            <select id="unit-filter" class="form-select" style="width: 220px;">
                 <option value="">All Units</option>
                 @foreach($units as $unit)
                     <option value="{{ $unit->id }}">{{ $unit->name }}</option>
@@ -28,17 +28,16 @@
                 <input type="text"
                        name="search"
                        value=""
-                       class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill"
+                       class="form-control"
                        placeholder="Cari jalur pendaftaran..."
                        style="width: 250px;">
-                <i class="bi bi-search position-absolute text-muted" style="left: 18px; top: 50%; transform: translateY(-50%);"></i>
-                <a href="#" id="clear-search" class="position-absolute text-muted hover-text-dark d-none" style="right: 18px; top: 50%; transform: translateY(-50%);">
+                <a href="#" id="clear-search" class="position-absolute text-muted d-none" style="right: 18px; top: 50%; transform: translateY(-50%);">
                     <i class="bi bi-x-circle-fill"></i>
                 </a>
             </form>
 
             @can('admission-track-create')
-            <a href="{{ route('admin.admission-tracks.create') }}" class="btn btn-primary d-inline-flex align-items-center gap-2 py-2 px-3 fw-medium" style="border-radius: 8px;">
+            <a href="{{ route('admin.admission-tracks.create') }}" class="btn btn-primary">
                 <i class="bi bi bi-signpost-plus fs-5"></i> Tambah Jalur Pendaftaran
             </a>
             @endcan

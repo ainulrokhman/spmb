@@ -55,10 +55,10 @@
             </div>
 
             <div class="d-flex justify-content-end gap-2">
-                <a href="{{ route('admin.admission-tracks.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <a href="{{ route('admin.admission-tracks.index') }}" class="btn btn-secondary">
                     Batal
                 </a>
-                <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <button type="submit" class="btn btn-primary">
                     Simpan <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>

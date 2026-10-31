@@ -92,7 +92,7 @@ class AdmissionWaveDataTable
                 default => ['Nonaktif', 'secondary'],
             };
 
-            return '<span class="badge bg-'.$color.' bg-opacity-10 text-'.$color.' fw-medium py-2 px-3 fs-7 border border-'.$color.' border-opacity-20 rounded-pill">'.$label.'</span>';
+            return '<span class=\"badge bg-'.$color.'\">'.$label.'</span>';
         };
     }
 
@@ -104,12 +104,12 @@ class AdmissionWaveDataTable
         return function ($admissionWave) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('admission-wave-edit')) {
-                $html .= '<a href="'.route('admin.admission-waves.edit', $admissionWave->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Admission Wave"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.admission-waves.edit', $admissionWave->id).'" class="btn btn-sm btn-light border" title="Edit Admission Wave"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('admission-wave-delete')) {
                 $html .= '<form action="'.route('admin.admission-waves.destroy', $admissionWave->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus gelombang ini?\')">';
                 $html .= csrf_field().method_field('DELETE');
-                $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Admission Wave"><i class="bi bi-trash text-danger"></i></button>';
+                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete Admission Wave"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';
             }
             $html .= '</div>';

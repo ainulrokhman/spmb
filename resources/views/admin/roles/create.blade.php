@@ -44,7 +44,7 @@
                         <h5 class="mb-0 fw-bold text-body">Tetapkan Hak Akses</h5>
                         <p class="text-muted small mb-0">Berikan hak akses dengan mengaktifkan grup tertentu</p>
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="toggleAllPermissions(true)">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAllPermissions(true)">
                         Pilih Semua Hak Akses
                     </button>
                 </div>
@@ -92,10 +92,10 @@
 
             <!-- Form Actions -->
             <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
-                <a href="{{ route('admin.roles.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">
                     Batal
                 </a>
-                <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
+                <button type="submit" class="btn btn-primary">
                     Simpan Peran <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>

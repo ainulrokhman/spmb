@@ -68,7 +68,7 @@
                             <p class="text-muted small mb-4">Unggah gambar JPG, PNG, atau WEBP berkualitas baik. Ukuran maks: 2MB.</p>
                             
                             <div>
-                                <label for="avatar" class="btn btn-outline-primary btn-sm px-3 py-2 fw-medium" style="border-radius: 8px; cursor: pointer;">
+                                <label for="avatar" class="btn btn-outline-primary btn-sm" style="border-radius: 8px; cursor: pointer;">
                                     <i class="bi bi-camera me-1"></i> Choose New Photo
                                 </label>
                                 <input type="file" 
@@ -167,10 +167,10 @@
 
                     <!-- Form Actions -->
                     <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
-                        <a href="/admin" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+                        <a href="/admin" class="btn btn-secondary">
                             Batal
                         </a>
-                        <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
+                        <button type="submit" class="btn btn-primary">
                             Simpan Pengaturan <i class="bi bi-check-lg ms-1"></i>
                         </button>
                     </div>

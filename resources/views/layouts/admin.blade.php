@@ -7,136 +7,8 @@
 
     <title>@yield('title', 'Dasbor Admin') | SPMB</title>
 
-    <!-- Google Fonts: Outfit -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bs-body-bg);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        /* Premium Micro-animations & Styles */
-        .nav-link {
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 8px;
-            margin: 2px 8px;
-        }
-
-        .nav-link:hover {
-            transform: translateX(4px);
-        }
-
-        .sidebar-brand {
-            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
-            color: white !important;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-        }
-
-        /* Color mode toggle styling */
-        .color-modes {
-            cursor: pointer;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.15);
-            border-radius: 4px;
-        }
-        [data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        /* Custom DataTable Styles for Premium Feel */
-        .dataTables_wrapper .dataTables_length select {
-            border-radius: 8px;
-            padding: 0.375rem 2.25rem 0.375rem 0.75rem;
-            border-color: rgba(0, 0, 0, 0.1);
-        }
-        [data-bs-theme="dark"] .dataTables_wrapper .dataTables_length select {
-            border-color: rgba(255, 255, 255, 0.15);
-            background-color: var(--bs-body-bg);
-            color: var(--bs-body-color);
-        }
-        .dataTables_wrapper .dataTables_filter input {
-            border-radius: 20px;
-            padding: 0.375rem 1rem;
-            border-color: rgba(0, 0, 0, 0.1);
-            background-color: rgba(0, 0, 0, 0.02);
-        }
-        [data-bs-theme="dark"] .dataTables_wrapper .dataTables_filter input {
-            border-color: rgba(255, 255, 255, 0.15);
-            background-color: rgba(255, 255, 255, 0.05);
-            color: var(--bs-body-color);
-        }
-        .dataTables_wrapper .dataTables_info {
-            font-size: 0.85rem;
-            color: #6c757d;
-        }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.page-item .page-link {
-            border-radius: 6px;
-            margin: 0 2px;
-            border: none;
-            font-size: 0.875rem;
-            color: var(--bs-body-color);
-            background-color: transparent;
-            transition: all 0.2s;
-        }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.page-item.active .page-link {
-            background-color: #4f46e5 !important;
-            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
-            color: white !important;
-        }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.page-item:hover .page-link {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-        [data-bs-theme="dark"] .dataTables_wrapper .dataTables_paginate .paginate_button.page-item:hover .page-link {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-        table.dataTable {
-            border-collapse: collapse !important;
-            margin-top: 15px !important;
-            margin-bottom: 15px !important;
-        }
-        table.dataTable thead th {
-            border-bottom: 2px solid rgba(0, 0, 0, 0.05) !important;
-        }
-        [data-bs-theme="dark"] table.dataTable thead th {
-            border-bottom: 2px solid rgba(255, 255, 255, 0.08) !important;
-        }
-        table.dataTable td {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.03) !important;
-        }
-        [data-bs-theme="dark"] table.dataTable td {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-        }
-    </style>
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
     <div class="app-wrapper">
@@ -282,10 +154,7 @@
             <div class="sidebar-wrapper py-3" data-simplebar>
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-                        
                         @can('view-dashboard')
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Inti</li>
-                        
                         <li class="nav-item">
                             <a href="/admin" class="nav-link {{ request()->is('admin') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-speedometer2 me-2"></i>
@@ -293,58 +162,9 @@
                             </a>
                         </li>
                         @endcan
- 
-                        @canany(['user-list', 'role-list', 'permission-list', 'manage-settings'])
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Manajemen</li>
-                        @endcanany
- 
-                        @can('user-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->is('admin/users*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-people me-2"></i>
-                                <p>Pengguna</p>
-                            </a>
-                        </li>
-                        @endcan
- 
-                        @can('role-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->is('admin/roles*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-shield-lock me-2"></i>
-                                <p>Peran</p>
-                            </a>
-                        </li>
-                        @endcan
- 
-                        @can('permission-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.permissions.index') }}" class="nav-link {{ request()->is('admin/permissions*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-key me-2"></i>
-                                <p>Hak Akses</p>
-                            </a>
-                        </li>
-                        @endcan
- 
-                        @can('activity-log-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.activity-logs.index') }}" class="nav-link {{ request()->is('admin/activity-logs*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-journal-text me-2"></i>
-                                <p>Log Aktivitas</p>
-                            </a>
-                        </li>
-                        @endcan
 
-                        @can('manage-settings')
-                        <li class="nav-item">
-                            <a href="#" class="nav-link text-body">
-                                <i class="nav-icon bi bi-gear me-2"></i>
-                                <p>Pengaturan</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @canany(['academic-year-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list', 'document-type-list', 'form-field-list', 'fee-component-list', 'fee-amount-list'])
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Master Data</li>
+                        @canany(['academic-year-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list'])
+                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Data Master</li>
                         @endcanany
 
                         @can('academic-year-list')
@@ -387,10 +207,14 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.admission-waves.index') }}" class="nav-link {{ request()->is('admin/admission-waves*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-water me-2"></i>
-                                <p>Gelombang</p>
+                                <p>Gelombang Pendaftaran</p>
                             </a>
                         </li>
                         @endcan
+
+                        @canany(['document-type-list', 'form-field-list'])
+                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Berkas & Formulir</li>
+                        @endcanany
 
                         @can('document-type-list')
                         <li class="nav-item">
@@ -410,6 +234,10 @@
                         </li>
                         @endcan
 
+                        @canany(['fee-component-list', 'fee-amount-list'])
+                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Biaya</li>
+                        @endcanany
+
                         @can('fee-component-list')
                         <li class="nav-item">
                             <a href="{{ route('admin.fee-components.index') }}" class="nav-link {{ request()->is('admin/fee-components*') ? 'active bg-primary text-white' : 'text-body' }}">
@@ -424,6 +252,59 @@
                             <a href="{{ route('admin.fee-amounts.index') }}" class="nav-link {{ request()->is('admin/fee-amounts*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-cash-stack me-2"></i>
                                 <p>Nominal Biaya</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @canany(['user-list', 'role-list', 'permission-list'])
+                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Pengguna & Akses</li>
+                        @endcanany
+
+                        @can('user-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->is('admin/users*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-people me-2"></i>
+                                <p>Pengguna</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('role-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->is('admin/roles*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-shield-lock me-2"></i>
+                                <p>Peran</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('permission-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.permissions.index') }}" class="nav-link {{ request()->is('admin/permissions*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-key me-2"></i>
+                                <p>Hak Akses</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @canany(['activity-log-list', 'manage-settings'])
+                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Sistem</li>
+                        @endcanany
+
+                        @can('activity-log-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.activity-logs.index') }}" class="nav-link {{ request()->is('admin/activity-logs*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-journal-text me-2"></i>
+                                <p>Log Aktivitas</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('manage-settings')
+                        <li class="nav-item">
+                            <a href="#" class="nav-link text-body">
+                                <i class="nav-icon bi bi-gear me-2"></i>
+                                <p>Pengaturan</p>
                             </a>
                         </li>
                         @endcan
