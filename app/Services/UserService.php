@@ -37,7 +37,7 @@ class UserService implements UserServiceInterface
     {
         // Prevent modifying the Super Admin seed email to avoid breaking the quick-login demo accounts
         if ($user->email === SystemAccess::SUPER_ADMIN_EMAIL && ($data['email'] ?? '') !== SystemAccess::SUPER_ADMIN_EMAIL) {
-            throw new \InvalidArgumentException('Cannot change the email of the core Super Admin account.');
+            throw new \InvalidArgumentException('Email akun Super Admin inti tidak dapat diubah.');
         }
 
         $userData = [
@@ -71,12 +71,12 @@ class UserService implements UserServiceInterface
     {
         // Don't let users delete themselves
         if (Auth::id() === $user->id) {
-            throw new \LogicException('You cannot delete your own account.');
+            throw new \LogicException('Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
         // Don't delete seed SuperAdmin account
         if ($user->email === SystemAccess::SUPER_ADMIN_EMAIL) {
-            throw new \LogicException('Cannot delete the system Super Admin account.');
+            throw new \LogicException('Akun Super Admin sistem tidak dapat dihapus.');
         }
 
         return (bool) $user->delete();

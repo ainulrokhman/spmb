@@ -35,11 +35,11 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             return redirect()->intended('/admin')
-                ->with('success', 'Welcome back, ' . Auth::user()->name . '!');
+                ->with('success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
         }
 
         throw ValidationException::withMessages([
-            'email' => __('The provided credentials do not match our records.'),
+            'email' => __('auth.failed'),
         ]);
     }
 
@@ -53,6 +53,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login')->with('success', 'Logged out successfully.');
+        return redirect('/login')->with('success', 'Berhasil keluar.');
     }
 }

@@ -73,10 +73,10 @@ class FormFieldDataTable
     {
         return function ($formField) {
             if ($formField->is_required) {
-                return '<span class="badge bg-danger bg-opacity-10 text-danger fw-medium py-2 px-3 fs-7 border border-danger border-opacity-20 rounded-pill">Required</span>';
+                return '<span class="badge bg-danger bg-opacity-10 text-danger fw-medium py-2 px-3 fs-7 border border-danger border-opacity-20 rounded-pill">Wajib</span>';
             }
 
-            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Optional</span>';
+            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Opsional</span>';
         };
     }
 
@@ -87,10 +87,10 @@ class FormFieldDataTable
     {
         return function ($formField) {
             if ($formField->is_active) {
-                return '<span class="badge bg-success bg-opacity-10 text-success fw-medium py-2 px-3 fs-7 border border-success border-opacity-20 rounded-pill">Active</span>';
+                return '<span class="badge bg-success bg-opacity-10 text-success fw-medium py-2 px-3 fs-7 border border-success border-opacity-20 rounded-pill">Aktif</span>';
             }
 
-            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Inactive</span>';
+            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Nonaktif</span>';
         };
     }
 
@@ -102,10 +102,10 @@ class FormFieldDataTable
         return function ($formField) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('form-field-edit')) {
-                $html .= '<a href="'.route('admin.form-fields.edit', $formField->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Form Field"><i class="bi bi-pencil-square text-primary"></i> Edit</a>';
+                $html .= '<a href="'.route('admin.form-fields.edit', $formField->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Form Field"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('form-field-delete')) {
-                $html .= '<form action="'.route('admin.form-fields.destroy', $formField->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to delete this form field?\')">';
+                $html .= '<form action="'.route('admin.form-fields.destroy', $formField->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus bidang formulir ini?\')">';
                 $html .= csrf_field().method_field('DELETE');
                 $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Form Field"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';

@@ -65,7 +65,7 @@ class MajorController extends Controller
         $major = $this->majorService->createMajor($request->validated());
 
         return redirect()->route('admin.majors.index')
-            ->with('success', 'Major "'.$major->name.'" created successfully.');
+            ->with('success', 'Jurusan "'.$major->name.'" berhasil dibuat.');
     }
 
     /**
@@ -92,7 +92,7 @@ class MajorController extends Controller
         }
 
         return redirect()->route('admin.majors.index')
-            ->with('success', 'Major "'.$major->name.'" updated successfully.');
+            ->with('success', 'Jurusan "'.$major->name.'" berhasil diperbarui.');
     }
 
     /**
@@ -107,6 +107,6 @@ class MajorController extends Controller
         }
 
         return redirect()->route('admin.majors.index')
-            ->with('success', 'Major deleted successfully.');
+            ->with('success', 'Jurusan berhasil dihapus.');
     }
 }

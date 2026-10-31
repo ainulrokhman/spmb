@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'Users')
-@section('page-title', 'User Management')
+@section('title', 'Pengguna')
+@section('page-title', 'Manajemen Pengguna')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item active" aria-current="page">Users</li>
+    <li class="breadcrumb-item active" aria-current="page">Pengguna</li>
 @endsection
 
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-transparent border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between pt-4 px-4 gap-3">
         <div>
-            <h5 class="mb-0 fw-bold text-body">Registered Users</h5>
-            <p class="text-muted small mb-0">Manage system users, assign roles, and audit access credentials</p>
+            <h5 class="mb-0 fw-bold text-body">Pengguna Terdaftar</h5>
+            <p class="text-muted small mb-0">Kelola pengguna sistem, tetapkan peran, dan audit kredensial akses</p>
         </div>
         
         <div class="d-flex align-items-center gap-3">
@@ -22,7 +22,7 @@
                        name="search" 
                        value="" 
                        class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill" 
-                       placeholder="Search users..." 
+                       placeholder="Cari pengguna..." 
                        style="width: 250px;">
                 <i class="bi bi-search position-absolute text-muted" style="left: 18px; top: 50%; transform: translateY(-50%);"></i>
                 <a href="#" id="clear-search" class="position-absolute text-muted hover-text-dark d-none" style="right: 18px; top: 50%; transform: translateY(-50%);">
@@ -32,7 +32,7 @@
 
             @can('user-create')
             <a href="{{ route('admin.users.create') }}" class="btn btn-primary d-inline-flex align-items-center gap-2 py-2 px-3 fw-medium" style="border-radius: 8px;">
-                <i class="bi bi-person-plus fs-5"></i> Add User
+                <i class="bi bi-person-plus fs-5"></i> Tambah Pengguna
             </a>
             @endcan
         </div>
@@ -58,10 +58,10 @@
             <table class="table table-hover align-middle mb-0" id="users-table" style="width:100%">
                 <thead class="table-light">
                     <tr>
-                        <th class="text-secondary fw-semibold">User Details</th>
-                        <th class="text-secondary fw-semibold">Assigned Roles</th>
-                        <th class="text-secondary fw-semibold">Joined Date</th>
-                        <th style="width: 160px;" class="text-secondary fw-semibold text-end">Actions</th>
+                        <th class="text-secondary fw-semibold">Detail Pengguna</th>
+                        <th class="text-secondary fw-semibold">Peran yang Ditetapkan</th>
+                        <th class="text-secondary fw-semibold">Tanggal Bergabung</th>
+                        <th style="width: 160px;" class="text-secondary fw-semibold text-end">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -90,8 +90,15 @@
             ],
             dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3"l>rt<"d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top"ip>',
             language: {
-                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Loading users...',
-                lengthMenu: "Show _MENU_ entries"
+                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Memuat users...',
+                lengthMenu: "Tampilkan _MENU_ data",
+                search: "Cari:",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                infoFiltered: "(disaring dari _MAX_ total data)",
+                emptyTable: "Tidak ada data tersedia",
+                zeroRecords: "Tidak ada data yang cocok ditemukan",
+                paginate: { first: "Pertama", last: "Terakhir", next: "Berikutnya", previous: "Sebelumnya" }
             },
             drawCallback: function() {
                 // Ensure page-item and page-link are properly applied

@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Fee Mappings')
-@section('page-title', 'Fee Mappings: ' . $schoolUnit->name)
+@section('title', 'Pemetaan Biaya')
+@section('page-title', 'Pemetaan Biaya: ' . $schoolUnit->name)
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('admin.school-units.index') }}" class="text-decoration-none">School Units</a></li>
@@ -17,8 +17,8 @@
 
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="mb-0 fw-bold text-body">Fee Mappings — {{ $schoolUnit->name }}</h5>
-                    <p class="text-muted small mb-0">{{ $schoolUnit->level }} &middot; {{ $schoolUnit->program }}. Choose a mode per component: fixed (set by the system), pilihan (parents pick a tier), or bebas (parents fill the amount, optionally with a minimum). Amounts and tiers are managed under Fee Amounts.</p>
+                    <h5 class="mb-0 fw-bold text-body">Pemetaan Biaya — {{ $schoolUnit->name }}</h5>
+                    <p class="text-muted small mb-0">{{ $schoolUnit->level }} &middot; {{ $schoolUnit->program }}. Pilih mode per komponen: fixed (ditentukan sistem), pilihan (orang tua memilih tingkat), atau bebas (orang tua mengisi nominal, boleh dengan minimum). Nominal dan tingkat dikelola di menu Nominal Biaya.</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     @if($errors->any())
@@ -41,11 +41,11 @@
                                        value="{{ old('mappings.'.$component->id.'.min_amount', $mapping?->min_amount) }}"
                                        class="form-control" style="width: 170px;"
                                        placeholder="Minimum (bebas)"
-                                       aria-label="Minimum amount for {{ $component->name }}">
-                                <select name="mappings[{{ $component->id }}][mode]" class="form-select" style="width: 190px;" aria-label="Mode for {{ $component->name }}">
+                                       aria-label="Jumlah minimum untuk {{ $component->name }}">
+                                <select name="mappings[{{ $component->id }}][mode]" class="form-select" style="width: 190px;" aria-label="Mode untuk {{ $component->name }}">
                                     <option value="unused" {{ old('mappings.'.$component->id.'.mode', $mapping?->mode ?? 'unused') === 'unused' ? 'selected' : '' }}>Tidak Dipakai</option>
                                     @foreach(\App\Models\Fee::MODES as $mode)
-                                        <option value="{{ $mode }}" {{ old('mappings.'.$component->id.'.mode', $mapping?->mode ?? 'unused') === $mode ? 'selected' : '' }}>{{ ucfirst($mode) }}</option>
+                                        <option value="{{ $mode }}" {{ old('mappings.'.$component->id.'.mode', $mapping?->mode ?? 'unused') === $mode ? 'selected' : '' }}>{{ ['fixed' => 'Tetap (fixed)', 'pilihan' => 'Pilihan', 'bebas' => 'Bebas'][$mode] }}</option>
                                     @endforeach
                                 </select>
                                 @if($mapping)
@@ -63,10 +63,10 @@
 
             <div class="d-flex justify-content-end gap-2">
                 <a href="{{ route('admin.school-units.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
-                    Cancel
+                    Batal
                 </a>
                 <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
-                    Save Fee Mappings <i class="bi bi-check-lg ms-1"></i>
+                    Simpan Pemetaan <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>
         </form>

@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'Academic Years')
-@section('page-title', 'Academic Year Management')
+@section('title', 'Tahun Ajaran')
+@section('page-title', 'Manajemen Tahun Ajaran')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item active" aria-current="page">Academic Years</li>
+    <li class="breadcrumb-item active" aria-current="page">Tahun Ajaran</li>
 @endsection
 
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-transparent border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between pt-4 px-4 gap-3">
         <div>
-            <h5 class="mb-0 fw-bold text-body">Academic Years</h5>
-            <p class="text-muted small mb-0">Manage academic years; only one can be active</p>
+            <h5 class="mb-0 fw-bold text-body">Tahun Ajaran</h5>
+            <p class="text-muted small mb-0">Kelola tahun ajaran; hanya satu yang boleh aktif</p>
         </div>
 
         <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -22,7 +22,7 @@
                        name="search"
                        value=""
                        class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill"
-                       placeholder="Search academic years..."
+                       placeholder="Cari tahun ajaran..."
                        style="width: 250px;">
                 <i class="bi bi-search position-absolute text-muted" style="left: 18px; top: 50%; transform: translateY(-50%);"></i>
                 <a href="#" id="clear-search" class="position-absolute text-muted hover-text-dark d-none" style="right: 18px; top: 50%; transform: translateY(-50%);">
@@ -32,7 +32,7 @@
 
             @can('academic-year-create')
             <a href="{{ route('admin.academic-years.create') }}" class="btn btn-primary d-inline-flex align-items-center gap-2 py-2 px-3 fw-medium" style="border-radius: 8px;">
-                <i class="bi bi bi-calendar-plus fs-5"></i> Create New Academic Year
+                <i class="bi bi bi-calendar-plus fs-5"></i> Tambah Tahun Ajaran
             </a>
             @endcan
         </div>
@@ -57,9 +57,9 @@
             <table class="table table-hover align-middle mb-0" id="academic-years-table" style="width:100%">
                 <thead class="table-light">
                     <tr>
-                        <th class="text-secondary fw-semibold">Name</th>
+                        <th class="text-secondary fw-semibold">Nama</th>
                         <th class="text-secondary fw-semibold">Status</th>
-                        <th style="width: 180px;" class="text-secondary fw-semibold text-end">Actions</th>
+                        <th style="width: 180px;" class="text-secondary fw-semibold text-end">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,8 +87,15 @@
             ],
             dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3"l>rt<"d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top"ip>',
             language: {
-                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Loading academic years...',
-                lengthMenu: "Show _MENU_ entries"
+                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Memuat academic years...',
+                lengthMenu: "Tampilkan _MENU_ data",
+                search: "Cari:",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                infoFiltered: "(disaring dari _MAX_ total data)",
+                emptyTable: "Tidak ada data tersedia",
+                zeroRecords: "Tidak ada data yang cocok ditemukan",
+                paginate: { first: "Pertama", last: "Terakhir", next: "Berikutnya", previous: "Sebelumnya" }
             },
             drawCallback: function() {
                 $('.dataTables_paginate .paginate_button').addClass('page-item');

@@ -61,7 +61,7 @@ class FormFieldService implements FormFieldServiceInterface
         $options = $isChoice ? $this->parseOptions($data['options_text'] ?? null) : [];
 
         if ($isChoice && $options === []) {
-            throw new InvalidArgumentException('Choice fields (select, radio, checkbox) need at least one option.');
+            throw new InvalidArgumentException('Bidang pilihan (select, radio, checkbox) wajib memiliki minimal satu pilihan.');
         }
 
         return [

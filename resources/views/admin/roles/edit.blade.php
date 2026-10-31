@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Role')
+@section('title', 'Ubah Peran')
 @section('page-title', 'Edit Role: ' . $role->name)
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('admin.roles.index') }}" class="text-decoration-none">Roles</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    <li class="breadcrumb-item active" aria-current="page">Ubah</li>
 @endsection
 
 @section('content')
@@ -25,12 +25,12 @@
             
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="mb-0 fw-bold text-body">Role Details</h5>
-                    <p class="text-muted small mb-0">Modify basic properties of the role</p>
+                    <h5 class="mb-0 fw-bold text-body">Detail Peran</h5>
+                    <p class="text-muted small mb-0">Ubah properti dasar peran</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     <div class="mb-3">
-                        <label for="name" class="form-label fw-semibold text-secondary">Role Name</label>
+                        <label for="name" class="form-label fw-semibold text-secondary">Nama Peran</label>
                         <input type="text" 
                                class="form-control @error('name') is-invalid @enderror" 
                                id="name" 
@@ -44,9 +44,9 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         @if(in_array($role->name, ['Admin', 'User']))
-                            <div class="form-text text-warning small"><i class="bi bi-info-circle-fill me-1"></i> This is a system-defined role. The name cannot be modified to prevent system breaking.</div>
+                            <div class="form-text text-warning small"><i class="bi bi-info-circle-fill me-1"></i> Ini adalah peran bawaan sistem. Nama tidak dapat diubah agar sistem tidak rusak.</div>
                         @else
-                            <div class="form-text text-muted small">The name must be unique. CamelCase or spaces are allowed.</div>
+                            <div class="form-text text-muted small">Nama harus unik. CamelCase atau spasi diperbolehkan.</div>
                         @endif
                     </div>
                 </div>
@@ -55,8 +55,8 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex align-items-center justify-content-between">
                     <div>
-                        <h5 class="mb-0 fw-bold text-body">Configure Permissions</h5>
-                        <p class="text-muted small mb-0">Assign or revoke specific system abilities</p>
+                        <h5 class="mb-0 fw-bold text-body">Atur Hak Akses</h5>
+                        <p class="text-muted small mb-0">Tetapkan atau cabut kemampuan sistem tertentu</p>
                     </div>
                     <div>
                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 me-2" onclick="toggleAllPermissions(true)">
@@ -115,7 +115,7 @@
                     @else
                         <div class="text-center py-4">
                             <i class="bi bi-shield-slash fs-2 text-muted mb-2"></i>
-                            <p class="text-muted small mb-0">No permissions exist in the database.</p>
+                            <p class="text-muted small mb-0">Belum ada hak akses di database.</p>
                         </div>
                     @endif
                 </div>
@@ -124,10 +124,10 @@
             <!-- Form Actions -->
             <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
                 <a href="{{ route('admin.roles.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
-                    Cancel
+                    Batal
                 </a>
                 <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
-                    Save Changes <i class="bi bi-check-lg ms-1"></i>
+                    Simpan Perubahan <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>
 

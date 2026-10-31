@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit User')
+@section('title', 'Ubah Pengguna')
 @section('page-title', 'Edit User: ' . $user->name)
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}" class="text-decoration-none">Users</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    <li class="breadcrumb-item active" aria-current="page">Ubah</li>
 @endsection
 
 @section('content')
@@ -25,14 +25,14 @@
             
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="mb-0 fw-bold text-body">User Profile Information</h5>
+                    <h5 class="mb-0 fw-bold text-body">Informasi Profil Pengguna</h5>
                     <p class="text-muted small mb-0">Update the profile data for this account</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     <div class="row g-3">
                         <!-- Name Field -->
                         <div class="col-12">
-                            <label for="name" class="form-label fw-semibold text-secondary">Full Name</label>
+                            <label for="name" class="form-label fw-semibold text-secondary">Nama Lengkap</label>
                             <input type="text" 
                                    class="form-control @error('name') is-invalid @enderror" 
                                    id="name" 
@@ -47,7 +47,7 @@
 
                         <!-- Email Field -->
                         <div class="col-12">
-                            <label for="email" class="form-label fw-semibold text-secondary">Email Address</label>
+                            <label for="email" class="form-label fw-semibold text-secondary">Alamat Email</label>
                             <input type="email" 
                                    class="form-control @error('email') is-invalid @enderror" 
                                    id="email" 
@@ -60,7 +60,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             @if($user->email === \App\Support\SystemAccess::SUPER_ADMIN_EMAIL)
-                                <div class="form-text text-warning small"><i class="bi bi-info-circle-fill me-1"></i> This is the main system Super Admin account. The email cannot be modified.</div>
+                                <div class="form-text text-warning small"><i class="bi bi-info-circle-fill me-1"></i> Ini adalah akun Super Admin utama sistem. Email tidak dapat diubah.</div>
                             @endif
                         </div>
                     </div>
@@ -69,14 +69,14 @@
 
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="mb-0 fw-bold text-body">Update Credentials</h5>
-                    <p class="text-muted small mb-0">Leave password fields blank to keep current credentials unchanged</p>
+                    <h5 class="mb-0 fw-bold text-body">Perbarui Kredensial</h5>
+                    <p class="text-muted small mb-0">Kosongkan field kata sandi agar kredensial saat ini tidak berubah</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     <div class="row g-3">
                         <!-- Password Field -->
                         <div class="col-12 col-md-6">
-                            <label for="password" class="form-label fw-semibold text-secondary">New Password</label>
+                            <label for="password" class="form-label fw-semibold text-secondary">Kata Sandi Baru</label>
                             <input type="password" 
                                    class="form-control @error('password') is-invalid @enderror" 
                                    id="password" 
@@ -89,7 +89,7 @@
 
                         <!-- Password Confirmation -->
                         <div class="col-12 col-md-6">
-                            <label for="password_confirmation" class="form-label fw-semibold text-secondary">Confirm New Password</label>
+                            <label for="password_confirmation" class="form-label fw-semibold text-secondary">Konfirmasi Kata Sandi Baru</label>
                             <input type="password" 
                                    class="form-control" 
                                    id="password_confirmation" 
@@ -102,8 +102,8 @@
 
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="mb-0 fw-bold text-body">Assign System Roles</h5>
-                    <p class="text-muted small mb-0">Select roles to control user permissions</p>
+                    <h5 class="mb-0 fw-bold text-body">Tetapkan Peran Sistem</h5>
+                    <p class="text-muted small mb-0">Pilih peran untuk mengatur hak akses pengguna</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     @if(count($roles) > 0)
@@ -152,7 +152,7 @@
                     @else
                         <div class="text-center py-3">
                             <i class="bi bi-shield-slash fs-3 text-muted mb-2"></i>
-                            <p class="text-muted small mb-0">No roles are created yet.</p>
+                            <p class="text-muted small mb-0">Belum ada peran yang dibuat.</p>
                         </div>
                     @endif
                 </div>
@@ -161,10 +161,10 @@
             <!-- Form Actions -->
             <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
                 <a href="{{ route('admin.users.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
-                    Cancel
+                    Batal
                 </a>
                 <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
-                    Save Changes <i class="bi bi-check-lg ms-1"></i>
+                    Simpan Perubahan <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>
 

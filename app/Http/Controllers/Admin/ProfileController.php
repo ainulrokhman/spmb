@@ -40,6 +40,6 @@ class ProfileController extends Controller
         $this->profileService->updateProfile($user, $request->validated());
 
         return redirect()->route('admin.profile.edit')
-            ->with('success', 'Profile updated successfully.');
+            ->with('success', 'Profil berhasil diperbarui.');
     }
 }

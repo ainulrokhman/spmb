@@ -62,7 +62,7 @@ class FeeComponentController extends Controller
         }
 
         return redirect()->route('admin.fee-components.index')
-            ->with('success', 'Fee component created successfully.');
+            ->with('success', 'Komponen biaya berhasil dibuat.');
     }
 
     /**
@@ -87,7 +87,7 @@ class FeeComponentController extends Controller
         }
 
         return redirect()->route('admin.fee-components.index')
-            ->with('success', 'Fee component "'.$feeComponent->name.'" updated successfully.');
+            ->with('success', 'Komponen biaya "'.$feeComponent->name.'" berhasil diperbarui.');
     }
 
     /**
@@ -102,6 +102,6 @@ class FeeComponentController extends Controller
         }
 
         return redirect()->route('admin.fee-components.index')
-            ->with('success', 'Fee component deleted successfully.');
+            ->with('success', 'Fee component berhasil dihapus.');
     }
 }

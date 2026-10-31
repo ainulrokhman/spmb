@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Form Field')
-@section('page-title', 'Edit Form Field: ' . $formField->label)
+@section('title', 'Ubah Bidang Formulir')
+@section('page-title', 'Ubah Bidang Formulir: ' . $formField->label)
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('admin.form-fields.index') }}" class="text-decoration-none">Form Fields</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    <li class="breadcrumb-item active" aria-current="page">Ubah</li>
 @endsection
 
 @section('content')
@@ -14,7 +14,7 @@
         <form action="{{ route('admin.form-fields.update', $formField->id) }}" method="POST">
             @csrf
             @method('PUT')
-            @include('admin.form-fields._form', ['submitLabel' => 'Save Changes'])
+            @include('admin.form-fields._form', ['submitLabel' => 'Simpan Perubahan'])
         </form>
     </div>
 </div>

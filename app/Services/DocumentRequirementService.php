@@ -32,7 +32,7 @@ class DocumentRequirementService implements DocumentRequirementServiceInterface
 
             foreach ($levels as $documentTypeId => $level) {
                 if (! in_array($level, DocumentRequirement::LEVELS, true)) {
-                    throw new InvalidArgumentException('Unknown document requirement level "'.$level.'".');
+                    throw new InvalidArgumentException('Tingkat syarat berkas tidak dikenal "'.$level.'".');
                 }
 
                 DocumentRequirement::updateOrCreate(

@@ -49,6 +49,6 @@ class DocumentRequirementController extends Controller
         }
 
         return redirect()->route('admin.school-units.index')
-            ->with('success', 'Document requirements for "'.$schoolUnit->name.'" updated successfully.');
+            ->with('success', 'Syarat berkas untuk "'.$schoolUnit->name.'" berhasil diperbarui.');
     }
 }

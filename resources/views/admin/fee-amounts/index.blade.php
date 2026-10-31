@@ -1,30 +1,30 @@
 @extends('layouts.admin')
 
-@section('title', 'Fee Amounts')
-@section('page-title', 'Fee Amount Management')
+@section('title', 'Nominal Biaya')
+@section('page-title', 'Manajemen Nominal Biaya')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item active" aria-current="page">Fee Amounts</li>
+    <li class="breadcrumb-item active" aria-current="page">Nominal Biaya</li>
 @endsection
 
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-transparent border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between pt-4 px-4 gap-3">
         <div>
-            <h5 class="mb-0 fw-bold text-body">Fee Amounts</h5>
-            <p class="text-muted small mb-0">Amounts and tiers per unit fee mapping; the most specific rule wins (track + gender, then track, then gender, then global)</p>
+            <h5 class="mb-0 fw-bold text-body">Nominal Biaya</h5>
+            <p class="text-muted small mb-0">Nominal dan tingkat per pemetaan biaya unit; aturan paling spesifik yang menang (jalur + jender, lalu jalur, lalu jender, lalu global)</p>
         </div>
 
         <div class="d-flex align-items-center gap-3 flex-wrap">
-            <select id="unit-filter" aria-label="Filter by school unit" class="form-select bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 rounded-pill" style="width: 200px;">
-                <option value="">All Units</option>
+            <select id="unit-filter" aria-label="Filter berdasarkan unit sekolah" class="form-select bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 rounded-pill" style="width: 200px;">
+                <option value="">Semua Unit</option>
                 @foreach($units as $unit)
                     <option value="{{ $unit->id }}">{{ $unit->name }}</option>
                 @endforeach
             </select>
 
-            <select id="component-filter" aria-label="Filter by fee component" class="form-select bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 rounded-pill" style="width: 200px;">
-                <option value="">All Components</option>
+            <select id="component-filter" aria-label="Filter berdasarkan komponen biaya" class="form-select bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 rounded-pill" style="width: 200px;">
+                <option value="">Semua Komponen</option>
                 @foreach($components as $component)
                     <option value="{{ $component->id }}">{{ $component->name }}</option>
                 @endforeach
@@ -32,11 +32,11 @@
 
             <form id="search-form" class="position-relative" onsubmit="return false;">
                 <input type="text"
-                       aria-label="Search fee amounts"
+                       aria-label="Cari nominal biaya"
                        name="search"
                        value=""
                        class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill"
-                       placeholder="Search fee amounts..."
+                       placeholder="Cari nominal biaya..."
                        style="width: 230px;">
                 <i class="bi bi-search position-absolute text-muted" style="left: 18px; top: 50%; transform: translateY(-50%);"></i>
                 <a href="#" id="clear-search" class="position-absolute text-muted hover-text-dark d-none" style="right: 18px; top: 50%; transform: translateY(-50%);">
@@ -46,7 +46,7 @@
 
             @can('fee-amount-create')
             <a href="{{ route('admin.fee-amounts.create') }}" class="btn btn-primary d-inline-flex align-items-center gap-2 py-2 px-3 fw-medium" style="border-radius: 8px;">
-                <i class="bi bi-cash-stack fs-5"></i> Create New Amount
+                <i class="bi bi-cash-stack fs-5"></i> Tambah Nominal
             </a>
             @endcan
         </div>
@@ -71,11 +71,11 @@
             <table class="table table-hover align-middle mb-0" id="fee-amounts-table" style="width:100%">
                 <thead class="table-light">
                     <tr>
-                        <th class="text-secondary fw-semibold">Unit &amp; Component</th>
-                        <th class="text-secondary fw-semibold">Scope</th>
-                        <th class="text-secondary fw-semibold">Amount</th>
-                        <th class="text-secondary fw-semibold">Order</th>
-                        <th style="width: 180px;" class="text-secondary fw-semibold text-end">Actions</th>
+                        <th class="text-secondary fw-semibold">Unit &amp; Komponen</th>
+                        <th class="text-secondary fw-semibold">Lingkup</th>
+                        <th class="text-secondary fw-semibold">Nominal</th>
+                        <th class="text-secondary fw-semibold">Urutan</th>
+                        <th style="width: 180px;" class="text-secondary fw-semibold text-end">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -117,8 +117,15 @@
             ],
             dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3"l>rt<"d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top"ip>',
             language: {
-                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Loading fee amounts...',
-                lengthMenu: "Show _MENU_ entries"
+                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Memuat fee amounts...',
+                lengthMenu: "Tampilkan _MENU_ data",
+                search: "Cari:",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                infoFiltered: "(disaring dari _MAX_ total data)",
+                emptyTable: "Tidak ada data tersedia",
+                zeroRecords: "Tidak ada data yang cocok ditemukan",
+                paginate: { first: "Pertama", last: "Terakhir", next: "Berikutnya", previous: "Sebelumnya" }
             },
             drawCallback: function() {
                 $('.dataTables_paginate .paginate_button').addClass('page-item');

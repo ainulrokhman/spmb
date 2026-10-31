@@ -42,10 +42,10 @@ class FeeComponentDataTable
     {
         return function ($feeComponent) {
             if ($feeComponent->is_active) {
-                return '<span class="badge bg-success bg-opacity-10 text-success fw-medium py-2 px-3 fs-7 border border-success border-opacity-20 rounded-pill">Active</span>';
+                return '<span class="badge bg-success bg-opacity-10 text-success fw-medium py-2 px-3 fs-7 border border-success border-opacity-20 rounded-pill">Aktif</span>';
             }
 
-            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Inactive</span>';
+            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Nonaktif</span>';
         };
     }
 
@@ -57,10 +57,10 @@ class FeeComponentDataTable
         return function ($feeComponent) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('fee-component-edit')) {
-                $html .= '<a href="'.route('admin.fee-components.edit', $feeComponent->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Fee Component"><i class="bi bi-pencil-square text-primary"></i> Edit</a>';
+                $html .= '<a href="'.route('admin.fee-components.edit', $feeComponent->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Fee Component"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('fee-component-delete')) {
-                $html .= '<form action="'.route('admin.fee-components.destroy', $feeComponent->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to delete this fee component? Its unit mappings and amounts will also be deleted.\')">';
+                $html .= '<form action="'.route('admin.fee-components.destroy', $feeComponent->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus komponen biaya ini? Pemetaan unit dan nominalnya juga akan terhapus.\')">';
                 $html .= csrf_field().method_field('DELETE');
                 $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Fee Component"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';

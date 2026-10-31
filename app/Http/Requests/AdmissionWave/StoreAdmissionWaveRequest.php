@@ -42,7 +42,7 @@ class StoreAdmissionWaveRequest extends FormRequest
             $unitId = $this->input('school_unit_id');
 
             if ($unitId && ! AdmissionTrack::where('id', $value)->where('school_unit_id', $unitId)->exists()) {
-                $fail('The selected admission track does not belong to the chosen school unit.');
+                $fail('The selected admission track tidak termasuk dalam unit sekolah yang dipilih.');
             }
         };
     }

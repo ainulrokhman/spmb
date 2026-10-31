@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Activity Logs')
-@section('page-title', 'Audit Activity Logs')
+@section('title', 'Log Aktivitas')
+@section('page-title', 'Audit Log Aktivitas')
 
 @section('breadcrumb')
     <li class="breadcrumb-item active" aria-current="page">Activity Logs</li>
@@ -11,7 +11,7 @@
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-transparent border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between pt-4 px-4 gap-3">
         <div>
-            <h5 class="mb-0 fw-bold text-body">System Activities</h5>
+            <h5 class="mb-0 fw-bold text-body">Aktivitas Sistem</h5>
             <p class="text-muted small mb-0">Track all model modifications, creations, deletions, and actor details</p>
         </div>
         
@@ -38,11 +38,11 @@
                 <thead class="table-light">
                     <tr>
                         <th style="width: 80px;" class="text-secondary fw-semibold">ID</th>
-                        <th class="text-secondary fw-semibold">Actor</th>
-                        <th class="text-secondary fw-semibold">Action</th>
-                        <th class="text-secondary fw-semibold">Subject</th>
-                        <th class="text-secondary fw-semibold">Occurred At</th>
-                        <th style="width: 120px;" class="text-secondary fw-semibold text-end">Details</th>
+                        <th class="text-secondary fw-semibold">Pelaku</th>
+                        <th class="text-secondary fw-semibold">Aksi</th>
+                        <th class="text-secondary fw-semibold">Subjek</th>
+                        <th class="text-secondary fw-semibold">Waktu Kejadian</th>
+                        <th style="width: 120px;" class="text-secondary fw-semibold text-end">Detail</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,17 +57,17 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-bottom px-4">
-                <h5 class="modal-title fw-bold text-body" id="detailsModalLabel">Activity Log Details</h5>
+                <h5 class="modal-title fw-bold text-body" id="detailsModalLabel">Detail Log Aktivitas</h5>
                 <button type="button" class="btn-close" data-bs-redirect="modal" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="row g-3 mb-4">
                     <div class="col-6 col-sm-3">
-                        <span class="text-muted d-block small text-uppercase fw-semibold">Actor</span>
+                        <span class="text-muted d-block small text-uppercase fw-semibold">Pelaku</span>
                         <span id="modal-actor" class="fw-medium text-body">N/A</span>
                     </div>
                     <div class="col-6 col-sm-3">
-                        <span class="text-muted d-block small text-uppercase fw-semibold">Action</span>
+                        <span class="text-muted d-block small text-uppercase fw-semibold">Aksi</span>
                         <span id="modal-action" class="fw-medium text-body">N/A</span>
                     </div>
                     <div class="col-6 col-sm-3">
@@ -114,8 +114,15 @@
             order: [[0, 'desc']],
             dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3"l>rt<"d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top"ip>',
             language: {
-                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Loading logs...',
-                lengthMenu: "Show _MENU_ entries"
+                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Memuat logs...',
+                lengthMenu: "Tampilkan _MENU_ data",
+                search: "Cari:",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                infoFiltered: "(disaring dari _MAX_ total data)",
+                emptyTable: "Tidak ada data tersedia",
+                zeroRecords: "Tidak ada data yang cocok ditemukan",
+                paginate: { first: "Pertama", last: "Terakhir", next: "Berikutnya", previous: "Sebelumnya" }
             },
             drawCallback: function() {
                 $('.dataTables_paginate .paginate_button').addClass('page-item');

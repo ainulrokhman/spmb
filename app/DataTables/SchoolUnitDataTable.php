@@ -74,10 +74,10 @@ class SchoolUnitDataTable
     {
         return function ($schoolUnit) {
             if ($schoolUnit->is_active) {
-                return '<span class="badge bg-success bg-opacity-10 text-success fw-medium py-2 px-3 fs-7 border border-success border-opacity-20 rounded-pill">Active</span>';
+                return '<span class="badge bg-success bg-opacity-10 text-success fw-medium py-2 px-3 fs-7 border border-success border-opacity-20 rounded-pill">Aktif</span>';
             }
 
-            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Inactive</span>';
+            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Nonaktif</span>';
         };
     }
 
@@ -91,10 +91,10 @@ class SchoolUnitDataTable
             if (auth()->user()->can('school-unit-edit')) {
                 $html .= '<a href="'.route('admin.school-units.document-requirements.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Document Requirements"><i class="bi bi-folder2-open text-warning"></i> Berkas</a>';
                 $html .= '<a href="'.route('admin.school-units.fees.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Fee Mappings"><i class="bi bi-cash-stack text-success"></i> Biaya</a>';
-                $html .= '<a href="'.route('admin.school-units.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit School Unit"><i class="bi bi-pencil-square text-primary"></i> Edit</a>';
+                $html .= '<a href="'.route('admin.school-units.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit School Unit"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('school-unit-delete')) {
-                $html .= '<form action="'.route('admin.school-units.destroy', $schoolUnit->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to delete this school unit? Its admission tracks and majors will also be deleted.\')">';
+                $html .= '<form action="'.route('admin.school-units.destroy', $schoolUnit->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus unit sekolah ini? Jalur pendaftaran dan jurusannya juga akan terhapus.\')">';
                 $html .= csrf_field().method_field('DELETE');
                 $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete School Unit"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';

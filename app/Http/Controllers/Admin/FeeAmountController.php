@@ -69,7 +69,7 @@ class FeeAmountController extends Controller
         }
 
         return redirect()->route('admin.fee-amounts.index')
-            ->with('success', 'Fee amount created successfully.');
+            ->with('success', 'Nominal biaya berhasil dibuat.');
     }
 
     /**
@@ -97,7 +97,7 @@ class FeeAmountController extends Controller
         }
 
         return redirect()->route('admin.fee-amounts.index')
-            ->with('success', 'Fee amount updated successfully.');
+            ->with('success', 'Nominal biaya berhasil diperbarui.');
     }
 
     /**
@@ -112,7 +112,7 @@ class FeeAmountController extends Controller
         }
 
         return redirect()->route('admin.fee-amounts.index')
-            ->with('success', 'Fee amount deleted successfully.');
+            ->with('success', 'Nominal biaya berhasil dihapus.');
     }
 
     /**

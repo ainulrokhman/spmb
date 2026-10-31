@@ -66,7 +66,9 @@ class ActivityLogDataTable
                 $badgeClass = 'bg-danger';
             }
 
-            return '<span class="badge '.$badgeClass.' bg-opacity-10 text-'.str_replace('bg-', '', $badgeClass).' border border-'.str_replace('bg-', '', $badgeClass).' border-opacity-20 px-2.5 py-1.5 small fw-semibold text-uppercase">'.e($event).'</span>';
+            $eventLabel = ['created' => 'Dibuat', 'updated' => 'Diperbarui', 'deleted' => 'Dihapus'][$event] ?? $event;
+
+            return '<span class="badge '.$badgeClass.' bg-opacity-10 text-'.str_replace('bg-', '', $badgeClass).' border border-'.str_replace('bg-', '', $badgeClass).' border-opacity-20 px-2.5 py-1.5 small fw-semibold text-uppercase">'.e($eventLabel).'</span>';
         };
     }
 
@@ -125,7 +127,7 @@ class ActivityLogDataTable
                             data-event="'.e($log->event ?? $log->description).'" 
                             data-subject="'.e(class_basename($log->subject_type ?? 'N/A')).'"
                             data-time="'.$log->created_at->toDateTimeString().'"
-                            title="View Properties">
+                            title="Lihat Properti">
                         <i class="bi bi-eye text-primary me-1"></i> Details
                     </button>
                 </div>';

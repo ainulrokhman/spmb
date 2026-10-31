@@ -80,7 +80,7 @@ class AdmissionWaveService implements AdmissionWaveServiceInterface
                 ->count();
 
             if ($ownedCount !== count($trackIds)) {
-                throw new InvalidArgumentException('Admission tracks must belong to the same school unit as the wave.');
+                throw new InvalidArgumentException('Jalur pendaftaran harus milik unit sekolah yang sama dengan gelombang.');
             }
         }
 
