@@ -74,6 +74,16 @@ class RolesAndPermissionsSeeder extends Seeder
             'form-field-edit',
             'form-field-delete',
 
+            'fee-component-list',
+            'fee-component-create',
+            'fee-component-edit',
+            'fee-component-delete',
+
+            'fee-amount-list',
+            'fee-amount-create',
+            'fee-amount-edit',
+            'fee-amount-delete',
+
             'manage-settings',
             'activity-log-list',
         ];
@@ -140,6 +150,16 @@ class RolesAndPermissionsSeeder extends Seeder
             'form-field-create',
             'form-field-edit',
             'form-field-delete',
+
+            'fee-component-list',
+            'fee-component-create',
+            'fee-component-edit',
+            'fee-component-delete',
+
+            'fee-amount-list',
+            'fee-amount-create',
+            'fee-amount-edit',
+            'fee-amount-delete',
         ]);
 
         // SuperAdmin Role

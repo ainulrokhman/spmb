@@ -75,6 +75,14 @@ class SchoolUnit extends Model
     }
 
     /**
+     * Fee mappings defined for this unit.
+     */
+    public function fees(): HasMany
+    {
+        return $this->hasMany(Fee::class);
+    }
+
+    /**
      * Dynamic form fields defined for this unit.
      */
     public function formFields(): HasMany

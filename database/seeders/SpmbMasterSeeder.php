@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\DocumentType;
+use App\Models\FeeComponent;
 use Illuminate\Database\Seeder;
 
 class SpmbMasterSeeder extends Seeder
@@ -28,6 +29,20 @@ class SpmbMasterSeeder extends Seeder
             DocumentType::firstOrCreate(
                 ['code' => $documentType['code']],
                 array_merge($documentType, ['is_active' => true])
+            );
+        }
+
+        $feeComponents = [
+            ['code' => 'SPI', 'name' => 'Sumbangan Pengembangan Institusi'],
+            ['code' => 'SOP', 'name' => 'Sumbangan Operasional Pendidikan'],
+            ['code' => 'DU', 'name' => 'Daftar Ulang'],
+            ['code' => 'INFAQ', 'name' => 'Infaq'],
+        ];
+
+        foreach ($feeComponents as $feeComponent) {
+            FeeComponent::firstOrCreate(
+                ['code' => $feeComponent['code']],
+                array_merge($feeComponent, ['is_active' => true])
             );
         }
     }
