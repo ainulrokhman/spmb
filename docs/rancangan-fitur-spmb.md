@@ -38,10 +38,11 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
 
 ### 2.2 Unit Sekolah (`school_units`) — poros sistem
 
-- Kolom: `name`, `code` (unik, mis. `PAUD`, `SMK`; dipakai pada nomor
-  pendaftaran), `level` (salah satu dari: PAUD/TK, SD/MI, SMP/MTs, SMA,
-  SMK, MA), `offers_regular` (bool), `offers_boarding` (bool),
-  `address`, `phone`, `is_active`.
+- Kolom: `name`, `code` (kode numerik **2 digit**, unik, mis. `01`,
+  `02`; disimpan sebagai teks agar angka nol di depan tidak hilang;
+  dipakai pada nomor pendaftaran), `level` (salah satu dari: PAUD/TK,
+  SD/MI, SMP/MTs, SMA, SMK, MA), `offers_regular` (bool),
+  `offers_boarding` (bool), `address`, `phone`, `is_active`.
 
 ### 2.3 Jalur Pendaftaran (`admission_tracks`) — per unit
 
@@ -96,8 +97,12 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
   2. Pilih Gelombang & Jalur (dan Jurusan bila unit memilikinya)
   3. Isi formulir dinamis unit tersebut
   4. Unggah berkas sesuai Syarat Berkas unit (wajib harus lengkap)
-- **Nomor pendaftaran** terbit saat pendaftaran dikirim, format usulan:
-  `{KODE_UNIT}-{TAHUN_MASUK}-{NOMOR_URUT}`, mis. `SMK-2026-0001`.
+- **Nomor pendaftaran** terbit saat pendaftaran dikirim, dengan format
+  gabungan 7 digit: kode unit 2 digit + tahun awal tahun ajaran
+  2 digit + nomor urut 3 digit. Contoh: unit berkode `03`, tahun ajaran
+  2026/2027, pendaftar ke-7 → **`0326007`**. Nomor urut berjalan per
+  unit per tahun ajaran (kembali ke 001 setiap tahun ajaran baru);
+  bila urutan melewati 999, digit ditampilkan apa adanya.
 - Pendaftaran dapat disimpan sebagai draf dan diubah selama belum
   diverifikasi panitia dan gelombang belum ditutup.
 - Status alur pendaftaran:
@@ -183,7 +188,8 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
 
 ## 8. Keputusan Terbuka (menunggu pemilik proyek)
 
-1. Format nomor pendaftaran (usulan Bab 3) — disahkan atau diganti.
+1. ~~Format nomor pendaftaran~~ — **SUDAH DIPUTUSKAN** (Bab 3):
+   kode unit 2 digit + tahun awal 2 digit + nomor urut 3 digit.
 2. Pendaftaran memakai akun pendaftar (usulan rancangan ini) atau
    formulir tanpa akun.
 3. Seleksi cukup verifikasi berkas & penetapan manual (usulan v1), atau
