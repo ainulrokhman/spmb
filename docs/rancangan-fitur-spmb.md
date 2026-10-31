@@ -38,11 +38,17 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
 
 ### 2.2 Unit Sekolah (`school_units`) — poros sistem
 
-- Kolom: `name`, `code` (kode numerik **2 digit**, unik, mis. `01`,
-  `02`; disimpan sebagai teks agar angka nol di depan tidak hilang;
-  dipakai pada nomor pendaftaran), `level` (salah satu dari: PAUD/TK,
-  SD/MI, SMP/MTs, SMA, SMK, MA), `offers_regular` (bool),
-  `offers_boarding` (bool), `address`, `phone`, `is_active`.
+- Kolom: `name`, `code` (kode numerik **2 digit**, unik, diisi bebas
+  oleh panitia; disimpan sebagai teks agar angka nol di depan tidak
+  hilang; dipakai pada nomor pendaftaran), `level` (salah satu dari:
+  PAUD/TK, SD/MI, SMP/MTs, SMA, SMK, MA), `program` (**Reguler** atau
+  **Boarding**), `address`, `phone`, `is_active`.
+- **Satu satuan = satu jenjang + satu program.** Sekolah yang membuka
+  program Reguler dan Boarding didaftarkan sebagai dua satuan terpisah
+  — mis. `31` SMP Reguler dan `32` SMP Boarding (skema digit adalah
+  konvensi panitia, sistem hanya mewajibkan 2 digit dan unik). Dengan
+  begitu gelombang, jalur, berkas, formulir, dan biaya otomatis
+  terpisah mengikuti satuannya.
 
 ### 2.3 Jalur Pendaftaran (`admission_tracks`) — per unit
 
@@ -93,8 +99,9 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
 - Halaman info publik menampilkan unit yang membuka pendaftaran beserta
   gelombang yang sedang berjalan.
 - Pendaftar membuat akun (role **Pendaftar**) lalu mengisi pendaftaran:
-  1. Pilih Unit → Program (Reguler/Boarding, sesuai yang ditawarkan unit)
-  2. Pilih Gelombang & Jalur (dan Jurusan bila unit memilikinya)
+  1. Pilih Satuan (jenjang + program Reguler/Boarding melekat pada
+     satuan yang dipilih)
+  2. Pilih Gelombang & Jalur (dan Jurusan bila satuan memilikinya)
   3. Isi formulir dinamis unit tersebut
   4. Unggah berkas sesuai Syarat Berkas unit (wajib harus lengkap)
 - **Nomor pendaftaran** terbit saat pendaftaran dikirim, dengan format
