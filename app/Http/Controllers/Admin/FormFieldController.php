@@ -67,7 +67,7 @@ class FormFieldController extends Controller
         }
 
         return redirect()->route('admin.form-fields.index')
-            ->with('success', 'Form field created successfully.');
+            ->with('success', 'Bidang formulir berhasil dibuat.');
     }
 
     /**
@@ -94,7 +94,7 @@ class FormFieldController extends Controller
         }
 
         return redirect()->route('admin.form-fields.index')
-            ->with('success', 'Form field "'.$formField->label.'" updated successfully.');
+            ->with('success', 'Bidang formulir "'.$formField->label.'" berhasil diperbarui.');
     }
 
     /**
@@ -109,7 +109,7 @@ class FormFieldController extends Controller
         }
 
         return redirect()->route('admin.form-fields.index')
-            ->with('success', 'Form field deleted successfully.');
+            ->with('success', 'Form field berhasil dihapus.');
     }
 
     /**

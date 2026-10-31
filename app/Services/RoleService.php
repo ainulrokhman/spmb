@@ -34,13 +34,13 @@ class RoleService implements RoleServiceInterface
     public function updateRole(Role $role, array $data): Role
     {
         if ($role->name === SystemAccess::SUPER_ADMIN_ROLE) {
-            throw new \LogicException('The SuperAdmin role is protected and cannot be modified.');
+            throw new \LogicException('Peran SuperAdmin dilindungi dan tidak dapat diubah.');
         }
 
         // Don't allow changing the name of Admin and User system roles (to prevent breakage)
         $isSystemRole = in_array($role->name, [SystemAccess::ADMIN_ROLE, SystemAccess::USER_ROLE]);
         if ($isSystemRole && ($data['name'] ?? '') !== $role->name) {
-            throw new \InvalidArgumentException('Cannot change the name of the system role "' . $role->name . '".');
+            throw new \InvalidArgumentException('Nama peran sistem tidak dapat diubah "' . $role->name . '".');
         }
 
         $role->update([
@@ -60,7 +60,7 @@ class RoleService implements RoleServiceInterface
     {
         // System roles cannot be deleted
         if ($this->isSystemRole($role)) {
-            throw new \LogicException('Cannot delete system role "' . $role->name . '".');
+            throw new \LogicException('Peran sistem tidak dapat dihapus "' . $role->name . '".');
         }
 
         return (bool) $role->delete();

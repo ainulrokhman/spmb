@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Create Role')
+@section('title', 'Tambah Peran')
 @section('page-title', 'Create New Role')
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('admin.roles.index') }}" class="text-decoration-none">Roles</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Create</li>
+    <li class="breadcrumb-item active" aria-current="page">Tambah</li>
 @endsection
 
 @section('content')
@@ -16,12 +16,12 @@
             
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="mb-0 fw-bold text-body">Role Details</h5>
+                    <h5 class="mb-0 fw-bold text-body">Detail Peran</h5>
                     <p class="text-muted small mb-0">Set basic properties of the new role</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     <div class="mb-3">
-                        <label for="name" class="form-label fw-semibold text-secondary">Role Name</label>
+                        <label for="name" class="form-label fw-semibold text-secondary">Nama Peran</label>
                         <input type="text" 
                                class="form-control @error('name') is-invalid @enderror" 
                                id="name" 
@@ -33,7 +33,7 @@
                         @error('name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <div class="form-text text-muted small">The name must be unique and descriptive. Use CamelCase or spaces (e.g., "Content Manager").</div>
+                        <div class="form-text text-muted small">Nama harus unik dan deskriptif. Gunakan CamelCase atau spasi (mis. "Content Manager").</div>
                     </div>
                 </div>
             </div>
@@ -41,11 +41,11 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex align-items-center justify-content-between">
                     <div>
-                        <h5 class="mb-0 fw-bold text-body">Assign Permissions</h5>
-                        <p class="text-muted small mb-0">Grant permissions by toggling specific groups</p>
+                        <h5 class="mb-0 fw-bold text-body">Tetapkan Hak Akses</h5>
+                        <p class="text-muted small mb-0">Berikan hak akses dengan mengaktifkan grup tertentu</p>
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="toggleAllPermissions(true)">
-                        Select All Permissions
+                        Pilih Semua Hak Akses
                     </button>
                 </div>
                 <div class="card-body px-4 pb-4">
@@ -84,7 +84,7 @@
                     @else
                         <div class="text-center py-4">
                             <i class="bi bi-shield-slash fs-2 text-muted mb-2"></i>
-                            <p class="text-muted small mb-0">No permissions exist in the database. Please create permissions first.</p>
+                            <p class="text-muted small mb-0">Belum ada hak akses di database. Buat hak akses terlebih dahulu.</p>
                         </div>
                     @endif
                 </div>
@@ -93,10 +93,10 @@
             <!-- Form Actions -->
             <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
                 <a href="{{ route('admin.roles.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
-                    Cancel
+                    Batal
                 </a>
                 <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
-                    Save Role <i class="bi bi-check-lg ms-1"></i>
+                    Simpan Peran <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>
 

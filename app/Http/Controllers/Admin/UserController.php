@@ -66,7 +66,7 @@ class UserController extends Controller
         $user = $this->userService->createUser($request->validated());
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User "' . $user->name . '" created successfully.');
+            ->with('success', 'Pengguna "' . $user->name . '" berhasil dibuat.');
     }
 
     /**
@@ -93,7 +93,7 @@ class UserController extends Controller
         }
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User "' . $user->name . '" updated successfully.');
+            ->with('success', 'Pengguna "' . $user->name . '" berhasil diperbarui.');
     }
 
     /**
@@ -108,6 +108,6 @@ class UserController extends Controller
         }
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User deleted successfully.');
+            ->with('success', 'Pengguna berhasil dihapus.');
     }
 }

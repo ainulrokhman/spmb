@@ -1,10 +1,10 @@
 @extends('layouts.admin')
 
-@section('title', 'My Profile')
-@section('page-title', 'My Profile Settings')
+@section('title', 'Profil Saya')
+@section('page-title', 'Profil Saya Settings')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item active" aria-current="page">My Profile</li>
+    <li class="breadcrumb-item active" aria-current="page">Profil Saya</li>
 @endsection
 
 @section('content')
@@ -34,7 +34,7 @@
                 <div class="col-12 col-lg-4">
                     <div class="card border-0 shadow-sm text-center p-4">
                         <div class="card-body">
-                            <h5 class="fw-bold mb-3 text-body">Profile Picture</h5>
+                            <h5 class="fw-bold mb-3 text-body">Foto Profil</h5>
                             
                             <div class="mb-4 position-relative d-inline-block">
                                 <div id="avatar-preview-container">
@@ -65,7 +65,7 @@
                                 </div>
                             </div>
 
-                            <p class="text-muted small mb-4">Upload a high-quality JPG, PNG, or WEBP image. Max size: 2MB.</p>
+                            <p class="text-muted small mb-4">Unggah gambar JPG, PNG, atau WEBP berkualitas baik. Ukuran maks: 2MB.</p>
                             
                             <div>
                                 <label for="avatar" class="btn btn-outline-primary btn-sm px-3 py-2 fw-medium" style="border-radius: 8px; cursor: pointer;">
@@ -88,20 +88,20 @@
                 <div class="col-12 col-lg-8">
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-header bg-transparent border-0 pt-4 px-4">
-                            <h5 class="mb-0 fw-bold text-body">Account Information</h5>
-                            <p class="text-muted small mb-0">Update your core profile information</p>
+                            <h5 class="mb-0 fw-bold text-body">Informasi Akun</h5>
+                            <p class="text-muted small mb-0">Perbarui informasi utama profil Anda</p>
                         </div>
                         <div class="card-body px-4 pb-4">
                             <div class="row g-3">
                                 <!-- Name Field -->
                                 <div class="col-12">
-                                    <label for="name" class="form-label fw-semibold text-secondary">Full Name</label>
+                                    <label for="name" class="form-label fw-semibold text-secondary">Nama Lengkap</label>
                                     <input type="text" 
                                            class="form-control @error('name') is-invalid @enderror" 
                                            id="name" 
                                            name="name" 
                                            value="{{ old('name', $user->name) }}" 
-                                           placeholder="Enter name" 
+                                           placeholder="Masukkan nama" 
                                            required>
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -110,13 +110,13 @@
 
                                 <!-- Email Field -->
                                 <div class="col-12">
-                                    <label for="email" class="form-label fw-semibold text-secondary">Email Address</label>
+                                    <label for="email" class="form-label fw-semibold text-secondary">Alamat Email</label>
                                     <input type="email" 
                                            class="form-control @error('email') is-invalid @enderror" 
                                            id="email" 
                                            name="email" 
                                            value="{{ old('email', $user->email) }}" 
-                                           placeholder="Enter email" 
+                                           placeholder="Masukkan email" 
                                            {{ $user->email === \App\Support\SystemAccess::SUPER_ADMIN_EMAIL ? 'readonly' : '' }}
                                            required>
                                     @error('email')
@@ -134,19 +134,19 @@
 
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-header bg-transparent border-0 pt-4 px-4">
-                            <h5 class="mb-0 fw-bold text-body">Change Password</h5>
-                            <p class="text-muted small mb-0">Leave password fields blank to keep current credentials unchanged</p>
+                            <h5 class="mb-0 fw-bold text-body">Ubah Kata Sandi</h5>
+                            <p class="text-muted small mb-0">Kosongkan field kata sandi agar kredensial saat ini tidak berubah</p>
                         </div>
                         <div class="card-body px-4 pb-4">
                             <div class="row g-3">
                                 <!-- Password Field -->
                                 <div class="col-12 col-md-6">
-                                    <label for="password" class="form-label fw-semibold text-secondary">New Password</label>
+                                    <label for="password" class="form-label fw-semibold text-secondary">Kata Sandi Baru</label>
                                     <input type="password" 
                                            class="form-control @error('password') is-invalid @enderror" 
                                            id="password" 
                                            name="password" 
-                                           placeholder="At least 8 characters">
+                                           placeholder="Minimal 8 karakter">
                                     @error('password')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -154,12 +154,12 @@
 
                                 <!-- Password Confirmation -->
                                 <div class="col-12 col-md-6">
-                                    <label for="password_confirmation" class="form-label fw-semibold text-secondary">Confirm New Password</label>
+                                    <label for="password_confirmation" class="form-label fw-semibold text-secondary">Konfirmasi Kata Sandi Baru</label>
                                     <input type="password" 
                                            class="form-control" 
                                            id="password_confirmation" 
                                            name="password_confirmation" 
-                                           placeholder="Repeat new password">
+                                           placeholder="Ulangi kata sandi baru">
                                 </div>
                             </div>
                         </div>
@@ -168,10 +168,10 @@
                     <!-- Form Actions -->
                     <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
                         <a href="/admin" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
-                            Cancel
+                            Batal
                         </a>
                         <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
-                            Save Settings <i class="bi bi-check-lg ms-1"></i>
+                            Simpan Pengaturan <i class="bi bi-check-lg ms-1"></i>
                         </button>
                     </div>
                 </div>

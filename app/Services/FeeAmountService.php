@@ -71,7 +71,7 @@ class FeeAmountService implements FeeAmountServiceInterface
         $track = AdmissionTrack::find($attributes['admission_track_id']);
 
         if ($track === null || $track->school_unit_id !== $fee->school_unit_id) {
-            throw new InvalidArgumentException('The admission track does not belong to the fee mapping\'s school unit.');
+            throw new InvalidArgumentException('The admission track tidak termasuk dalam unit sekolah dari pemetaan biaya ini.');
         }
     }
 
@@ -95,7 +95,7 @@ class FeeAmountService implements FeeAmountServiceInterface
             ->exists();
 
         if ($exists) {
-            throw new InvalidArgumentException('A fixed fee may only have one amount per track/gender combination.');
+            throw new InvalidArgumentException('Biaya mode fixed hanya boleh memiliki satu nominal per kombinasi jalur/jender.');
         }
     }
 }

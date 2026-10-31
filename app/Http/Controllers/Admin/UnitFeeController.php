@@ -44,6 +44,6 @@ class UnitFeeController extends Controller
         $this->feeService->syncUnitFees($schoolUnit, $request->mappings());
 
         return redirect()->route('admin.school-units.index')
-            ->with('success', 'Fee mappings for "'.$schoolUnit->name.'" updated successfully.');
+            ->with('success', 'Pemetaan biaya untuk "'.$schoolUnit->name.'" berhasil diperbarui.');
     }
 }

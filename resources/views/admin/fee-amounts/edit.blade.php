@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Fee Amount')
-@section('page-title', 'Edit Fee Amount')
+@section('title', 'Ubah Nominal Biaya')
+@section('page-title', 'Ubah Nominal Biaya')
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('admin.fee-amounts.index') }}" class="text-decoration-none">Fee Amounts</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    <li class="breadcrumb-item active" aria-current="page">Ubah</li>
 @endsection
 
 @section('content')
@@ -14,7 +14,7 @@
         <form action="{{ route('admin.fee-amounts.update', $feeAmount->id) }}" method="POST">
             @csrf
             @method('PUT')
-            @include('admin.fee-amounts._form', ['submitLabel' => 'Save Changes'])
+            @include('admin.fee-amounts._form', ['submitLabel' => 'Simpan Perubahan'])
         </form>
     </div>
 </div>

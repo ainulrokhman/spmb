@@ -48,7 +48,7 @@ trait ValidatesFormField
             }
 
             if (app(FormFieldServiceInterface::class)->parseOptions($this->input('options_text')) === []) {
-                $validator->errors()->add('options_text', 'Choice fields (select, radio, checkbox) need at least one option, one per line.');
+                $validator->errors()->add('options_text', 'Bidang pilihan (select, radio, checkbox) wajib memiliki minimal satu pilihan, satu per baris.');
             }
         });
     }

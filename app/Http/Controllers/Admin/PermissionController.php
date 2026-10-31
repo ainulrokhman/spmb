@@ -51,7 +51,7 @@ class PermissionController extends Controller
         $permission = $this->permissionService->createPermission($request->validated());
 
         return redirect()->route('admin.permissions.index')
-            ->with('success', 'Permission "' . $permission->name . '" created successfully.');
+            ->with('success', 'Hak akses "' . $permission->name . '" berhasil dibuat.');
     }
 
     /**
@@ -63,7 +63,7 @@ class PermissionController extends Controller
 
         if ($this->permissionService->isPermissionProtected($permission)) {
             return redirect()->route('admin.permissions.index')
-                ->with('error', 'The core system permission "' . $permission->name . '" is protected and cannot be edited.');
+                ->with('error', 'Hak akses inti sistem "' . $permission->name . '" is protected and cannot be edited.');
         }
 
         return view('admin.permissions.edit', compact('permission'));
@@ -81,7 +81,7 @@ class PermissionController extends Controller
         }
 
         return redirect()->route('admin.permissions.index')
-            ->with('success', 'Permission updated successfully.');
+            ->with('success', 'Hak akses berhasil diperbarui.');
     }
 
     /**
@@ -96,6 +96,6 @@ class PermissionController extends Controller
         }
 
         return redirect()->route('admin.permissions.index')
-            ->with('success', 'Permission deleted successfully.');
+            ->with('success', 'Hak akses berhasil dihapus.');
     }
 }

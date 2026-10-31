@@ -60,7 +60,7 @@ class DocumentTypeController extends Controller
         $documentType = $this->documentTypeService->createDocumentType($request->validated());
 
         return redirect()->route('admin.document-types.index')
-            ->with('success', 'Document type "'.$documentType->name.'" created successfully.');
+            ->with('success', 'Jenis berkas "'.$documentType->name.'" berhasil dibuat.');
     }
 
     /**
@@ -85,7 +85,7 @@ class DocumentTypeController extends Controller
         }
 
         return redirect()->route('admin.document-types.index')
-            ->with('success', 'Document type "'.$documentType->name.'" updated successfully.');
+            ->with('success', 'Jenis berkas "'.$documentType->name.'" berhasil diperbarui.');
     }
 
     /**
@@ -100,6 +100,6 @@ class DocumentTypeController extends Controller
         }
 
         return redirect()->route('admin.document-types.index')
-            ->with('success', 'Document type deleted successfully.');
+            ->with('success', 'Jenis berkas berhasil dihapus.');
     }
 }

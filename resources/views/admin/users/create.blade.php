@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Add User')
+@section('title', 'Tambah Pengguna')
 @section('page-title', 'Add New User')
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}" class="text-decoration-none">Users</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Create</li>
+    <li class="breadcrumb-item active" aria-current="page">Tambah</li>
 @endsection
 
 @section('content')
@@ -16,14 +16,14 @@
             
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="mb-0 fw-bold text-body">User Profile Information</h5>
-                    <p class="text-muted small mb-0">Fill in the basic profile data for the new account</p>
+                    <h5 class="mb-0 fw-bold text-body">Informasi Profil Pengguna</h5>
+                    <p class="text-muted small mb-0">Isi data profil dasar untuk akun baru</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     <div class="row g-3">
                         <!-- Name Field -->
                         <div class="col-12">
-                            <label for="name" class="form-label fw-semibold text-secondary">Full Name</label>
+                            <label for="name" class="form-label fw-semibold text-secondary">Nama Lengkap</label>
                             <input type="text" 
                                    class="form-control @error('name') is-invalid @enderror" 
                                    id="name" 
@@ -39,7 +39,7 @@
 
                         <!-- Email Field -->
                         <div class="col-12">
-                            <label for="email" class="form-label fw-semibold text-secondary">Email Address</label>
+                            <label for="email" class="form-label fw-semibold text-secondary">Alamat Email</label>
                             <input type="email" 
                                    class="form-control @error('email') is-invalid @enderror" 
                                    id="email" 
@@ -57,14 +57,14 @@
 
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="mb-0 fw-bold text-body">Security Credentials</h5>
-                    <p class="text-muted small mb-0">Configure user security password</p>
+                    <h5 class="mb-0 fw-bold text-body">Kredensial Keamanan</h5>
+                    <p class="text-muted small mb-0">Atur kata sandi keamanan pengguna</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     <div class="row g-3">
                         <!-- Password Field -->
                         <div class="col-12 col-md-6">
-                            <label for="password" class="form-label fw-semibold text-secondary">Password</label>
+                            <label for="password" class="form-label fw-semibold text-secondary">Kata Sandi</label>
                             <input type="password" 
                                    class="form-control @error('password') is-invalid @enderror" 
                                    id="password" 
@@ -78,7 +78,7 @@
 
                         <!-- Password Confirmation -->
                         <div class="col-12 col-md-6">
-                            <label for="password_confirmation" class="form-label fw-semibold text-secondary">Confirm Password</label>
+                            <label for="password_confirmation" class="form-label fw-semibold text-secondary">Konfirmasi Kata Sandi</label>
                             <input type="password" 
                                    class="form-control" 
                                    id="password_confirmation" 
@@ -92,8 +92,8 @@
 
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="mb-0 fw-bold text-body">Assign System Roles</h5>
-                    <p class="text-muted small mb-0">Attach roles to define the user access permissions</p>
+                    <h5 class="mb-0 fw-bold text-body">Tetapkan Peran Sistem</h5>
+                    <p class="text-muted small mb-0">Lampirkan peran untuk menentukan hak akses pengguna</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     @if(count($roles) > 0)
@@ -130,7 +130,7 @@
                     @else
                         <div class="text-center py-3">
                             <i class="bi bi-shield-slash fs-3 text-muted mb-2"></i>
-                            <p class="text-muted small mb-0">No roles are created yet. Please create roles first.</p>
+                            <p class="text-muted small mb-0">Belum ada peran yang dibuat. Buat peran terlebih dahulu.</p>
                         </div>
                     @endif
                 </div>
@@ -139,10 +139,10 @@
             <!-- Form Actions -->
             <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
                 <a href="{{ route('admin.users.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
-                    Cancel
+                    Batal
                 </a>
                 <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;">
-                    Save User <i class="bi bi-check-lg ms-1"></i>
+                    Simpan Pengguna <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>
 

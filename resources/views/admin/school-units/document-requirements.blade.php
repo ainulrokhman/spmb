@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Document Requirements')
-@section('page-title', 'Document Requirements: ' . $schoolUnit->name)
+@section('title', 'Syarat Berkas')
+@section('page-title', 'Syarat Berkas: ' . $schoolUnit->name)
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('admin.school-units.index') }}" class="text-decoration-none">School Units</a></li>
@@ -28,10 +28,10 @@
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th class="text-secondary fw-semibold">Document Type</th>
-                                        <th class="text-secondary fw-semibold text-center">Not Used</th>
-                                        <th class="text-secondary fw-semibold text-center">Optional</th>
-                                        <th class="text-secondary fw-semibold text-center">Required</th>
+                                        <th class="text-secondary fw-semibold">Jenis Berkas</th>
+                                        <th class="text-secondary fw-semibold text-center">Tidak Dipakai</th>
+                                        <th class="text-secondary fw-semibold text-center">Opsional</th>
+                                        <th class="text-secondary fw-semibold text-center">Wajib</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -62,10 +62,10 @@
 
             <div class="d-flex justify-content-end gap-2">
                 <a href="{{ route('admin.school-units.index') }}" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
-                    Cancel
+                    Batal
                 </a>
                 <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;" {{ $documentTypes->isEmpty() ? 'disabled' : '' }}>
-                    Save Requirements <i class="bi bi-check-lg ms-1"></i>
+                    Simpan Syarat <i class="bi bi-check-lg ms-1"></i>
                 </button>
             </div>
         </form>

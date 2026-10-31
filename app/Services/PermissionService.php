@@ -32,7 +32,7 @@ class PermissionService implements PermissionServiceInterface
     public function updatePermission(Permission $permission, array $data): Permission
     {
         if ($this->isPermissionProtected($permission)) {
-            throw new \LogicException('The core system permission "' . $permission->name . '" is protected and cannot be modified.');
+            throw new \LogicException('Hak akses inti sistem "' . $permission->name . '" is protected and cannot be modified.');
         }
 
         $permission->update([
@@ -48,7 +48,7 @@ class PermissionService implements PermissionServiceInterface
     public function deletePermission(Permission $permission): bool
     {
         if ($this->isPermissionProtected($permission)) {
-            throw new \LogicException('Cannot delete core system permission "' . $permission->name . '".');
+            throw new \LogicException('Hak akses inti sistem tidak dapat dihapus "' . $permission->name . '".');
         }
 
         return (bool) $permission->delete();

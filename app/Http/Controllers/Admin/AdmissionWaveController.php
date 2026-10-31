@@ -67,7 +67,7 @@ class AdmissionWaveController extends Controller
         }
 
         return redirect()->route('admin.admission-waves.index')
-            ->with('success', 'Admission wave created successfully.');
+            ->with('success', 'Gelombang berhasil dibuat.');
     }
 
     /**
@@ -97,7 +97,7 @@ class AdmissionWaveController extends Controller
         }
 
         return redirect()->route('admin.admission-waves.index')
-            ->with('success', 'Admission wave "'.$admissionWave->name.'" updated successfully.');
+            ->with('success', 'Gelombang "'.$admissionWave->name.'" berhasil diperbarui.');
     }
 
     /**
@@ -112,7 +112,7 @@ class AdmissionWaveController extends Controller
         }
 
         return redirect()->route('admin.admission-waves.index')
-            ->with('success', 'Admission wave deleted successfully.');
+            ->with('success', 'Gelombang berhasil dihapus.');
     }
 
     /**

@@ -47,10 +47,10 @@ class MajorDataTable
     {
         return function ($major) {
             if ($major->is_active) {
-                return '<span class="badge bg-success bg-opacity-10 text-success fw-medium py-2 px-3 fs-7 border border-success border-opacity-20 rounded-pill">Active</span>';
+                return '<span class="badge bg-success bg-opacity-10 text-success fw-medium py-2 px-3 fs-7 border border-success border-opacity-20 rounded-pill">Aktif</span>';
             }
 
-            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Inactive</span>';
+            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Nonaktif</span>';
         };
     }
 
@@ -62,10 +62,10 @@ class MajorDataTable
         return function ($major) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('major-edit')) {
-                $html .= '<a href="'.route('admin.majors.edit', $major->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Major"><i class="bi bi-pencil-square text-primary"></i> Edit</a>';
+                $html .= '<a href="'.route('admin.majors.edit', $major->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Major"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('major-delete')) {
-                $html .= '<form action="'.route('admin.majors.destroy', $major->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to delete this major?\')">';
+                $html .= '<form action="'.route('admin.majors.destroy', $major->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus jurusan ini?\')">';
                 $html .= csrf_field().method_field('DELETE');
                 $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Major"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';

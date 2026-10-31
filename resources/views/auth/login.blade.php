@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Laravel Admin</title>
+    <title>Masuk | SPMB</title>
 
     <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -71,7 +71,7 @@
             <button class="btn btn-secondary btn-sm dropdown-toggle d-flex align-items-center gap-2 border-0 shadow-sm"
                     id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static">
                 <i class="bi bi-circle-half" id="active-theme-icon"></i>
-                <span class="d-none d-sm-inline">Theme</span>
+                <span class="d-none d-sm-inline">Tema</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="bd-theme">
                 <li>
@@ -97,13 +97,13 @@
         <div class="login-logo mb-4">
             <a href="/" class="text-decoration-none d-flex align-items-center justify-content-center">
                 <i class="bi bi-cpu-fill text-primary me-2 fs-2"></i>
-                <span class="fw-bold text-body">Laravel</span> <span class="text-primary ms-1 fw-semibold">Admin</span>
+                <span class="fw-bold text-body">SPMB</span>
             </a>
         </div>
 
         <div class="card card-outline card-primary shadow-lg border-0">
             <div class="card-body login-card-body p-4">
-                <p class="login-box-msg text-muted mb-4 small">Sign in to start your session</p>
+                <p class="login-box-msg text-muted mb-4 small">Masuk untuk memulai sesi Anda</p>
 
                 @if(session('success'))
                     <div class="alert alert-success bg-success bg-opacity-10 text-success border-0 rounded-3 mb-4 small" role="alert">
@@ -126,7 +126,7 @@
                                    required 
                                    autocomplete="email" 
                                    autofocus>
-                            <label for="email">Email Address</label>
+                            <label for="email">Alamat Email</label>
                         </div>
                         <div class="input-group-text bg-body-tertiary border-start-0 text-muted">
                             <span class="bi bi-envelope"></span>
@@ -145,10 +145,10 @@
                                    class="form-control @error('password') is-invalid @enderror" 
                                    id="password" 
                                    name="password" 
-                                   placeholder="Password" 
+                                   placeholder="Kata Sandi" 
                                    required 
                                    autocomplete="current-password">
-                            <label for="password">Password</label>
+                            <label for="password">Kata Sandi</label>
                         </div>
                         <div class="input-group-text bg-body-tertiary border-start-0 text-muted">
                             <span class="bi bi-lock-fill"></span>
@@ -160,19 +160,19 @@
                         @enderror
                     </div>
 
-                    <!-- Remember Me & Submit Row -->
+                    <!-- Ingat Saya & Submit Row -->
                     <div class="row align-items-center mb-3">
                         <div class="col-8">
                             <div class="form-check mb-0">
                                 <input class="form-check-input" type="checkbox" id="remember" name="remember" style="cursor: pointer;">
                                 <label class="form-check-label text-muted small" for="remember" style="cursor: pointer; user-select: none;">
-                                    Remember Me
+                                    Ingat Saya
                                 </label>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Sign In</button>
+                                <button type="submit" class="btn btn-primary">Masuk</button>
                             </div>
                         </div>
                     </div>
@@ -181,19 +181,19 @@
                 <!-- Quick testing accounts option panel -->
                 <div class="mt-4 pt-3 border-top">
                     <p class="text-uppercase text-center text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 0.5px;">
-                        Quick Testing Accounts
+                        Akun Uji Cepat
                     </p>
                     <div class="d-flex flex-column gap-2">
                         <button type="button" class="btn btn-outline-secondary btn-sm text-start d-flex justify-content-between align-items-center px-3 py-2" onclick="quickLogin('superadmin@example.com', 'password')">
-                            <span><strong class="text-primary">Super Admin</strong> <span class="text-muted small ms-1">(Full Access)</span></span>
+                            <span><strong class="text-primary">Super Admin</strong> <span class="text-muted small ms-1">(Akses Penuh)</span></span>
                             <i class="bi bi-arrow-right-short text-muted"></i>
                         </button>
                         <button type="button" class="btn btn-outline-secondary btn-sm text-start d-flex justify-content-between align-items-center px-3 py-2" onclick="quickLogin('admin@example.com', 'password')">
-                            <span><strong class="text-success">Admin</strong> <span class="text-muted small ms-1">(Users & Roles)</span></span>
+                            <span><strong class="text-success">Admin</strong> <span class="text-muted small ms-1">(Pengguna & Peran)</span></span>
                             <i class="bi bi-arrow-right-short text-muted"></i>
                         </button>
                         <button type="button" class="btn btn-outline-secondary btn-sm text-start d-flex justify-content-between align-items-center px-3 py-2" onclick="quickLogin('user@example.com', 'password')">
-                            <span><strong class="text-info">Regular User</strong> <span class="text-muted small ms-1">(Dashboard Only)</span></span>
+                            <span><strong class="text-info">Regular User</strong> <span class="text-muted small ms-1">(Hanya Dasbor)</span></span>
                             <i class="bi bi-arrow-right-short text-muted"></i>
                         </button>
                     </div>

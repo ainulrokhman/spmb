@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Admin Dashboard') | Laravel AdminLTE 4</title>
+    <title>@yield('title', 'Dasbor Admin') | SPMB</title>
 
     <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -152,7 +152,7 @@
                         </a>
                     </li>
                     <li class="nav-item d-none d-md-inline-block">
-                        <a href="/admin" class="nav-link fs-6 fw-medium">Home</a>
+                        <a href="/admin" class="nav-link fs-6 fw-medium">Beranda</a>
                     </li>
                 </ul>
 
@@ -163,7 +163,7 @@
                         <button class="btn btn-link nav-link px-0 text-decoration-none dropdown-toggle d-flex align-items-center"
                                 id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static">
                             <i class="bi bi-sun-fill my-1 theme-icon-active" id="active-theme-icon"></i>
-                            <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
+                            <span class="d-lg-none ms-2" id="bd-theme-text">Ganti tema</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
                             <li>
@@ -196,19 +196,19 @@
                             </span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end shadow border-0">
-                            <span class="dropdown-item dropdown-header fw-bold">3 Notifications</span>
+                            <span class="dropdown-item dropdown-header fw-bold">3 Notifikasi</span>
                             <div class="dropdown-divider"></div>
                             <a href="#" class="dropdown-item">
-                                <i class="bi bi-envelope me-2 text-primary"></i> 1 new message
-                                <span class="float-end text-muted text-sm">3 mins</span>
+                                <i class="bi bi-envelope me-2 text-primary"></i> 1 pesan baru
+                                <span class="float-end text-muted text-sm">3 mnt</span>
                             </a>
                             <div class="dropdown-divider"></div>
                             <a href="#" class="dropdown-item">
-                                <i class="bi bi-people me-2 text-success"></i> 2 user registrations
-                                <span class="float-end text-muted text-sm">12 hours</span>
+                                <i class="bi bi-people me-2 text-success"></i> 2 pendaftaran pengguna
+                                <span class="float-end text-muted text-sm">12 jam</span>
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item dropdown-footer text-center">See All Notifications</a>
+                            <a href="#" class="dropdown-item dropdown-footer text-center">Lihat Semua Notifikasi</a>
                         </div>
                     </li>
 
@@ -254,10 +254,10 @@
                                     </a>
                                     <div class="row g-2">
                                         <div class="col-6">
-                                            <a href="/admin" class="btn btn-light btn-sm w-100 border">Home</a>
+                                            <a href="/admin" class="btn btn-light btn-sm w-100 border">Beranda</a>
                                         </div>
                                         <div class="col-6">
-                                            <a href="{{ route('logout') }}" class="btn btn-danger btn-sm w-100">Logout</a>
+                                            <a href="{{ route('logout') }}" class="btn btn-danger btn-sm w-100">Keluar</a>
                                         </div>
                                     </div>
                                 </div>
@@ -274,7 +274,7 @@
             <div class="sidebar-brand d-flex align-items-center px-4 py-3 justify-content-between border-bottom">
                 <a href="/admin" class="brand-link text-decoration-none d-flex align-items-center">
                     <i class="bi bi-cpu-fill fs-4 me-2"></i>
-                    <span class="brand-text fw-bold">Laravel Admin</span>
+                    <span class="brand-text fw-bold">SPMB</span>
                 </a>
             </div>
  
@@ -284,25 +284,25 @@
                     <ul class="nav nav-pills nav-sidebar flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                         
                         @can('view-dashboard')
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Core</li>
+                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Inti</li>
                         
                         <li class="nav-item">
                             <a href="/admin" class="nav-link {{ request()->is('admin') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-speedometer2 me-2"></i>
-                                <p>Dashboard</p>
+                                <p>Dasbor</p>
                             </a>
                         </li>
                         @endcan
  
                         @canany(['user-list', 'role-list', 'permission-list', 'manage-settings'])
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Management</li>
+                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Manajemen</li>
                         @endcanany
  
                         @can('user-list')
                         <li class="nav-item">
                             <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->is('admin/users*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-people me-2"></i>
-                                <p>Users</p>
+                                <p>Pengguna</p>
                             </a>
                         </li>
                         @endcan
@@ -311,7 +311,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->is('admin/roles*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-shield-lock me-2"></i>
-                                <p>Roles</p>
+                                <p>Peran</p>
                             </a>
                         </li>
                         @endcan
@@ -320,7 +320,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.permissions.index') }}" class="nav-link {{ request()->is('admin/permissions*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-key me-2"></i>
-                                <p>Permissions</p>
+                                <p>Hak Akses</p>
                             </a>
                         </li>
                         @endcan
@@ -329,7 +329,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.activity-logs.index') }}" class="nav-link {{ request()->is('admin/activity-logs*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-journal-text me-2"></i>
-                                <p>Activity Logs</p>
+                                <p>Log Aktivitas</p>
                             </a>
                         </li>
                         @endcan
@@ -338,7 +338,7 @@
                         <li class="nav-item">
                             <a href="#" class="nav-link text-body">
                                 <i class="nav-icon bi bi-gear me-2"></i>
-                                <p>Settings</p>
+                                <p>Pengaturan</p>
                             </a>
                         </li>
                         @endcan
@@ -351,7 +351,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.academic-years.index') }}" class="nav-link {{ request()->is('admin/academic-years*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-calendar-range me-2"></i>
-                                <p>Academic Years</p>
+                                <p>Tahun Ajaran</p>
                             </a>
                         </li>
                         @endcan
@@ -360,7 +360,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.school-units.index') }}" class="nav-link {{ request()->is('admin/school-units*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-building me-2"></i>
-                                <p>School Units</p>
+                                <p>Unit Sekolah</p>
                             </a>
                         </li>
                         @endcan
@@ -369,7 +369,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.admission-tracks.index') }}" class="nav-link {{ request()->is('admin/admission-tracks*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-signpost-split me-2"></i>
-                                <p>Admission Tracks</p>
+                                <p>Jalur Pendaftaran</p>
                             </a>
                         </li>
                         @endcan
@@ -378,7 +378,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.majors.index') }}" class="nav-link {{ request()->is('admin/majors*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-diagram-3 me-2"></i>
-                                <p>Majors</p>
+                                <p>Jurusan</p>
                             </a>
                         </li>
                         @endcan
@@ -387,7 +387,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.admission-waves.index') }}" class="nav-link {{ request()->is('admin/admission-waves*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-water me-2"></i>
-                                <p>Admission Waves</p>
+                                <p>Gelombang</p>
                             </a>
                         </li>
                         @endcan
@@ -396,7 +396,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.document-types.index') }}" class="nav-link {{ request()->is('admin/document-types*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-file-earmark-text me-2"></i>
-                                <p>Document Types</p>
+                                <p>Jenis Berkas</p>
                             </a>
                         </li>
                         @endcan
@@ -405,7 +405,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.form-fields.index') }}" class="nav-link {{ request()->is('admin/form-fields*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-ui-checks me-2"></i>
-                                <p>Form Fields</p>
+                                <p>Bidang Formulir</p>
                             </a>
                         </li>
                         @endcan
@@ -414,7 +414,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.fee-components.index') }}" class="nav-link {{ request()->is('admin/fee-components*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-tags me-2"></i>
-                                <p>Fee Components</p>
+                                <p>Komponen Biaya</p>
                             </a>
                         </li>
                         @endcan
@@ -423,7 +423,7 @@
                         <li class="nav-item">
                             <a href="{{ route('admin.fee-amounts.index') }}" class="nav-link {{ request()->is('admin/fee-amounts*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-cash-stack me-2"></i>
-                                <p>Fee Amounts</p>
+                                <p>Nominal Biaya</p>
                             </a>
                         </li>
                         @endcan
@@ -444,7 +444,7 @@
                         <div class="col-sm-6">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb float-sm-end mb-0">
-                                    <li class="breadcrumb-item"><a href="/admin" class="text-decoration-none">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="/admin" class="text-decoration-none">Beranda</a></li>
                                     @yield('breadcrumb')
                                 </ol>
                             </nav>
@@ -467,7 +467,7 @@
                 <div class="float-end d-none d-sm-inline">
                     AdminLTE v4
                 </div>
-                <strong>Copyright &copy; 2026 <a href="/admin" class="text-decoration-none">Laravel Admin</a>.</strong> All rights reserved.
+                <strong>Hak Cipta &copy; 2026 <a href="/admin" class="text-decoration-none">SPMB</a>.</strong> Seluruh hak cipta dilindungi.
             </div>
         </footer>
 

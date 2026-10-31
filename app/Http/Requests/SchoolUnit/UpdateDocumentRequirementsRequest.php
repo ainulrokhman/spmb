@@ -37,7 +37,7 @@ class UpdateDocumentRequirementsRequest extends FormRequest
             $ids = array_map('intval', array_keys(is_array($value) ? $value : []));
 
             if ($ids !== [] && DocumentType::whereIn('id', $ids)->count() !== count($ids)) {
-                $fail('One or more selected document types are invalid.');
+                $fail('Satu atau lebih jenis berkas yang dipilih tidak valid.');
             }
         };
     }

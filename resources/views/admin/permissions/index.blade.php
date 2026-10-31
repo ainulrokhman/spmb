@@ -1,10 +1,10 @@
 @extends('layouts.admin')
 
-@section('title', 'Permissions')
-@section('page-title', 'Permission Management')
+@section('title', 'Hak Akses')
+@section('page-title', 'Manajemen Hak Akses')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item active" aria-current="page">Permissions</li>
+    <li class="breadcrumb-item active" aria-current="page">Hak Akses</li>
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-transparent border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between pt-4 px-4 gap-3">
                 <div>
-                    <h5 class="mb-0 fw-bold text-body">Available Permissions</h5>
+                    <h5 class="mb-0 fw-bold text-body">Hak Akses yang Tersedia</h5>
                     <p class="text-muted small mb-0">System capabilities that can be assigned to roles</p>
                 </div>
                 
@@ -57,7 +57,7 @@
                             <tr>
                                 <th class="text-secondary fw-semibold">Permission Name</th>
                                 <th class="text-secondary fw-semibold">Roles Using This</th>
-                                <th style="width: 140px;" class="text-secondary fw-semibold text-end">Actions</th>
+                                <th style="width: 140px;" class="text-secondary fw-semibold text-end">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,7 +81,7 @@
                     @csrf
                     
                     <div class="mb-3">
-                        <label for="name" class="form-label fw-semibold text-secondary">Permission Name</label>
+                        <label for="name" class="form-label fw-semibold text-secondary">Nama Hak Akses</label>
                         <input type="text" 
                                class="form-control @error('name') is-invalid @enderror" 
                                id="name" 
@@ -132,8 +132,15 @@
             ],
             dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3"l>rt<"d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top"ip>',
             language: {
-                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Loading permissions...',
-                lengthMenu: "Show _MENU_ entries"
+                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Memuat permissions...',
+                lengthMenu: "Tampilkan _MENU_ data",
+                search: "Cari:",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                infoFiltered: "(disaring dari _MAX_ total data)",
+                emptyTable: "Tidak ada data tersedia",
+                zeroRecords: "Tidak ada data yang cocok ditemukan",
+                paginate: { first: "Pertama", last: "Terakhir", next: "Berikutnya", previous: "Sebelumnya" }
             },
             drawCallback: function() {
                 // Ensure page-item and page-link are properly applied

@@ -33,7 +33,7 @@ trait ValidatesFeeAmount
             $track = AdmissionTrack::find($value);
 
             if ($fee !== null && $track !== null && $track->school_unit_id !== $fee->school_unit_id) {
-                $fail('The admission track does not belong to the fee mapping\'s school unit.');
+                $fail('The admission track tidak termasuk dalam unit sekolah dari pemetaan biaya ini.');
             }
         };
     }

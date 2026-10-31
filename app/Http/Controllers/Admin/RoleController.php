@@ -66,7 +66,7 @@ class RoleController extends Controller
         $role = $this->roleService->createRole($request->validated());
 
         return redirect()->route('admin.roles.index')
-            ->with('success', 'Role "' . $role->name . '" created successfully.');
+            ->with('success', 'Peran "' . $role->name . '" berhasil dibuat.');
     }
 
     /**
@@ -79,7 +79,7 @@ class RoleController extends Controller
         // Prevent editing SuperAdmin to avoid lockouts
         if ($role->name === SystemAccess::SUPER_ADMIN_ROLE) {
             return redirect()->route('admin.roles.index')
-                ->with('error', 'The SuperAdmin role permissions are locked and cannot be modified.');
+                ->with('error', 'Hak akses peran SuperAdmin terkunci dan tidak dapat diubah.');
         }
 
         $permissions = Permission::all();
@@ -101,7 +101,7 @@ class RoleController extends Controller
         }
 
         return redirect()->route('admin.roles.index')
-            ->with('success', 'Role "' . $role->name . '" updated successfully.');
+            ->with('success', 'Peran "' . $role->name . '" berhasil diperbarui.');
     }
 
     /**
@@ -116,6 +116,6 @@ class RoleController extends Controller
         }
 
         return redirect()->route('admin.roles.index')
-            ->with('success', 'Role deleted successfully.');
+            ->with('success', 'Peran berhasil dihapus.');
     }
 }

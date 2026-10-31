@@ -65,7 +65,7 @@ class AdmissionTrackController extends Controller
         $admissionTrack = $this->admissionTrackService->createAdmissionTrack($request->validated());
 
         return redirect()->route('admin.admission-tracks.index')
-            ->with('success', 'Admission track "'.$admissionTrack->name.'" created successfully.');
+            ->with('success', 'Jalur pendaftaran "'.$admissionTrack->name.'" berhasil dibuat.');
     }
 
     /**
@@ -92,7 +92,7 @@ class AdmissionTrackController extends Controller
         }
 
         return redirect()->route('admin.admission-tracks.index')
-            ->with('success', 'Admission track "'.$admissionTrack->name.'" updated successfully.');
+            ->with('success', 'Jalur pendaftaran "'.$admissionTrack->name.'" berhasil diperbarui.');
     }
 
     /**
@@ -107,6 +107,6 @@ class AdmissionTrackController extends Controller
         }
 
         return redirect()->route('admin.admission-tracks.index')
-            ->with('success', 'Admission track deleted successfully.');
+            ->with('success', 'Jalur pendaftaran berhasil dihapus.');
     }
 }

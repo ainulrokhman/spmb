@@ -60,7 +60,7 @@ class AcademicYearController extends Controller
         $academicYear = $this->academicYearService->createAcademicYear($request->validated());
 
         return redirect()->route('admin.academic-years.index')
-            ->with('success', 'Academic year "'.$academicYear->name.'" created successfully.');
+            ->with('success', 'Tahun ajaran "'.$academicYear->name.'" berhasil dibuat.');
     }
 
     /**
@@ -85,7 +85,7 @@ class AcademicYearController extends Controller
         }
 
         return redirect()->route('admin.academic-years.index')
-            ->with('success', 'Academic year "'.$academicYear->name.'" updated successfully.');
+            ->with('success', 'Tahun ajaran "'.$academicYear->name.'" berhasil diperbarui.');
     }
 
     /**
@@ -100,6 +100,6 @@ class AcademicYearController extends Controller
         }
 
         return redirect()->route('admin.academic-years.index')
-            ->with('success', 'Academic year deleted successfully.');
+            ->with('success', 'Tahun ajaran berhasil dihapus.');
     }
 }

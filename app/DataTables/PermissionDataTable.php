@@ -85,7 +85,7 @@ class PermissionDataTable
                     $html .= '<a href="'.route('admin.permissions.edit', $permission->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Permission"><i class="bi bi-pencil-square text-primary"></i></a>';
                 }
                 if (auth()->user()->can('permission-delete')) {
-                    $html .= '<form action="'.route('admin.permissions.destroy', $permission->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to delete this permission? This action will remove it from all assigned roles.\')">';
+                    $html .= '<form action="'.route('admin.permissions.destroy', $permission->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus hak akses ini? Hak akses ini akan terlepas dari semua peran yang menggunakannya.\')">';
                     $html .= csrf_field().method_field('DELETE');
                     $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Permission"><i class="bi bi-trash text-danger"></i></button>';
                     $html .= '</form>';

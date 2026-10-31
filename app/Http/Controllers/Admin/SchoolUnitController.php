@@ -60,7 +60,7 @@ class SchoolUnitController extends Controller
         $schoolUnit = $this->schoolUnitService->createSchoolUnit($request->validated());
 
         return redirect()->route('admin.school-units.index')
-            ->with('success', 'School unit "'.$schoolUnit->name.'" created successfully.');
+            ->with('success', 'Unit sekolah "'.$schoolUnit->name.'" berhasil dibuat.');
     }
 
     /**
@@ -85,7 +85,7 @@ class SchoolUnitController extends Controller
         }
 
         return redirect()->route('admin.school-units.index')
-            ->with('success', 'School unit "'.$schoolUnit->name.'" updated successfully.');
+            ->with('success', 'Unit sekolah "'.$schoolUnit->name.'" berhasil diperbarui.');
     }
 
     /**
@@ -100,6 +100,6 @@ class SchoolUnitController extends Controller
         }
 
         return redirect()->route('admin.school-units.index')
-            ->with('success', 'School unit deleted successfully.');
+            ->with('success', 'Unit sekolah berhasil dihapus.');
     }
 }
