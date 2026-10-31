@@ -343,7 +343,7 @@
                         </li>
                         @endcan
 
-                        @canany(['academic-year-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list', 'document-type-list'])
+                        @canany(['academic-year-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list', 'document-type-list', 'form-field-list'])
                         <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Master Data</li>
                         @endcanany
 
@@ -397,6 +397,15 @@
                             <a href="{{ route('admin.document-types.index') }}" class="nav-link {{ request()->is('admin/document-types*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-file-earmark-text me-2"></i>
                                 <p>Document Types</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('form-field-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.form-fields.index') }}" class="nav-link {{ request()->is('admin/form-fields*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-ui-checks me-2"></i>
+                                <p>Form Fields</p>
                             </a>
                         </li>
                         @endcan

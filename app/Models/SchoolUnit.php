@@ -75,6 +75,14 @@ class SchoolUnit extends Model
     }
 
     /**
+     * Dynamic form fields defined for this unit.
+     */
+    public function formFields(): HasMany
+    {
+        return $this->hasMany(FormField::class);
+    }
+
+    /**
      * Document requirements defined for this unit.
      */
     public function documentRequirements(): HasMany

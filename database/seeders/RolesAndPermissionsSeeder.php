@@ -69,6 +69,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'document-type-edit',
             'document-type-delete',
 
+            'form-field-list',
+            'form-field-create',
+            'form-field-edit',
+            'form-field-delete',
+
             'manage-settings',
             'activity-log-list',
         ];
@@ -130,6 +135,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'document-type-create',
             'document-type-edit',
             'document-type-delete',
+
+            'form-field-list',
+            'form-field-create',
+            'form-field-edit',
+            'form-field-delete',
         ]);
 
         // SuperAdmin Role
