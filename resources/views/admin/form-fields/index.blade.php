@@ -16,7 +16,7 @@
         </div>
 
         <div class="d-flex align-items-center gap-3 flex-wrap">
-            <select id="unit-filter" class="form-select bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 rounded-pill" style="width: 220px;">
+            <select id="unit-filter" aria-label="Filter by school unit" class="form-select bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 rounded-pill" style="width: 220px;">
                 <option value="">All Units</option>
                 @foreach($units as $unit)
                     <option value="{{ $unit->id }}">{{ $unit->name }}</option>
@@ -29,6 +29,7 @@
 
             <form id="search-form" class="position-relative" onsubmit="return false;">
                 <input type="text"
+                       aria-label="Search form fields"
                        name="search"
                        value=""
                        class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill"

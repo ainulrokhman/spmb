@@ -72,7 +72,7 @@ class AcademicYearManagementTest extends TestCase
      */
     public function test_creating_an_active_year_deactivates_the_previous_active_year(): void
     {
-        $previous = AcademicYear::factory()->create(['is_active' => true]);
+        $previous = AcademicYear::factory()->create(['name' => '2025/2026', 'is_active' => true]);
 
         $this->actingAs($this->admin())
             ->post(route('admin.academic-years.store'), [

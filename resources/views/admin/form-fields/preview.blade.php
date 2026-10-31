@@ -24,7 +24,7 @@
                 <div class="card-body px-4 pb-4">
                     @foreach($fields as $field)
                         <div class="mb-3">
-                            <label class="form-label fw-semibold text-secondary">
+                            <label class="form-label fw-semibold text-secondary" @if(! in_array($field->type, ['radio', 'checkbox'])) for="preview_{{ $field->key }}" @endif>
                                 {{ $field->label }}
                                 @if($field->is_required)
                                     <span class="text-danger">*</span>
@@ -33,16 +33,16 @@
 
                             @switch($field->type)
                                 @case('textarea')
-                                    <textarea class="form-control" rows="3" disabled></textarea>
+                                    <textarea class="form-control" rows="3" id="preview_{{ $field->key }}" disabled></textarea>
                                     @break
                                 @case('number')
-                                    <input type="number" class="form-control" disabled>
+                                    <input type="number" class="form-control" id="preview_{{ $field->key }}" disabled>
                                     @break
                                 @case('date')
-                                    <input type="date" class="form-control" disabled>
+                                    <input type="date" class="form-control" id="preview_{{ $field->key }}" disabled>
                                     @break
                                 @case('select')
-                                    <select class="form-select" disabled>
+                                    <select class="form-select" id="preview_{{ $field->key }}" disabled>
                                         <option value="">Pilih...</option>
                                         @foreach($field->options ?? [] as $option)
                                             <option>{{ $option }}</option>
@@ -52,24 +52,24 @@
                                 @case('radio')
                                     @foreach($field->options ?? [] as $option)
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" disabled>
-                                            <label class="form-check-label">{{ $option }}</label>
+                                            <input class="form-check-input" type="radio" id="preview_{{ $field->key }}_{{ $loop->index }}" disabled>
+                                            <label class="form-check-label" for="preview_{{ $field->key }}_{{ $loop->index }}">{{ $option }}</label>
                                         </div>
                                     @endforeach
                                     @break
                                 @case('checkbox')
                                     @foreach($field->options ?? [] as $option)
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" disabled>
-                                            <label class="form-check-label">{{ $option }}</label>
+                                            <input class="form-check-input" type="checkbox" id="preview_{{ $field->key }}_{{ $loop->index }}" disabled>
+                                            <label class="form-check-label" for="preview_{{ $field->key }}_{{ $loop->index }}">{{ $option }}</label>
                                         </div>
                                     @endforeach
                                     @break
                                 @case('file')
-                                    <input type="file" class="form-control" disabled>
+                                    <input type="file" class="form-control" id="preview_{{ $field->key }}" disabled>
                                     @break
                                 @default
-                                    <input type="text" class="form-control" disabled>
+                                    <input type="text" class="form-control" id="preview_{{ $field->key }}" disabled>
                             @endswitch
 
                             @if($field->help_text)
