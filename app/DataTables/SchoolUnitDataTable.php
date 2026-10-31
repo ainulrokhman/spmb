@@ -89,6 +89,7 @@ class SchoolUnitDataTable
         return function ($schoolUnit) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('school-unit-edit')) {
+                $html .= '<a href="'.route('admin.school-units.document-requirements.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Document Requirements"><i class="bi bi-folder2-open text-warning"></i> Berkas</a>';
                 $html .= '<a href="'.route('admin.school-units.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit School Unit"><i class="bi bi-pencil-square text-primary"></i> Edit</a>';
             }
             if (auth()->user()->can('school-unit-delete')) {

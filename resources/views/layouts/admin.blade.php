@@ -343,7 +343,7 @@
                         </li>
                         @endcan
 
-                        @canany(['academic-year-list', 'school-unit-list', 'admission-track-list', 'major-list'])
+                        @canany(['academic-year-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list', 'document-type-list'])
                         <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Master Data</li>
                         @endcanany
 
@@ -379,6 +379,24 @@
                             <a href="{{ route('admin.majors.index') }}" class="nav-link {{ request()->is('admin/majors*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-diagram-3 me-2"></i>
                                 <p>Majors</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('admission-wave-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.admission-waves.index') }}" class="nav-link {{ request()->is('admin/admission-waves*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-water me-2"></i>
+                                <p>Admission Waves</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('document-type-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.document-types.index') }}" class="nav-link {{ request()->is('admin/document-types*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-file-earmark-text me-2"></i>
+                                <p>Document Types</p>
                             </a>
                         </li>
                         @endcan

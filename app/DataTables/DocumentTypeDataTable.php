@@ -1,0 +1,84 @@
+<?php
+
+namespace App\DataTables;
+
+use App\Models\DocumentType;
+use Illuminate\Http\JsonResponse;
+use Yajra\DataTables\Facades\DataTables;
+
+class DocumentTypeDataTable
+{
+    /**
+     * Build the DataTable response.
+     *
+     * @return JsonResponse
+     */
+    public function make()
+    {
+        $documentTypes = DocumentType::select(['id', 'name', 'code', 'allowed_extensions', 'max_size_kb', 'is_active']);
+
+        return DataTables::of($documentTypes)
+            ->editColumn('code', $this->codeColumn())
+            ->editColumn('max_size_kb', $this->maxSizeColumn())
+            ->editColumn('is_active', $this->statusColumn())
+            ->addColumn('actions', $this->actionsColumn())
+            ->rawColumns(['code', 'max_size_kb', 'is_active', 'actions'])
+            ->make(true);
+    }
+
+    /**
+     * Build the `code` column renderer.
+     */
+    private function codeColumn(): \Closure
+    {
+        return function ($documentType) {
+            return '<span class="badge bg-dark bg-opacity-10 text-dark fw-medium py-2 px-3 fs-7 border border-dark border-opacity-10 rounded-pill">'.e($documentType->code).'</span>';
+        };
+    }
+
+    /**
+     * Build the `max_size_kb` column renderer.
+     */
+    private function maxSizeColumn(): \Closure
+    {
+        return function ($documentType) {
+            return number_format($documentType->max_size_kb).' KB';
+        };
+    }
+
+    /**
+     * Build the `is_active` status badge renderer.
+     */
+    private function statusColumn(): \Closure
+    {
+        return function ($documentType) {
+            if ($documentType->is_active) {
+                return '<span class="badge bg-success bg-opacity-10 text-success fw-medium py-2 px-3 fs-7 border border-success border-opacity-20 rounded-pill">Active</span>';
+            }
+
+            return '<span class="badge bg-secondary bg-opacity-10 text-secondary fw-medium py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">Inactive</span>';
+        };
+    }
+
+    /**
+     * Build the `actions` column renderer.
+     */
+    private function actionsColumn(): \Closure
+    {
+        return function ($documentType) {
+            $html = '<div class="d-flex justify-content-end gap-2">';
+            if (auth()->user()->can('document-type-edit')) {
+                $html .= '<a href="'.route('admin.document-types.edit', $documentType->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Document Type"><i class="bi bi-pencil-square text-primary"></i> Edit</a>';
+            }
+            if (auth()->user()->can('document-type-delete')) {
+                $html .= '<form action="'.route('admin.document-types.destroy', $documentType->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to delete this document type? Unit requirements using it will also be removed.\')">';
+                $html .= csrf_field().method_field('DELETE');
+                $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Document Type"><i class="bi bi-trash text-danger"></i></button>';
+                $html .= '</form>';
+            }
+            $html .= '</div>';
+
+            return $html;
+        };
+    }
+}
