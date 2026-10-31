@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use App\Contracts\AcademicYearServiceInterface;
 use App\Contracts\AdmissionTrackServiceInterface;
+use App\Contracts\AdmissionWaveServiceInterface;
+use App\Contracts\DocumentRequirementServiceInterface;
+use App\Contracts\DocumentTypeServiceInterface;
 use App\Contracts\MajorServiceInterface;
 use App\Contracts\PermissionServiceInterface;
 use App\Contracts\ProfileServiceInterface;
@@ -12,6 +15,9 @@ use App\Contracts\SchoolUnitServiceInterface;
 use App\Contracts\UserServiceInterface;
 use App\Services\AcademicYearService;
 use App\Services\AdmissionTrackService;
+use App\Services\AdmissionWaveService;
+use App\Services\DocumentRequirementService;
+use App\Services\DocumentTypeService;
 use App\Services\MajorService;
 use App\Services\PermissionService;
 use App\Services\ProfileService;
@@ -37,6 +43,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(SchoolUnitServiceInterface::class, SchoolUnitService::class);
         $this->app->bind(AdmissionTrackServiceInterface::class, AdmissionTrackService::class);
         $this->app->bind(MajorServiceInterface::class, MajorService::class);
+        $this->app->bind(AdmissionWaveServiceInterface::class, AdmissionWaveService::class);
+        $this->app->bind(DocumentTypeServiceInterface::class, DocumentTypeService::class);
+        $this->app->bind(DocumentRequirementServiceInterface::class, DocumentRequirementService::class);
     }
 
     /**

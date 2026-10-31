@@ -3,7 +3,10 @@
 use App\Http\Controllers\Admin\AcademicYearController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AdmissionTrackController;
+use App\Http\Controllers\Admin\AdmissionWaveController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DocumentRequirementController;
+use App\Http\Controllers\Admin\DocumentTypeController;
 use App\Http\Controllers\Admin\MajorController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -48,4 +51,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('school-units', SchoolUnitController::class)->middleware('permission:school-unit-list');
     Route::resource('admission-tracks', AdmissionTrackController::class)->middleware('permission:admission-track-list');
     Route::resource('majors', MajorController::class)->middleware('permission:major-list');
+    // The resource parameter is pinned because Laravel's inflector would
+    // otherwise singularize "waves" to "wafe" and break model binding.
+    Route::resource('admission-waves', AdmissionWaveController::class)->parameters(['admission-waves' => 'admissionWave'])->middleware('permission:admission-wave-list');
+    Route::resource('document-types', DocumentTypeController::class)->middleware('permission:document-type-list');
+
+    // Per-unit document requirements (matrix), managed from the unit list
+    Route::get('school-units/{school_unit}/document-requirements', [DocumentRequirementController::class, 'edit'])->name('school-units.document-requirements.edit');
+    Route::put('school-units/{school_unit}/document-requirements', [DocumentRequirementController::class, 'update'])->name('school-units.document-requirements.update');
 });

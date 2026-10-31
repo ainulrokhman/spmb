@@ -67,6 +67,22 @@ class SchoolUnit extends Model
     }
 
     /**
+     * Admission waves owned by this unit.
+     */
+    public function admissionWaves(): HasMany
+    {
+        return $this->hasMany(AdmissionWave::class);
+    }
+
+    /**
+     * Document requirements defined for this unit.
+     */
+    public function documentRequirements(): HasMany
+    {
+        return $this->hasMany(DocumentRequirement::class);
+    }
+
+    /**
      * Majors owned by this unit.
      */
     public function majors(): HasMany

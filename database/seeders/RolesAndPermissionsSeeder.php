@@ -59,6 +59,16 @@ class RolesAndPermissionsSeeder extends Seeder
             'major-edit',
             'major-delete',
 
+            'admission-wave-list',
+            'admission-wave-create',
+            'admission-wave-edit',
+            'admission-wave-delete',
+
+            'document-type-list',
+            'document-type-create',
+            'document-type-edit',
+            'document-type-delete',
+
             'manage-settings',
             'activity-log-list',
         ];
@@ -110,6 +120,16 @@ class RolesAndPermissionsSeeder extends Seeder
             'major-create',
             'major-edit',
             'major-delete',
+
+            'admission-wave-list',
+            'admission-wave-create',
+            'admission-wave-edit',
+            'admission-wave-delete',
+
+            'document-type-list',
+            'document-type-create',
+            'document-type-edit',
+            'document-type-delete',
         ]);
 
         // SuperAdmin Role
