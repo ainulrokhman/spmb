@@ -1,13 +1,17 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\PermissionController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\AcademicYearController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\AdmissionTrackController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\MajorController;
+use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SchoolUnitController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Route;
 
 // Welcome Page
 Route::get('/', function () {
@@ -23,7 +27,7 @@ Route::any('/logout', [AuthController::class, 'logout'])->name('logout')->middle
 
 // Protected Admin Panel Group
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    
+
     // Dashboard Route
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard')->middleware('permission:view-dashboard');
 
@@ -38,5 +42,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('users', UserController::class)->middleware('permission:user-list');
     Route::resource('roles', RoleController::class)->middleware('permission:role-list');
     Route::resource('permissions', PermissionController::class)->middleware('permission:permission-list');
-});
 
+    // SPMB Master Data Routes
+    Route::resource('academic-years', AcademicYearController::class)->middleware('permission:academic-year-list');
+    Route::resource('school-units', SchoolUnitController::class)->middleware('permission:school-unit-list');
+    Route::resource('admission-tracks', AdmissionTrackController::class)->middleware('permission:admission-track-list');
+    Route::resource('majors', MajorController::class)->middleware('permission:major-list');
+});

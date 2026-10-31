@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Role;
 use App\Models\Permission;
-use Spatie\Permission\PermissionRegistrar;
+use App\Models\Role;
 use App\Models\User;
 use App\Support\SystemAccess;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -23,22 +23,42 @@ class RolesAndPermissionsSeeder extends Seeder
         // 1. Create Permissions
         $permissions = [
             'view-dashboard',
-            
+
             'user-list',
             'user-create',
             'user-edit',
             'user-delete',
-            
+
             'role-list',
             'role-create',
             'role-edit',
             'role-delete',
-            
+
             'permission-list',
             'permission-create',
             'permission-edit',
             'permission-delete',
-            
+
+            'academic-year-list',
+            'academic-year-create',
+            'academic-year-edit',
+            'academic-year-delete',
+
+            'school-unit-list',
+            'school-unit-create',
+            'school-unit-edit',
+            'school-unit-delete',
+
+            'admission-track-list',
+            'admission-track-create',
+            'admission-track-edit',
+            'admission-track-delete',
+
+            'major-list',
+            'major-create',
+            'major-edit',
+            'major-delete',
+
             'manage-settings',
             'activity-log-list',
         ];
@@ -48,7 +68,7 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         // 2. Create Roles and Assign Existing Permissions
-        
+
         // User Role
         $userRole = Role::firstOrCreate(['name' => SystemAccess::USER_ROLE]);
         $userRole->givePermissionTo('view-dashboard');
@@ -57,19 +77,39 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => SystemAccess::ADMIN_ROLE]);
         $adminRole->givePermissionTo([
             'view-dashboard',
-            
+
             'user-list',
             'user-create',
             'user-edit',
             'user-delete',
-            
+
             'role-list',
             'role-create',
             'role-edit',
             'role-delete',
-            
+
             'permission-list',
             'activity-log-list',
+
+            'academic-year-list',
+            'academic-year-create',
+            'academic-year-edit',
+            'academic-year-delete',
+
+            'school-unit-list',
+            'school-unit-create',
+            'school-unit-edit',
+            'school-unit-delete',
+
+            'admission-track-list',
+            'admission-track-create',
+            'admission-track-edit',
+            'admission-track-delete',
+
+            'major-list',
+            'major-create',
+            'major-edit',
+            'major-delete',
         ]);
 
         // SuperAdmin Role
@@ -77,7 +117,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // No explicit permissions assigned because it bypasses checks via Gate::before in AppServiceProvider
 
         // 3. Create Default Users for Testing
-        
+
         // SuperAdmin User
         $superAdmin = User::firstOrCreate(
             ['email' => SystemAccess::SUPER_ADMIN_EMAIL],
