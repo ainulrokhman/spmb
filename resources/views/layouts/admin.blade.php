@@ -343,7 +343,7 @@
                         </li>
                         @endcan
 
-                        @canany(['academic-year-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list', 'document-type-list', 'form-field-list'])
+                        @canany(['academic-year-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list', 'document-type-list', 'form-field-list', 'fee-component-list', 'fee-amount-list'])
                         <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Master Data</li>
                         @endcanany
 
@@ -406,6 +406,24 @@
                             <a href="{{ route('admin.form-fields.index') }}" class="nav-link {{ request()->is('admin/form-fields*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-ui-checks me-2"></i>
                                 <p>Form Fields</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('fee-component-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.fee-components.index') }}" class="nav-link {{ request()->is('admin/fee-components*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-tags me-2"></i>
+                                <p>Fee Components</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('fee-amount-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.fee-amounts.index') }}" class="nav-link {{ request()->is('admin/fee-amounts*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-cash-stack me-2"></i>
+                                <p>Fee Amounts</p>
                             </a>
                         </li>
                         @endcan
