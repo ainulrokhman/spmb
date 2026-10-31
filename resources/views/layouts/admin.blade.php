@@ -342,6 +342,46 @@
                             </a>
                         </li>
                         @endcan
+
+                        @canany(['academic-year-list', 'school-unit-list', 'admission-track-list', 'major-list'])
+                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Master Data</li>
+                        @endcanany
+
+                        @can('academic-year-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.academic-years.index') }}" class="nav-link {{ request()->is('admin/academic-years*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-calendar-range me-2"></i>
+                                <p>Academic Years</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('school-unit-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.school-units.index') }}" class="nav-link {{ request()->is('admin/school-units*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-building me-2"></i>
+                                <p>School Units</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('admission-track-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.admission-tracks.index') }}" class="nav-link {{ request()->is('admin/admission-tracks*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-signpost-split me-2"></i>
+                                <p>Admission Tracks</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('major-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.majors.index') }}" class="nav-link {{ request()->is('admin/majors*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-diagram-3 me-2"></i>
+                                <p>Majors</p>
+                            </a>
+                        </li>
+                        @endcan
                     </ul>
                 </nav>
             </div>
