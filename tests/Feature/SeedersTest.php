@@ -27,8 +27,8 @@ class SeedersTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         // Structure and master pools are ready…
-        $this->assertSame(61, Permission::count());
-        $this->assertSame(4, Role::count());
+        $this->assertSame(63, Permission::count());
+        $this->assertSame(5, Role::count());
         $this->assertSame(6, DocumentType::count());
         $this->assertSame(2, Program::count());
         $this->assertSame(4, FeeComponent::count());

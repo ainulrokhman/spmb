@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\AdmissionWave;
 
+use App\Rules\UnitAccessible;
 use App\Models\AdmissionTrack;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -21,7 +22,7 @@ class StoreAdmissionWaveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'school_unit_id' => ['required', 'exists:school_units,id'],
+            'school_unit_id' => ['required', 'exists:school_units,id', new UnitAccessible],
             'academic_year_id' => ['required', 'exists:academic_years,id'],
             'name' => ['required', 'string', 'max:255'],
             'quota' => ['nullable', 'integer', 'min:1'],

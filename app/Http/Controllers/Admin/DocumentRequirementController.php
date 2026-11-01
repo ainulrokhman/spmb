@@ -29,7 +29,8 @@ class DocumentRequirementController extends Controller
      */
     public function edit(SchoolUnit $schoolUnit)
     {
-        Gate::authorize('school-unit-edit');
+        abort_unless(auth()->user()->can('school-unit-edit') || auth()->user()->can('unit-requirement-manage'), 403);
+        abort_unless(auth()->user()->hasUnitAccess($schoolUnit->id), 403);
 
         $documentTypes = DocumentType::where('is_active', true)->orderBy('name')->get();
         $requirementMap = $this->documentRequirementService->requirementMapForUnit($schoolUnit);
@@ -42,7 +43,8 @@ class DocumentRequirementController extends Controller
      */
     public function update(UpdateDocumentRequirementsRequest $request, SchoolUnit $schoolUnit)
     {
-        Gate::authorize('school-unit-edit');
+        abort_unless(auth()->user()->can('school-unit-edit') || auth()->user()->can('unit-requirement-manage'), 403);
+        abort_unless(auth()->user()->hasUnitAccess($schoolUnit->id), 403);
 
         if ($errorRedirect = $this->runServiceAction(fn () => $this->documentRequirementService->syncUnitRequirements($schoolUnit, $request->levelsToSync()), 'admin.school-units.index')) {
             return $errorRedirect;

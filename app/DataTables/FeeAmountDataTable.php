@@ -20,6 +20,9 @@ class FeeAmountDataTable
             ->when(request()->filled('school_unit_id'), function ($query) {
                 $query->whereHas('fee', fn ($feeQuery) => $feeQuery->where('school_unit_id', request()->integer('school_unit_id')));
             })
+            ->when(request()->filled('unit_scope'), function ($query) {
+                $query->whereHas('fee', fn ($feeQuery) => $feeQuery->whereIn('school_unit_id', explode(',', (string) request()->input('unit_scope'))));
+            })
             ->when(request()->filled('fee_component_id'), function ($query) {
                 $query->whereHas('fee', fn ($feeQuery) => $feeQuery->where('fee_component_id', request()->integer('fee_component_id')));
             })

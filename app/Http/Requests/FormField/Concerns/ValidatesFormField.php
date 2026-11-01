@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\FormField\Concerns;
 
+use App\Rules\UnitAccessible;
 use App\Contracts\FormFieldServiceInterface;
 use App\Models\FormField;
 use Illuminate\Validation\Rule;
@@ -16,7 +17,7 @@ trait ValidatesFormField
     public function rules(): array
     {
         return [
-            'school_unit_id' => ['required', 'exists:school_units,id'],
+            'school_unit_id' => ['required', 'exists:school_units,id', new UnitAccessible],
             'key' => ['required', 'string', 'max:100', 'regex:/^[a-z][a-z0-9_]*$/', $this->keyUniqueRule()],
             'label' => ['required', 'string', 'max:255'],
             'type' => ['required', Rule::in(FormField::TYPES)],

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\SchoolUnitServiceInterface;
 use App\DataTables\SchoolUnitDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SchoolUnit\StoreSchoolUnitRequest;
 use App\Http\Requests\SchoolUnit\UpdateSchoolUnitRequest;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Gate;
 
 class SchoolUnitController extends Controller
 {
-    use HandlesServiceExceptions;
+    use HandlesServiceExceptions, ScopesUnits;
 
     protected SchoolUnitServiceInterface $schoolUnitService;
 
@@ -35,6 +36,8 @@ class SchoolUnitController extends Controller
         Gate::authorize('school-unit-list');
 
         if ($request->ajax()) {
+            $this->injectUnitScope($request);
+
             return $schoolUnitDataTable->make();
         }
 

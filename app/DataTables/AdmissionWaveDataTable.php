@@ -20,6 +20,9 @@ class AdmissionWaveDataTable
             ->select(['id', 'school_unit_id', 'academic_year_id', 'name', 'quota', 'opens_at', 'closes_at', 'is_active'])
             ->when(request()->filled('school_unit_id'), function ($query) {
                 $query->where('school_unit_id', request()->integer('school_unit_id'));
+            })
+            ->when(request()->filled('unit_scope'), function ($query) {
+                $query->whereIn('school_unit_id', explode(',', (string) request()->input('unit_scope')));
             });
 
         return DataTables::of($admissionWaves)

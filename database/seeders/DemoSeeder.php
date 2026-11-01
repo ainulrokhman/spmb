@@ -249,7 +249,7 @@ class DemoSeeder extends Seeder
                 ['email' => $email],
                 ['name' => $name, 'password' => Hash::make('password')]
             );
-            $user->assignRole(SystemAccess::ADMIN_ROLE);
+            $user->assignRole(SystemAccess::PANITIA_ROLE);
             $user->schoolUnits()->syncWithoutDetaching([$unit->id]);
         }
     }

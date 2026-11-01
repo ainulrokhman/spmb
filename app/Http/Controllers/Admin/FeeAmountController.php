@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\FeeAmountServiceInterface;
 use App\DataTables\FeeAmountDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FeeAmount\StoreFeeAmountRequest;
 use App\Http\Requests\FeeAmount\UpdateFeeAmountRequest;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Gate;
 
 class FeeAmountController extends Controller
 {
-    use HandlesServiceExceptions;
+    use HandlesServiceExceptions, ScopesUnits;
 
     protected FeeAmountServiceInterface $feeAmountService;
 
@@ -38,10 +39,12 @@ class FeeAmountController extends Controller
         Gate::authorize('fee-amount-list');
 
         if ($request->ajax()) {
+            $this->injectUnitScope($request);
+
             return $feeAmountDataTable->make();
         }
 
-        $units = SchoolUnit::orderBy('name')->get();
+        $units = $this->accessibleUnits();
         $components = FeeComponent::orderBy('name')->get();
 
         return view('admin.fee-amounts.index', compact('units', 'components'));
@@ -78,6 +81,7 @@ class FeeAmountController extends Controller
     public function edit(FeeAmount $feeAmount)
     {
         Gate::authorize('fee-amount-edit');
+        $this->ensureUnitAccess($feeAmount->fee->school_unit_id);
 
         return view('admin.fee-amounts.edit', array_merge(
             $this->formData(),
@@ -91,6 +95,7 @@ class FeeAmountController extends Controller
     public function update(UpdateFeeAmountRequest $request, FeeAmount $feeAmount)
     {
         Gate::authorize('fee-amount-edit');
+        $this->ensureUnitAccess($feeAmount->fee->school_unit_id);
 
         if ($errorRedirect = $this->runServiceAction(fn () => $this->feeAmountService->updateFeeAmount($feeAmount, $request->validated()), 'admin.fee-amounts.index')) {
             return $errorRedirect;
@@ -106,6 +111,7 @@ class FeeAmountController extends Controller
     public function destroy(FeeAmount $feeAmount)
     {
         Gate::authorize('fee-amount-delete');
+        $this->ensureUnitAccess($feeAmount->fee->school_unit_id);
 
         if ($errorRedirect = $this->runServiceAction(fn () => $this->feeAmountService->deleteFeeAmount($feeAmount), 'admin.fee-amounts.index')) {
             return $errorRedirect;
@@ -121,10 +127,13 @@ class FeeAmountController extends Controller
     private function formData(): array
     {
         $fees = Fee::with(['schoolUnit', 'feeComponent'])
+            ->when(! auth()->user()->hasGlobalUnitAccess(), fn ($query) => $query->whereIn('school_unit_id', auth()->user()->accessibleUnitIds()))
             ->get()
             ->sortBy(fn (Fee $fee) => ($fee->schoolUnit?->name ?? '').' '.($fee->feeComponent?->name ?? ''))
             ->values();
-        $tracks = AdmissionTrack::with('schoolUnit')->orderBy('name')->get();
+        $tracks = AdmissionTrack::with('schoolUnit')
+            ->when(! auth()->user()->hasGlobalUnitAccess(), fn ($query) => $query->whereIn('school_unit_id', auth()->user()->accessibleUnitIds()))
+            ->orderBy('name')->get();
 
         return compact('fees', 'tracks');
     }
