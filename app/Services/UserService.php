@@ -27,6 +27,8 @@ class UserService implements UserServiceInterface
             $user->assignRole(SystemAccess::USER_ROLE); // default role
         }
 
+        $user->schoolUnits()->sync($data['school_units'] ?? []);
+
         return $user;
     }
 
@@ -60,6 +62,8 @@ class UserService implements UserServiceInterface
         }
 
         $user->syncRoles($roles);
+
+        $user->schoolUnits()->sync($data['school_units'] ?? []);
 
         return $user;
     }
