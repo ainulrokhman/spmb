@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\SchoolUnitController;
 use App\Http\Controllers\Admin\UnitFeeController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdmissionInfoController;
+use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use App\Http\Controllers\Admin\FormPaymentController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\AuthController;
@@ -120,6 +121,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('form-payments', [FormPaymentController::class, 'index'])->name('form-payments.index')->middleware('permission:form-payment-list');
     Route::post('form-payments/{application}/decide', [FormPaymentController::class, 'decide'])->name('form-payments.decide')->middleware('permission:form-payment-decide');
     Route::post('form-payments/payments/{payment}/confirm', [FormPaymentController::class, 'confirm'])->name('form-payments.confirm')->middleware('permission:form-payment-decide');
+
+    // Application verification (Fase 3)
+    Route::get('applications', [AdminApplicationController::class, 'index'])->name('applications.index')->middleware('permission:application-list');
+    Route::get('applications/{application}', [AdminApplicationController::class, 'show'])->name('applications.show')->middleware('permission:application-list');
+    Route::post('applications/{application}/documents/{document}/verify', [AdminApplicationController::class, 'verifyDocument'])->name('applications.documents.verify')->middleware('permission:application-verify');
+    Route::post('applications/{application}/decide', [AdminApplicationController::class, 'decide'])->name('applications.decide')->middleware('permission:application-verify');
 
     // Settings (payment channels)
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit')->middleware('permission:manage-settings');

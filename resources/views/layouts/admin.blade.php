@@ -274,6 +274,19 @@
                         </li>
                         @endcan
 
+                        @canany(['application-list'])
+                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Pendaftaran</li>
+                        @endcanany
+
+                        @can('application-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.applications.index') }}" class="nav-link {{ request()->is('admin/applications*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-clipboard-check me-2"></i>
+                                <p>Verifikasi Pendaftaran</p>
+                            </a>
+                        </li>
+                        @endcan
+
                         @canany(['user-list', 'role-list', 'permission-list'])
                         <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Pengguna & Akses</li>
                         @endcanany

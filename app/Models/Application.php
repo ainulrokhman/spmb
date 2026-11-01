@@ -122,6 +122,9 @@ class Application extends Model
         'status',
         'registration_number',
         'submitted_at',
+        'verification_note',
+        'verified_by',
+        'verified_at',
     ];
 
     protected function casts(): array
@@ -135,6 +138,7 @@ class Application extends Model
             'answers' => 'array',
             'form_fee_decided_at' => 'datetime',
             'submitted_at' => 'datetime',
+            'verified_at' => 'datetime',
         ];
     }
 
@@ -183,6 +187,11 @@ class Application extends Model
         return $this->belongsTo(User::class, 'form_fee_decided_by');
     }
 
+    public function verifier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
     /**
      * The discount amount in rupiah granted on the form fee.
      */
@@ -224,7 +233,7 @@ class Application extends Model
     public function isEditable(): bool
     {
         return $this->feeSettled()
-            && in_array($this->status, ['filling_form', 'uploading_documents'], true)
+            && in_array($this->status, ['filling_form', 'uploading_documents', 'needs_revision'], true)
             && $this->admissionWave !== null
             && $this->admissionWave->status() !== AdmissionWave::STATUS_CLOSED;
     }

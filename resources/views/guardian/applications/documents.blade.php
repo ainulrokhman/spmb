@@ -3,7 +3,18 @@
 @section('title', 'Input Berkas')
 
 @section('content')
-<h3 class="fw-bold mb-1">Tahap 3 — Input Berkas</h3>
+@if($application->status === 'needs_revision')
+    <div class="alert alert-danger bg-danger bg-opacity-10 text-body border-0 rounded-3 p-3 mb-3">
+        <strong>Pendaftaran Anda perlu perbaikan.</strong>
+        @if($application->verification_note)
+            <div class="small mt-1">Catatan panitia: {{ $application->verification_note }}</div>
+        @endif
+        <div class="small mt-1">Perbaiki berkas yang ditandai di bawah (atau <a href="{{ route('guardian.applications.form', $application) }}">perbaiki isi formulir</a> bila perlu), lalu kirim ulang — nomor pendaftaran Anda tetap sama.</div>
+    </div>
+    <h3 class="fw-bold mb-1">Perbaiki Berkas</h3>
+@else
+    <h3 class="fw-bold mb-1">Tahap 3 — Input Berkas</h3>
+@endif
 <p class="text-muted mb-4">{{ $application->schoolUnit?->name }} &middot; {{ $application->child_name }}. Format yang diterima: JPG, PNG, atau PDF, maksimal 2MB per berkas.</p>
 
 @if($errors->any())
@@ -36,6 +47,11 @@
                             @endif
                             @if($doc)
                                 <span class="badge bg-success ms-1">Terunggah</span>
+                                @if($doc->verification_status === 'revision')
+                                    <span class="badge bg-danger ms-1">Perlu Perbaikan</span>
+                                @elseif($doc->verification_status === 'verified')
+                                    <span class="badge bg-primary ms-1">Terverifikasi</span>
+                                @endif
                             @endif
                         </div>
                         @if($type->description)
@@ -46,6 +62,9 @@
                                 <a href="{{ asset('storage/'.$doc->file_path) }}" target="_blank" rel="noopener">{{ $doc->original_name }}</a>
                                 <span class="text-muted">({{ number_format($doc->size / 1024, 0) }} KB)</span>
                             </div>
+                            @if($doc->verification_status === 'revision' && $doc->verification_note)
+                                <div class="small text-danger mt-1">Catatan panitia: {{ $doc->verification_note }}</div>
+                            @endif
                         @endif
                     </div>
                     <div class="d-flex align-items-start gap-2">
@@ -83,7 +102,7 @@
         </div>
         <form method="POST" action="{{ route('guardian.applications.submit', $application) }}" onsubmit="return confirm('Kirim pendaftaran sekarang? Pastikan data dan berkas sudah benar.');">
             @csrf
-            <button type="submit" class="btn btn-success" {{ $missing->isEmpty() ? '' : 'disabled' }}>Kirim Pendaftaran</button>
+            <button type="submit" class="btn btn-success" {{ $missing->isEmpty() ? '' : 'disabled' }}>{{ $application->status === 'needs_revision' ? 'Kirim Ulang Pendaftaran' : 'Kirim Pendaftaran' }}</button>
         </form>
     </div>
 </div>
