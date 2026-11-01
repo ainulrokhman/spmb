@@ -163,7 +163,7 @@
                         </li>
                         @endcan
 
-                        @canany(['academic-year-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list'])
+                        @canany(['academic-year-list', 'program-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list'])
                         <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Data Master</li>
                         @endcanany
 
@@ -172,6 +172,15 @@
                             <a href="{{ route('admin.academic-years.index') }}" class="nav-link {{ request()->is('admin/academic-years*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-calendar-range me-2"></i>
                                 <p>Tahun Ajaran</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('program-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.programs.index') }}" class="nav-link {{ request()->is('admin/programs*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-collection me-2"></i>
+                                <p>Program</p>
                             </a>
                         </li>
                         @endcan

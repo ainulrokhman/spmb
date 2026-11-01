@@ -4,7 +4,7 @@
 @section('page-title', 'Ubah Komponen Biaya: ' . $feeComponent->name)
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('admin.fee-components.index') }}" class="text-decoration-none">Fee Components</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('admin.fee-components.index') }}" class="text-decoration-none">Komponen Biaya</a></li>
     <li class="breadcrumb-item active" aria-current="page">Ubah</li>
 @endsection
 

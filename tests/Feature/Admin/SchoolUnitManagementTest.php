@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\Program;
 use App\Models\SchoolUnit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SeedsDemoUsers;
@@ -38,7 +39,7 @@ class SchoolUnitManagementTest extends TestCase
             'name' => 'SMP Reguler',
             'code' => '31',
             'level' => 'SMP/MTs',
-            'program' => 'Reguler',
+            'program_id' => Program::factory()->create()->id,
             'address' => 'Jl. Pendidikan No. 1',
             'phone' => '081234567890',
             'is_active' => '1',
@@ -92,7 +93,8 @@ class SchoolUnitManagementTest extends TestCase
             ->post(route('admin.school-units.store'), $this->validUnitPayload());
 
         $response->assertRedirect(route('admin.school-units.index'));
-        $this->assertDatabaseHas('school_units', ['code' => '31', 'level' => 'SMP/MTs', 'program' => 'Reguler']);
+        $this->assertDatabaseHas('school_units', ['code' => '31', 'level' => 'SMP/MTs']);
+        $this->assertNotNull(SchoolUnit::where('code', '31')->first()->program_id);
     }
 
     /**
@@ -140,7 +142,7 @@ class SchoolUnitManagementTest extends TestCase
      */
     public function test_admin_can_update_school_unit(): void
     {
-        $unit = SchoolUnit::factory()->create(['code' => '31', 'program' => 'Reguler']);
+        $unit = SchoolUnit::factory()->create(['code' => '31']);
 
         $response = $this->actingAs($this->admin())
             ->put(route('admin.school-units.update', $unit), $this->validUnitPayload(['name' => 'SMP Reguler Baru']));

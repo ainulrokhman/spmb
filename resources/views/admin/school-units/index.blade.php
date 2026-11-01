@@ -12,7 +12,7 @@
     <div class="card-header bg-transparent border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between pt-4 px-4 gap-3">
         <div>
             <h5 class="mb-0 fw-bold text-body">Unit Sekolah</h5>
-            <p class="text-muted small mb-0">Satu unit adalah satu jenjang sekolah dengan satu program (Reguler atau Boarding)</p>
+            <p class="text-muted small mb-0">Satu unit adalah satu jenjang sekolah dengan satu program</p>
         </div>
 
         <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -90,7 +90,7 @@
             ],
             dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3"l>rt<"d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top"ip>',
             language: {
-                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Memuat school units...',
+                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Memuat unit sekolah...',
                 lengthMenu: "Tampilkan _MENU_ data",
                 search: "Cari:",
                 info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",

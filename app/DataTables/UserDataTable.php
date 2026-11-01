@@ -96,7 +96,7 @@ class UserDataTable
         return function ($user) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('user-edit')) {
-                $html .= '<a href="'.route('admin.users.edit', $user->id).'" class="btn btn-sm btn-light border" title="Edit User"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.users.edit', $user->id).'" class="btn btn-sm btn-light border" title="Ubah User"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('user-delete')) {
                 if (auth()->id() === $user->id) {
@@ -106,7 +106,7 @@ class UserDataTable
                 } else {
                     $html .= '<form action="'.route('admin.users.destroy', $user->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus pengguna '.e($user->name).'?\')">';
                     $html .= csrf_field().method_field('DELETE');
-                    $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete User"><i class="bi bi-trash text-danger"></i></button>';
+                    $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Hapus User"><i class="bi bi-trash text-danger"></i></button>';
                     $html .= '</form>';
                 }
             }

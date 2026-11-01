@@ -44,6 +44,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'academic-year-edit',
             'academic-year-delete',
 
+            'program-list',
+            'program-create',
+            'program-edit',
+            'program-delete',
+
             'school-unit-list',
             'school-unit-create',
             'school-unit-edit',
@@ -120,6 +125,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'academic-year-create',
             'academic-year-edit',
             'academic-year-delete',
+
+            'program-list',
+            'program-create',
+            'program-edit',
+            'program-delete',
 
             'school-unit-list',
             'school-unit-create',

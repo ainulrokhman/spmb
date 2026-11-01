@@ -52,13 +52,14 @@
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label for="program" class="form-label fw-semibold text-secondary">Program</label>
-                        <select class="form-select @error('program') is-invalid @enderror" id="program" name="program" required>
+                        <label for="program_id" class="form-label fw-semibold text-secondary">Program</label>
+                        <select class="form-select @error('program_id') is-invalid @enderror" id="program_id" name="program_id" required>
                             <option value="">Pilih program...</option>
-                                <option value="Reguler" {{ old('program', $schoolUnit->program) == 'Reguler' ? 'selected' : '' }}>Reguler</option>
-                                <option value="Boarding" {{ old('program', $schoolUnit->program) == 'Boarding' ? 'selected' : '' }}>Boarding</option>
+                            @foreach($programs as $program)
+                                <option value="{{ $program->id }}" {{ (string) old('program_id', $schoolUnit->program_id) === (string) $program->id ? 'selected' : '' }}>{{ $program->name }}</option>
+                            @endforeach
                         </select>
-                        @error('program')
+                        @error('program_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

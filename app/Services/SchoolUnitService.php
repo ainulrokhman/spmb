@@ -42,7 +42,7 @@ class SchoolUnitService implements SchoolUnitServiceInterface
             'name' => $data['name'],
             'code' => $data['code'],
             'level' => $data['level'],
-            'program' => $data['program'],
+            'program_id' => $data['program_id'],
             'address' => $data['address'] ?? null,
             'phone' => $data['phone'] ?? null,
             'is_active' => ! empty($data['is_active']),

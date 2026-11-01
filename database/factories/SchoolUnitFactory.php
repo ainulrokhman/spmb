@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Program;
 use App\Models\SchoolUnit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,7 +22,7 @@ class SchoolUnitFactory extends Factory
             'name' => fake()->unique()->company().' School',
             'code' => fake()->unique()->numerify('##'),
             'level' => fake()->randomElement(SchoolUnit::LEVELS),
-            'program' => fake()->randomElement(SchoolUnit::PROGRAMS),
+            'program_id' => Program::factory(),
             'address' => fake()->address(),
             'phone' => fake()->phoneNumber(),
             'is_active' => true,

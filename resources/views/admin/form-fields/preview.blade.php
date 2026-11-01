@@ -13,7 +13,7 @@
     <div class="col-12 col-lg-8 mx-auto">
         <div class="alert alert-info bg-info bg-opacity-10 text-info border-0 rounded-3 mb-4 p-3 d-flex align-items-center" role="alert">
             <i class="bi bi-eye-fill me-2 fs-5"></i>
-            <div>Pratinjau bidang dinamis untuk <strong>{{ $schoolUnit->name }}</strong> ({{ $schoolUnit->level }} &middot; {{ $schoolUnit->program }}). Bidang identitas inti bersifat tetap dan ditampilkan terpisah pada formulir sebenarnya. Semua isian di sini dinonaktifkan.</div>
+            <div>Pratinjau bidang dinamis untuk <strong>{{ $schoolUnit->name }}</strong> ({{ $schoolUnit->level }} &middot; {{ $schoolUnit->program?->name }}). Bidang identitas inti bersifat tetap dan ditampilkan terpisah pada formulir sebenarnya. Semua isian di sini dinonaktifkan.</div>
         </div>
 
         @forelse($fieldGroups as $section => $fields)

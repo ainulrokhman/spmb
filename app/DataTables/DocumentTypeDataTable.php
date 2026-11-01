@@ -68,12 +68,12 @@ class DocumentTypeDataTable
         return function ($documentType) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('document-type-edit')) {
-                $html .= '<a href="'.route('admin.document-types.edit', $documentType->id).'" class="btn btn-sm btn-light border" title="Edit Document Type"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.document-types.edit', $documentType->id).'" class="btn btn-sm btn-light border" title="Ubah Document Type"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('document-type-delete')) {
                 $html .= '<form action="'.route('admin.document-types.destroy', $documentType->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus jenis berkas ini? Syarat berkas unit yang menggunakannya juga akan terhapus.\')">';
                 $html .= csrf_field().method_field('DELETE');
-                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete Document Type"><i class="bi bi-trash text-danger"></i></button>';
+                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Hapus Document Type"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';
             }
             $html .= '</div>';

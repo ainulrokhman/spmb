@@ -102,12 +102,12 @@ class FormFieldDataTable
         return function ($formField) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('form-field-edit')) {
-                $html .= '<a href="'.route('admin.form-fields.edit', $formField->id).'" class="btn btn-sm btn-light border" title="Edit Form Field"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.form-fields.edit', $formField->id).'" class="btn btn-sm btn-light border" title="Ubah Form Field"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('form-field-delete')) {
                 $html .= '<form action="'.route('admin.form-fields.destroy', $formField->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus bidang formulir ini?\')">';
                 $html .= csrf_field().method_field('DELETE');
-                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete Form Field"><i class="bi bi-trash text-danger"></i></button>';
+                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Hapus Form Field"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';
             }
             $html .= '</div>';

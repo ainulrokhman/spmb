@@ -18,7 +18,7 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
                     <h5 class="mb-0 fw-bold text-body">Syarat Berkas — {{ $schoolUnit->name }}</h5>
-                    <p class="text-muted small mb-0">{{ $schoolUnit->level }} &middot; {{ $schoolUnit->program }} &middot; Code {{ $schoolUnit->code }}. Choose for each document type whether this unit does not use it, accepts it optionally, or requires it from applicants.</p>
+                    <p class="text-muted small mb-0">{{ $schoolUnit->level }} &middot; {{ $schoolUnit->program?->name }} &middot; Kode {{ $schoolUnit->code }}. Tentukan untuk setiap jenis berkas apakah unit ini tidak menggunakannya, menjadikannya opsional, atau mewajibkannya bagi pendaftar.</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     @if($documentTypes->isEmpty())

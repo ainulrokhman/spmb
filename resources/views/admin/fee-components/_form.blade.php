@@ -1,7 +1,7 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
                     <h5 class="mb-0 fw-bold text-body">Detail Komponen Biaya</h5>
-                    <p class="text-muted small mb-0">Components are shared; each unit maps the ones it uses and sets their amounts</p>
+                    <p class="text-muted small mb-0">Komponen bersifat bersama; setiap unit memetakan yang digunakannya dan mengatur nominalnya</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     @if(session('error'))
@@ -30,7 +30,7 @@
 
                     <div class="mb-3">
                         <label for="description" class="form-label fw-semibold text-secondary">Deskripsi</label>
-                        <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="2" placeholder="Optional description">{{ old('description', $feeComponent->description ?? '') }}</textarea>
+                        <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="2" placeholder="Deskripsi singkat (opsional)">{{ old('description', $feeComponent->description ?? '') }}</textarea>
                         @error('description')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
