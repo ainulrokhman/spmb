@@ -85,7 +85,7 @@ class ApplicationController extends Controller
         return redirect()->route(match ($application->status) {
             'awaiting_form_fee' => 'guardian.applications.payment',
             'filling_form' => 'guardian.applications.form',
-            'uploading_documents' => 'guardian.applications.documents',
+            'uploading_documents', 'needs_revision' => 'guardian.applications.documents',
             default => 'guardian.applications.proof',
         }, $application);
     }
@@ -269,7 +269,7 @@ class ApplicationController extends Controller
     {
         $this->ensureOwner($application);
 
-        if (! in_array($application->status, ['uploading_documents'], true)) {
+        if (! in_array($application->status, ['uploading_documents', 'needs_revision'], true)) {
             return redirect()->route('guardian.applications.show', $application);
         }
 
@@ -292,7 +292,7 @@ class ApplicationController extends Controller
     {
         $this->ensureOwner($application);
 
-        if (! $application->isEditable() || $application->status !== 'uploading_documents') {
+        if (! $application->isEditable() || ! in_array($application->status, ['uploading_documents', 'needs_revision'], true)) {
             return back()->with('error', 'Berkas belum dapat diunggah pada tahap ini.');
         }
 
@@ -315,7 +315,7 @@ class ApplicationController extends Controller
     {
         $this->ensureOwner($application);
 
-        if (! $application->isEditable() || $application->status !== 'uploading_documents') {
+        if (! $application->isEditable() || ! in_array($application->status, ['uploading_documents', 'needs_revision'], true)) {
             return back()->with('error', 'Berkas tidak dapat dihapus pada tahap ini.');
         }
 

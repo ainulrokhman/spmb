@@ -37,6 +37,9 @@
                         @if($application->registration_number)
                             <p class="small mb-2">Nomor Pendaftaran: <strong>{{ $application->registration_number }}</strong></p>
                         @endif
+                        @if($application->status === 'needs_revision' && $application->verification_note)
+                            <div class="alert alert-danger bg-danger bg-opacity-10 text-body border-0 rounded-3 p-2 small mb-2">Perlu perbaikan: {{ $application->verification_note }}</div>
+                        @endif
                         <p class="small mb-3">
                             Biaya Formulir:
                             @if($application->form_fee_amount === 0)

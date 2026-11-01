@@ -6,6 +6,7 @@ use App\Contracts\ApplicationServiceInterface;
 use App\Models\AdmissionTrack;
 use App\Models\AdmissionWave;
 use App\Models\Application;
+use App\Models\ApplicationDocument;
 use App\Models\DocumentRequirement;
 use App\Models\DocumentType;
 use App\Models\Major;
@@ -183,6 +184,11 @@ class ApplicationService implements ApplicationServiceInterface
                 'original_name' => $file->getClientOriginalName(),
                 'mime_type' => $file->getMimeType(),
                 'size' => $file->getSize(),
+                // A (re)upload always restarts this document's check.
+                'verification_status' => 'pending',
+                'verification_note' => null,
+                'verified_by' => null,
+                'verified_at' => null,
             ]
         );
     }
@@ -225,9 +231,11 @@ class ApplicationService implements ApplicationServiceInterface
      */
     public function submit(Application $application): Application
     {
-        if ($application->status !== 'uploading_documents') {
+        if (! in_array($application->status, ['uploading_documents', 'needs_revision'], true)) {
             throw new InvalidArgumentException('Pendaftaran belum mencapai tahap pengiriman.');
         }
+
+        $isResubmission = $application->registration_number !== null;
 
         $wave = $application->admissionWave;
 
@@ -239,7 +247,7 @@ class ApplicationService implements ApplicationServiceInterface
             throw new InvalidArgumentException('Berkas wajib belum lengkap.');
         }
 
-        if ($wave->quota !== null) {
+        if (! $isResubmission && $wave->quota !== null) {
             $submittedCount = Application::query()
                 ->where('admission_wave_id', $wave->id)
                 ->whereNotNull('registration_number')
@@ -250,28 +258,122 @@ class ApplicationService implements ApplicationServiceInterface
             }
         }
 
-        return DB::transaction(function () use ($application) {
-            // Serialize number issuance per school unit.
-            SchoolUnit::query()->whereKey($application->school_unit_id)->lockForUpdate()->first();
+        return DB::transaction(function () use ($application, $isResubmission) {
+            $number = $application->registration_number;
 
-            $sequence = Application::query()
-                ->where('school_unit_id', $application->school_unit_id)
-                ->where('academic_year_id', $application->academic_year_id)
-                ->whereNotNull('registration_number')
-                ->count() + 1;
+            if (! $isResubmission) {
+                // Serialize number issuance per school unit.
+                SchoolUnit::query()->whereKey($application->school_unit_id)->lockForUpdate()->first();
 
-            $yearCode = substr((string) $application->academicYear->name, 2, 2);
-            $number = $application->schoolUnit->code
-                .$yearCode
-                .str_pad((string) $sequence, 3, '0', STR_PAD_LEFT);
+                $sequence = Application::query()
+                    ->where('school_unit_id', $application->school_unit_id)
+                    ->where('academic_year_id', $application->academic_year_id)
+                    ->whereNotNull('registration_number')
+                    ->count() + 1;
+
+                $yearCode = substr((string) $application->academicYear->name, 2, 2);
+                $number = $application->schoolUnit->code
+                    .$yearCode
+                    .str_pad((string) $sequence, 3, '0', STR_PAD_LEFT);
+            }
 
             $application->update([
                 'registration_number' => $number,
                 'status' => 'submitted',
                 'submitted_at' => now(),
+                // A resubmission clears the previous decision record.
+                'verification_note' => null,
+                'verified_by' => null,
+                'verified_at' => null,
             ]);
 
             return $application;
         });
+    }
+
+    /**
+     * Record the committee's check of one uploaded document
+     * (verified, or revision with a note).
+     */
+    public function verifyDocument(ApplicationDocument $document, string $status, ?string $note, User $verifier): ApplicationDocument
+    {
+        $application = $document->application;
+
+        if ($application->status !== 'submitted') {
+            throw new InvalidArgumentException('Berkas hanya dapat diperiksa selama pendaftaran menunggu verifikasi.');
+        }
+
+        if (! in_array($status, ['verified', 'revision'], true)) {
+            throw new InvalidArgumentException('Status pemeriksaan berkas tidak dikenal.');
+        }
+
+        if ($status === 'revision' && blank($note)) {
+            throw new InvalidArgumentException('Catatan wajib diisi untuk berkas yang perlu perbaikan.');
+        }
+
+        $document->update([
+            'verification_status' => $status,
+            'verification_note' => $note,
+            'verified_by' => $verifier->id,
+            'verified_at' => now(),
+        ]);
+
+        return $document;
+    }
+
+    /**
+     * Required document types whose upload is missing or not yet
+     * verified — these block the overall "verified" decision.
+     *
+     * @return Collection<int, DocumentType>
+     */
+    public function unverifiedRequiredDocuments(Application $application): Collection
+    {
+        $verifiedTypeIds = $application->documents()
+            ->where('verification_status', 'verified')
+            ->pluck('document_type_id');
+
+        return DocumentType::query()
+            ->whereIn('id', DocumentRequirement::query()
+                ->where('school_unit_id', $application->school_unit_id)
+                ->where('requirement', DocumentRequirement::REQUIRED)
+                ->pluck('document_type_id'))
+            ->whereNotIn('id', $verifiedTypeIds)
+            ->get();
+    }
+
+    /**
+     * Record the committee's overall decision: verified (only when
+     * every required document is verified), needs_revision, or
+     * rejected — the latter two require a note for the guardian.
+     */
+    public function decideVerification(Application $application, string $decision, ?string $note, User $decider): Application
+    {
+        if ($application->status !== 'submitted') {
+            throw new InvalidArgumentException('Keputusan hanya dapat diambil selama pendaftaran menunggu verifikasi.');
+        }
+
+        if ($decision === 'verified') {
+            $unverified = $this->unverifiedRequiredDocuments($application);
+
+            if ($unverified->isNotEmpty()) {
+                throw new InvalidArgumentException('Berkas wajib belum semua terverifikasi: '.$unverified->pluck('name')->implode(', ').'.');
+            }
+        } elseif (in_array($decision, ['needs_revision', 'rejected'], true)) {
+            if (blank($note)) {
+                throw new InvalidArgumentException('Catatan wajib diisi untuk keputusan ini.');
+            }
+        } else {
+            throw new InvalidArgumentException('Keputusan tidak dikenal.');
+        }
+
+        $application->update([
+            'status' => $decision,
+            'verification_note' => $note,
+            'verified_by' => $decider->id,
+            'verified_at' => now(),
+        ]);
+
+        return $application;
     }
 }

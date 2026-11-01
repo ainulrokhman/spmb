@@ -90,6 +90,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'form-payment-list',
             'form-payment-decide',
 
+            'application-list',
+            'application-verify',
+
             'manage-settings',
             'activity-log-list',
         ];
@@ -178,6 +181,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'form-payment-list',
             'form-payment-decide',
+
+            'application-list',
+            'application-verify',
 
             'manage-settings',
         ]);

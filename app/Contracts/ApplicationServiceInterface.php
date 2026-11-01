@@ -61,6 +61,28 @@ interface ApplicationServiceInterface
     /**
      * Submit the application: validates the step order, completeness,
      * wave state, and quota, then issues the registration number.
+     * Resubmission after a revision request keeps the number.
      */
     public function submit(Application $application): Application;
+
+    /**
+     * Record the committee's check of one uploaded document
+     * (verified, or revision with a note).
+     */
+    public function verifyDocument(\App\Models\ApplicationDocument $document, string $status, ?string $note, User $verifier): \App\Models\ApplicationDocument;
+
+    /**
+     * Required document types whose upload is missing or not yet
+     * verified — these block the overall "verified" decision.
+     *
+     * @return Collection<int, DocumentType>
+     */
+    public function unverifiedRequiredDocuments(Application $application): Collection;
+
+    /**
+     * Record the committee's overall decision: verified (only when
+     * every required document is verified), needs_revision, or
+     * rejected — the latter two require a note for the guardian.
+     */
+    public function decideVerification(Application $application, string $decision, ?string $note, User $decider): Application;
 }
