@@ -63,14 +63,14 @@ class DataTableTest extends TestCase
                 'superadmin@example.com',
             ],
             'roles' => [
-                'admin.roles.index', 10, 3,
+                'admin.roles.index', 10, 4,
                 ['role_name', 'permissions_preview', 'actions'],
                 'SuperAdmin',
             ],
             // Permissions ask for one full page: the default page size
             // of 10 would cut the list before every seeded permission.
             'permissions' => [
-                'admin.permissions.index', 60, 55,
+                'admin.permissions.index', 60, 57,
                 ['permission_name', 'roles_using_this', 'actions'],
                 'user-list',
             ],

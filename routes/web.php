@@ -18,7 +18,14 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SchoolUnitController;
 use App\Http\Controllers\Admin\UnitFeeController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AdmissionInfoController;
+use App\Http\Controllers\Admin\FormPaymentController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Guardian\ApplicationController as GuardianApplicationController;
+use App\Http\Controllers\Guardian\DashboardController as GuardianDashboardController;
+use App\Http\Controllers\GuardianAuthController;
+use App\Http\Controllers\PaymentNotificationController;
 use Illuminate\Support\Facades\Route;
 
 // Welcome Page
@@ -32,6 +39,38 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 Route::any('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+// Public admission information
+Route::get('/pendaftaran', [AdmissionInfoController::class, 'index'])->name('admissions.info');
+
+// Guardian (Wali) registration
+Route::middleware('guest')->group(function () {
+    Route::get('/daftar', [GuardianAuthController::class, 'showRegister'])->name('guardian.register');
+    Route::post('/daftar', [GuardianAuthController::class, 'register'])->name('guardian.register.store');
+});
+
+// Payment channel notifications (signature-verified, CSRF-exempt)
+Route::post('/payments/midtrans/notification', [PaymentNotificationController::class, 'midtrans'])->name('payments.midtrans.notification');
+
+// Guardian area: strict step order Register -> Bayar Formulir -> Isi
+// Formulir -> Input Berkas; controllers guard each step server-side.
+Route::middleware(['auth', 'role:Wali'])->prefix('wali')->name('guardian.')->group(function () {
+    Route::get('/', [GuardianDashboardController::class, 'index'])->name('dashboard');
+    Route::get('pendaftaran/baru', [GuardianApplicationController::class, 'create'])->name('applications.create');
+    Route::post('pendaftaran', [GuardianApplicationController::class, 'store'])->name('applications.store');
+    Route::get('pendaftaran/{application}', [GuardianApplicationController::class, 'show'])->name('applications.show');
+    Route::get('pendaftaran/{application}/bayar', [GuardianApplicationController::class, 'payment'])->name('applications.payment');
+    Route::post('pendaftaran/{application}/bayar', [GuardianApplicationController::class, 'pay'])->name('applications.pay');
+    Route::post('pendaftaran/{application}/pembayaran/{payment}/nyatakan-lunas', [GuardianApplicationController::class, 'declarePaid'])->name('applications.declare-paid');
+    Route::post('pendaftaran/{application}/pengajuan-biaya', [GuardianApplicationController::class, 'requestRelief'])->name('applications.request-relief');
+    Route::get('pendaftaran/{application}/formulir', [GuardianApplicationController::class, 'form'])->name('applications.form');
+    Route::post('pendaftaran/{application}/formulir', [GuardianApplicationController::class, 'saveForm'])->name('applications.form.save');
+    Route::get('pendaftaran/{application}/berkas', [GuardianApplicationController::class, 'documents'])->name('applications.documents');
+    Route::post('pendaftaran/{application}/berkas/{documentType}', [GuardianApplicationController::class, 'uploadDocument'])->name('applications.documents.upload');
+    Route::delete('pendaftaran/{application}/berkas/{documentType}', [GuardianApplicationController::class, 'deleteDocument'])->name('applications.documents.delete');
+    Route::post('pendaftaran/{application}/kirim', [GuardianApplicationController::class, 'submit'])->name('applications.submit');
+    Route::get('pendaftaran/{application}/bukti', [GuardianApplicationController::class, 'proof'])->name('applications.proof');
+});
 
 // Protected Admin Panel Group
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
@@ -76,4 +115,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Per-unit document requirements (matrix), managed from the unit list
     Route::get('school-units/{school_unit}/document-requirements', [DocumentRequirementController::class, 'edit'])->name('school-units.document-requirements.edit');
     Route::put('school-units/{school_unit}/document-requirements', [DocumentRequirementController::class, 'update'])->name('school-units.document-requirements.update');
+
+    // Form fee decisions & manual payment confirmations (Fase 2)
+    Route::get('form-payments', [FormPaymentController::class, 'index'])->name('form-payments.index')->middleware('permission:form-payment-list');
+    Route::post('form-payments/{application}/decide', [FormPaymentController::class, 'decide'])->name('form-payments.decide')->middleware('permission:form-payment-decide');
+    Route::post('form-payments/payments/{payment}/confirm', [FormPaymentController::class, 'confirm'])->name('form-payments.confirm')->middleware('permission:form-payment-decide');
+
+    // Settings (payment channels)
+    Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit')->middleware('permission:manage-settings');
+    Route::put('settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('permission:manage-settings');
 });

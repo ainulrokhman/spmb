@@ -26,6 +26,7 @@ class UpdateSchoolUnitRequest extends FormRequest
             'code' => ['required', 'string', 'size:2', 'regex:/^[0-9]{2}$/', Rule::unique('school_units', 'code')->ignore($this->route('school_unit'))],
             'level' => ['required', Rule::in(SchoolUnit::LEVELS)],
             'program_id' => ['required', 'integer', Rule::exists('programs', 'id')],
+            'form_fee' => ['nullable', 'integer', 'min:0'],
             'address' => ['nullable', 'string'],
             'phone' => ['nullable', 'string', 'max:30'],
             'is_active' => ['nullable', 'boolean'],

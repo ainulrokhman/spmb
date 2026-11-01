@@ -89,6 +89,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'fee-amount-edit',
             'fee-amount-delete',
 
+            'form-payment-list',
+            'form-payment-decide',
+
             'manage-settings',
             'activity-log-list',
         ];
@@ -102,6 +105,10 @@ class RolesAndPermissionsSeeder extends Seeder
         // User Role
         $userRole = Role::firstOrCreate(['name' => SystemAccess::USER_ROLE]);
         $userRole->givePermissionTo('view-dashboard');
+
+        // Wali Role: guardians register themselves and only use the
+        // guardian area, which is guarded by role, not permissions.
+        Role::firstOrCreate(['name' => SystemAccess::WALI_ROLE]);
 
         // Admin Role
         $adminRole = Role::firstOrCreate(['name' => SystemAccess::ADMIN_ROLE]);
@@ -170,6 +177,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'fee-amount-create',
             'fee-amount-edit',
             'fee-amount-delete',
+
+            'form-payment-list',
+            'form-payment-decide',
+
+            'manage-settings',
         ]);
 
         // SuperAdmin Role

@@ -70,8 +70,16 @@
                         @enderror
                     </div>
                     <div class="mb-3">
+                        <label for="form_fee" class="form-label fw-semibold text-secondary">Biaya Formulir (Rp)</label>
+                        <input type="number" min="0" step="1" class="form-control @error('form_fee') is-invalid @enderror" id="form_fee" name="form_fee" value="{{ old('form_fee', 0) }}" placeholder="0 berarti gratis">
+                        @error('form_fee')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">Biaya yang dibayar wali di awal pendaftaran, sebelum mengisi formulir. Berbeda tiap unit; isi 0 bila unit tidak memungut biaya formulir.</div>
+                    </div>
+<div class="mb-3">
                         <label for="address" class="form-label fw-semibold text-secondary">Alamat</label>
-                        <textarea class="form-control @error('address') is-invalid @enderror" id="address" name="address" rows="3" placeholder="Unit address">{{ old('address') }}</textarea>
+                        <textarea class="form-control @error('address') is-invalid @enderror" id="address" name="address" rows="3" placeholder="Alamat unit">{{ old('address') }}</textarea>
                         @error('address')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
