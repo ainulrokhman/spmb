@@ -120,23 +120,35 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
   nomor HP, dan alamat bila berbeda; identitas wali ditambah hubungan
   dengan anak. Ketiganya disimpan sebagai data terstruktur (JSON) pada
   pendaftaran.
-- Wali membuat akun lalu mengisi pendaftaran untuk tiap anak:
-  1. Pilih Satuan (jenjang + program Reguler/Boarding melekat pada
-     satuan yang dipilih)
-  2. Pilih Gelombang & Jalur (dan Jurusan bila satuan memilikinya)
-  3. Isi formulir dinamis unit tersebut
-  4. Lengkapi identitas ayah dan ibu, serta wali bila anak memilikinya
-  5. Unggah berkas sesuai Syarat Berkas unit (wajib harus lengkap)
+- Pendaftaran tiap anak mengikuti **alur berurutan yang tidak dapat
+  dilompati** — tahap berikutnya terkunci sampai tahap sebelumnya
+  selesai:
+  1. **Register** — wali membuat akun dan masuk.
+  2. **Mulai pendaftaran** — pilih Satuan (jenjang + program
+     Reguler/Boarding melekat pada satuan yang dipilih), Gelombang &
+     Jalur (dan Jurusan bila satuan memilikinya); biaya formulir unit
+     dibekukan pada pendaftaran sejak langkah ini.
+  3. **Bayar Formulir** — biaya formulir diselesaikan lebih dulu
+     (Bab 3.1) melalui kanal pembayaran yang aktif (Bab 6.4); formulir
+     tidak dapat dibuka sebelum tahap ini beres.
+  4. **Isi Formulir** — formulir dinamis unit tersebut, dilengkapi
+     identitas ayah dan ibu, serta wali bila anak memilikinya.
+  5. **Input Berkas** — unggah berkas sesuai Syarat Berkas unit
+     (wajib harus lengkap), lalu pendaftaran dikirim.
 - **Nomor pendaftaran** terbit saat pendaftaran dikirim, dengan format
   gabungan 7 digit: kode unit 2 digit + tahun awal tahun ajaran
   2 digit + nomor urut 3 digit. Contoh: unit berkode `03`, tahun ajaran
   2026/2027, pendaftar ke-7 → **`0326007`**. Nomor urut berjalan per
   unit per tahun ajaran (kembali ke 001 setiap tahun ajaran baru);
   bila urutan melewati 999, digit ditampilkan apa adanya.
-- Pendaftaran dapat disimpan sebagai draf dan diubah selama belum
-  diverifikasi panitia dan gelombang belum ditutup.
+- Kemajuan tiap tahap tersimpan, sehingga pendaftaran dapat
+  dilanjutkan di lain waktu selama gelombang belum ditutup; data yang
+  sudah terisi dapat diubah selama belum diverifikasi panitia, tetapi
+  urutan tahap tidak dapat dibalik dan pilihan satuan terkunci sejak
+  biaya formulir diselesaikan.
 - Status alur pendaftaran:
-  `Draft → Menunggu Verifikasi → Terverifikasi / Perlu Perbaikan /
+  `Menunggu Pembayaran Formulir → Mengisi Formulir → Mengunggah
+  Berkas → Menunggu Verifikasi → Terverifikasi / Perlu Perbaikan /
   Ditolak → Lulus / Tidak Lulus → Daftar Ulang (terkonfirmasi)`.
 - Pendaftar dapat mengunduh/mencetak bukti pendaftaran.
 
@@ -146,23 +158,28 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
   data unit); besarnya dapat berbeda antarunit, dan nilai 0 berarti
   unit tersebut tidak memungut biaya formulir. Biaya ini terpisah dari
   biaya daftar ulang pada Bab 6.
-- Saat pendaftaran **dikirim**, nominal biaya formulir unit dibekukan
+- Saat pendaftaran **dimulai**, nominal biaya formulir unit dibekukan
   sebagai potret (snapshot) pada pendaftaran, beserta **status biaya
   formulir**: `Gratis` (unit bernominal 0), `Belum Bayar`, `Lunas`,
   atau `Dibebaskan`. Perubahan nominal unit sesudahnya tidak mengubah
-  pendaftaran yang sudah terkirim.
+  pendaftaran yang sudah dibuat. Pembayaran dilakukan pada tahap
+  Bayar Formulir melalui kanal pembayaran yang aktif (Bab 6.4).
 - **Pembebasan**: calon siswa khusus dapat **dibebaskan** dari biaya
-  formulir. Pembebasan diberikan **per pendaftaran** oleh panitia
+  formulir. Pada tahap pembayaran, wali **mengajukan** pembebasan dan
+  **panitia memutuskan** pengajuan tersebut (disetujui atau ditolak)
   dengan alasan yang dicatat (mis. anak yatim, keluarga tidak mampu,
-  anak karyawan); status biaya formulir menjadi `Dibebaskan`.
-- **Diskon**: biaya yang sudah diatur dapat diberi potongan oleh
-  panitia per pendaftaran. Potongan diatur dengan **tipe** yang dapat
-  dipilih — **persen** (0–100%) atau **nominal** (Rp) — dan rancangan
-  tipe ini terbuka untuk ditambah jenis lain menyusul. Setiap potongan
+  anak karyawan); bila disetujui, status biaya formulir menjadi
+  `Dibebaskan` dan alur berlanjut tanpa pembayaran.
+- **Diskon**: biaya yang sudah diatur dapat diberi potongan per
+  pendaftaran, diajukan wali dan diputuskan panitia pada tahap yang
+  sama. Potongan diatur dengan **tipe** yang dapat dipilih —
+  **persen** (0–100%) atau **nominal** (Rp) — dan rancangan tipe ini
+  terbuka untuk ditambah jenis lain menyusul. Setiap potongan
   mencatat tipe, nilai, dan alasannya; nominal akhir tidak boleh
-  kurang dari nol. Pembebasan adalah kasus khusus: potongan penuh
-  (100%). Mekanisme potongan yang sama berlaku juga untuk tagihan
-  daftar ulang (Bab 6.4).
+  kurang dari nol, dan sisa nominal setelah potongan dibayar wali
+  melalui kanal pembayaran. Pembebasan adalah kasus khusus: potongan
+  penuh (100%). Mekanisme potongan yang sama berlaku juga untuk
+  tagihan daftar ulang (Bab 6.4).
 
 ## 4. Modul Verifikasi & Seleksi (Panitia)
 
@@ -173,6 +190,9 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
   unit. Penugasan diatur dari halaman manajemen user.
 - Daftar pendaftar per unit/gelombang/jalur dengan filter status
   (DataTable).
+- Panitia **memutuskan pengajuan pembebasan & diskon biaya formulir**
+  pada tahap pembayaran pendaftaran (Bab 3.1), sebelum verifikasi
+  berkas.
 - Verifikasi per berkas: Setujui / Tolak + catatan. Berkas ditolak
   mengubah status pendaftaran menjadi **Perlu Perbaikan** dan wali
   dapat mengunggah ulang berkas tersebut.
@@ -187,7 +207,7 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
 - Wali yang anaknya berstatus **Lulus** melakukan daftar ulang dari
   akunnya: sistem menyusun tagihan biaya (lihat Bab 6), wali memilih
   opsi komponen pilihan dan mengisi komponen bebas, lalu membayar
-  melalui Midtrans.
+  melalui kanal pembayaran yang aktif (Bab 6.4).
 - Daftar ulang tercatat dengan waktu konfirmasi; status pendaftaran
   menjadi **Daftar Ulang (terkonfirmasi)**.
 
@@ -240,12 +260,26 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
   mekanisme yang sama seperti biaya formulir (Bab 3.1): tipe persen
   atau nominal (terbuka untuk tipe lain), beserta nilai dan alasannya;
   total akhir tidak boleh kurang dari nol.
-- **Pembayaran melalui Midtrans** (Snap): wali membayar dari halaman
-  daftar ulang; status tagihan diperbarui otomatis lewat notifikasi
-  webhook Midtrans (tanda tangan diverifikasi). Status pembayaran:
+- **Pembayaran bersifat multi-kanal**: setiap kanal adalah *driver*
+  di belakang kontrak yang sama (membuat pembayaran, menerima
+  konfirmasi, melaporkan status), sehingga kanal baru dapat ditambah
+  tanpa mengubah alur pendaftaran maupun daftar ulang. Kanal yang
+  direncanakan:
+  - **Manual** — wali membayar sesuai instruksi yang ditampilkan
+    (transfer ke rekening yayasan atau tunai di sekolah), kemudian
+    panitia mengonfirmasi penerimaan di sistem.
+  - **Midtrans** — Snap; status diperbarui otomatis lewat notifikasi
+    webhook Midtrans (tanda tangan diverifikasi).
+  - **BSI (custom)** — integrasi khusus Bank Syariah Indonesia;
+    implementasinya menunggu akses/spesifikasi API dari pihak bank,
+    dipasang sebagai driver tersendiri.
+  - Kanal tambahan lain menyusul sebagai driver baru.
+- Admin mengaktifkan/menonaktifkan kanal dari Pengaturan; wali
+  memilih di antara kanal yang aktif saat membayar. Kunci rahasia
+  tiap kanal (mis. server key & client key Midtrans,
+  sandbox/production) disimpan di `.env`, tidak di kode. Status
+  pembayaran berlaku seragam untuk semua kanal:
   `Belum Bayar → Menunggu Pembayaran → Lunas / Kedaluwarsa / Gagal`.
-  Kunci Midtrans (server key & client key, sandbox/production)
-  disimpan di `.env`, tidak di kode.
 
 ## 7. Dashboard & Laporan
 
@@ -261,7 +295,9 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
 2. **Akun pendaftaran** — memakai **akun Wali**; satu akun dapat
    mendaftarkan lebih dari satu anak; login dengan **nomor HP** (Bab 3).
 3. **INFAQ** — bermode `bebas` (Bab 6).
-4. **Pembayaran** — melalui **Midtrans** (Bab 6.4).
+4. **Pembayaran** — **multi-kanal** berbentuk driver: **Manual**,
+   **Midtrans**, dan **BSI (custom)**; terbuka untuk kanal tambahan
+   (Bab 6.4).
 5. **Panitia** — dibatasi **sesuai unit** tugasnya (Bab 4).
 6. **Gelombang** — mengikuti usulan rancangan: otomatis berdasarkan
    tanggal, dengan saklar manual sebagai penimpa.
@@ -275,6 +311,8 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
 10. **Identitas orang tua** — hubungan pendaftar adalah **Ayah, Ibu,
     atau Wali** per pendaftaran; identitas ayah dan ibu selalu diisi,
     identitas wali hanya bila anak memilikinya (Bab 3).
+11. **Alur pendaftaran** — berurutan dan tidak dapat dilompati:
+    Register → Bayar Formulir → Isi Formulir → Input Berkas (Bab 3).
 
 ## 9. Peta Fase Implementasi
 
@@ -285,8 +323,8 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
 | 1C | Bidang Formulir per Unit |
 | 1D | Komponen Biaya + Pemetaan Biaya per Unit |
 | 1E | Penugasan Panitia per Unit (pivot user–unit + pengaturan di manajemen user) |
-| 2 | Akun Wali (registrasi & login nomor HP), pendaftaran multi-anak, formulir dinamis, identitas ayah/ibu/wali, unggah berkas, nomor pendaftaran, biaya formulir (snapshot & status) |
-| 3 | Verifikasi berkas oleh panitia sesuai unit tugasnya; pembebasan & diskon biaya formulir |
+| 2 | Akun Wali (registrasi & login nomor HP), alur berurutan Register → Bayar Formulir → Isi Formulir → Input Berkas, pendaftaran multi-anak, pembayaran formulir multi-kanal (Manual & Midtrans; driver BSI menyusul saat akses bank tersedia), keputusan pembebasan & diskon, formulir dinamis, identitas ayah/ibu/wali, unggah berkas, nomor pendaftaran |
+| 3 | Verifikasi berkas oleh panitia sesuai unit tugasnya |
 | 4 | Pengumuman, daftar ulang & tagihan, pembayaran Midtrans |
 | 5 | Dashboard SPMB & laporan/export |
 | Menyusul | Seleksi (poin/manual) — dirancang tersendiri |
