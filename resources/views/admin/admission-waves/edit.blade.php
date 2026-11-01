@@ -85,6 +85,14 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        <div class="mb-3">
+                            <label for="announcement_at" class="form-label fw-semibold text-secondary">Waktu Pengumuman Hasil</label>
+                            <input type="datetime-local" class="form-control @error('announcement_at') is-invalid @enderror" id="announcement_at" name="announcement_at" value="{{ old('announcement_at', isset($admissionWave) && $admissionWave->announcement_at ? $admissionWave->announcement_at->format('Y-m-d\\TH:i') : '') }}">
+                            @error('announcement_at')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">Hasil Lulus/Tidak Lulus baru terlihat oleh wali setelah waktu ini. Kosongkan bila belum dijadwalkan.</div>
+                        </div>
                     </div>
 
                     <div class="mb-3">

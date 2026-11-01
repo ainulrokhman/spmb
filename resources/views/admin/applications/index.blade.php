@@ -8,6 +8,42 @@
 @endsection
 
 @section('content')
+@can('application-verify')
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body px-4 py-3">
+        <form method="POST" action="{{ route('admin.applications.announce') }}" class="d-flex flex-column flex-lg-row align-items-lg-end gap-3">
+            @csrf
+            <div>
+                <div class="fw-bold">Pengumuman Massal</div>
+                <div class="text-muted small">Berlaku untuk semua pendaftar <strong>Terverifikasi</strong> sesuai filter. Hasil terlihat oleh wali setelah waktu pengumuman gelombang.</div>
+            </div>
+            <div>
+                <label for="announce-unit" class="form-label small mb-1">Unit</label>
+                <select id="announce-unit" name="school_unit_id" class="form-select">
+                    <option value="">Semua Unit</option>
+                    @foreach($units as $unit)
+                        <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="announce-wave" class="form-label small mb-1">Gelombang</label>
+                <select id="announce-wave" name="admission_wave_id" class="form-select">
+                    <option value="">Semua Gelombang</option>
+                    @foreach($waves as $wave)
+                        <option value="{{ $wave->id }}">{{ $wave->schoolUnit?->name }} — {{ $wave->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" name="decision" value="passed" class="btn btn-success">Tetapkan Lulus</button>
+                <button type="submit" name="decision" value="failed" class="btn btn-outline-danger" onclick="return confirm('Tetapkan semua pendaftar Terverifikasi sesuai filter sebagai Tidak Lulus?');">Tetapkan Tidak Lulus</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endcan
+
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-transparent border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between pt-4 px-4 gap-3">
         <div>

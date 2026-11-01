@@ -376,4 +376,24 @@ class ApplicationService implements ApplicationServiceInterface
 
         return $application;
     }
+
+    /**
+     * Announce the result of a verified application (Bab 5): 'passed'
+     * (Lulus) or 'failed' (Tidak Lulus). Visibility to the guardian
+     * is governed by the wave's announcement time.
+     */
+    public function decideAnnouncement(Application $application, string $decision): Application
+    {
+        if (! in_array($decision, ['passed', 'failed'], true)) {
+            throw new InvalidArgumentException('Keputusan pengumuman tidak dikenal.');
+        }
+
+        if ($application->status !== 'verified') {
+            throw new InvalidArgumentException('Hanya pendaftar Terverifikasi yang dapat ditetapkan hasilnya.');
+        }
+
+        $application->update(['status' => $decision]);
+
+        return $application;
+    }
 }

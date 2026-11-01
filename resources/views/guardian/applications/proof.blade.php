@@ -20,7 +20,12 @@
         <div class="text-center mb-4">
             <div class="text-muted small">Nomor Pendaftaran</div>
             <div class="display-6 fw-bold">{{ $application->registration_number }}</div>
-            <span class="badge bg-primary">{{ $application->statusLabel() }}</span>
+            @php($announced = $application->admissionWave !== null && $application->admissionWave->resultsAnnounced())
+            @php($resultHidden = in_array($application->status, ['passed', 'failed'], true) && ! $announced)
+            <span class="badge bg-primary">{{ $resultHidden ? 'Menunggu Pengumuman' : $application->statusLabel() }}</span>
+            @if($application->status === 'passed' && $announced)
+                <div class="mt-2 fw-semibold text-success">Lulus — silakan lakukan daftar ulang dari Dasbor Saya.</div>
+            @endif
         </div>
 
         <table class="table table-sm">

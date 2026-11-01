@@ -3,23 +3,28 @@
 namespace App\Services;
 
 use App\Contracts\ApplicationServiceInterface;
+use App\Contracts\InvoiceServiceInterface;
 use App\Models\Application;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\Payments\ManualChannel;
 use App\Services\Payments\MidtransChannel;
 use App\Services\Payments\PaymentChannelInterface;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 /**
  * Orchestrates payments across channel drivers: starting payments,
  * manual declarations and confirmations, and Midtrans webhook
- * notifications. New channels register in channels() only.
+ * notifications. Payables are applications (form fee) and invoices
+ * (re-registration); new channels register in channels() only.
  */
 class PaymentService
 {
     public function __construct(
         private readonly ApplicationServiceInterface $applications,
+        private readonly InvoiceServiceInterface $invoices,
     ) {}
 
     /**
@@ -63,13 +68,52 @@ class PaymentService
             throw new InvalidArgumentException('Pembayaran formulir tidak sedang diperlukan.');
         }
 
+        $result = $this->createOrResume($application, $application->payableAmount(), $channelKey, 'FEE');
+
+        $application->update(['form_fee_status' => 'awaiting_payment']);
+
+        return $result;
+    }
+
+    /**
+     * Start (or resume) the payment of a re-registration invoice on
+     * the chosen channel.
+     *
+     * @return array{payment: Payment, view: array<string, mixed>}
+     */
+    public function startInvoicePayment(Invoice $invoice, string $channelKey): array
+    {
+        if ($invoice->status === 'paid') {
+            throw new InvalidArgumentException('Tagihan sudah lunas.');
+        }
+
+        if ($invoice->payableAmount() <= 0) {
+            throw new InvalidArgumentException('Tidak ada nominal yang perlu dibayar.');
+        }
+
+        $result = $this->createOrResume($invoice, $invoice->payableAmount(), $channelKey, 'INV');
+
+        $invoice->update(['status' => 'awaiting_payment']);
+
+        return $result;
+    }
+
+    /**
+     * Shared start logic: an active payment on the same channel is
+     * resumed, one on another channel blocks, otherwise a new
+     * payment is created and handed to the channel driver.
+     *
+     * @return array{payment: Payment, view: array<string, mixed>}
+     */
+    private function createOrResume(Model $payable, int $amount, string $channelKey, string $referencePrefix): array
+    {
         $channel = $this->channel($channelKey);
 
         if ($channel === null || ! $channel->isEnabled()) {
             throw new InvalidArgumentException('Kanal pembayaran tidak tersedia.');
         }
 
-        $active = $application->payments()
+        $active = $payable->payments()
             ->whereIn('status', ['pending', 'awaiting_confirmation'])
             ->latest()
             ->first();
@@ -82,18 +126,14 @@ class PaymentService
             return ['payment' => $active, 'view' => $channel->createPayment($active)];
         }
 
-        $payment = $application->payments()->create([
+        $payment = $payable->payments()->create([
             'channel' => $channelKey,
-            'amount' => $application->payableAmount(),
+            'amount' => $amount,
             'status' => 'pending',
-            'reference' => 'FEE-'.$application->id.'-'.Str::upper(Str::random(8)),
+            'reference' => $referencePrefix.'-'.$payable->id.'-'.Str::upper(Str::random(8)),
         ]);
 
-        $view = $channel->createPayment($payment);
-
-        $application->update(['form_fee_status' => 'awaiting_payment']);
-
-        return ['payment' => $payment, 'view' => $view];
+        return ['payment' => $payment, 'view' => $channel->createPayment($payment)];
     }
 
     /**
@@ -107,7 +147,12 @@ class PaymentService
         }
 
         $payment->update(['status' => 'awaiting_confirmation']);
-        $payment->payable->update(['form_fee_status' => 'awaiting_confirmation']);
+
+        if ($payment->payable instanceof Application) {
+            $payment->payable->update(['form_fee_status' => 'awaiting_confirmation']);
+        } elseif ($payment->payable instanceof Invoice) {
+            $payment->payable->update(['status' => 'awaiting_confirmation']);
+        }
 
         return $payment;
     }
@@ -127,6 +172,8 @@ class PaymentService
 
         if ($payment->payable instanceof Application) {
             $this->applications->settleFeeByPayment($payment->payable);
+        } elseif ($payment->payable instanceof Invoice) {
+            $this->invoices->markPaid($payment->payable);
         }
 
         return $payment;
@@ -156,23 +203,28 @@ class PaymentService
             $this->confirmPayment($payment);
         } elseif ($status === 'expire') {
             $payment->update(['status' => 'expired']);
-            $this->resetApplicationFee($payment);
+            $this->resetPayable($payment);
         } elseif (in_array($status, ['cancel', 'deny'], true)) {
             $payment->update(['status' => 'failed']);
-            $this->resetApplicationFee($payment);
+            $this->resetPayable($payment);
         }
 
         return true;
     }
 
     /**
-     * An expired/failed payment frees the application to pay again.
+     * An expired/failed payment frees the payable to be paid again.
      */
-    private function resetApplicationFee(Payment $payment): void
+    private function resetPayable(Payment $payment): void
     {
         if ($payment->payable instanceof Application
             && $payment->payable->status === 'awaiting_form_fee') {
             $payment->payable->update(['form_fee_status' => 'unpaid']);
+        }
+
+        if ($payment->payable instanceof Invoice
+            && $payment->payable->status !== 'paid') {
+            $payment->payable->update(['status' => 'unpaid']);
         }
     }
 }

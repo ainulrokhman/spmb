@@ -58,6 +58,7 @@ class AdmissionWaveService implements AdmissionWaveServiceInterface
             'quota' => $data['quota'] ?? null,
             'opens_at' => $data['opens_at'],
             'closes_at' => $data['closes_at'],
+            'announcement_at' => $data['announcement_at'] ?? null,
             'is_active' => ! empty($data['is_active']),
         ];
     }

@@ -181,6 +181,23 @@
                 @endif
             </div>
         </div>
+
+        @if($application->status === 'verified')
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-transparent border-0 pt-4 px-4"><h5 class="mb-0 fw-bold">Pengumuman Hasil</h5></div>
+            <div class="card-body px-4 pb-4">
+                <p class="text-muted small">Tetapkan hasil pendaftar ini. Hasil baru terlihat oleh wali setelah waktu pengumuman gelombang tiba{{ $application->admissionWave?->announcement_at ? ' ('.$application->admissionWave->announcement_at->format('d M Y H:i').')' : '' }}.</p>
+                <form method="POST" action="{{ route('admin.applications.announce') }}">
+                    @csrf
+                    <input type="hidden" name="application_ids[]" value="{{ $application->id }}">
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="decision" value="passed" class="btn btn-success">Lulus</button>
+                        <button type="submit" name="decision" value="failed" class="btn btn-outline-danger" onclick="return confirm('Tetapkan pendaftar ini Tidak Lulus?');">Tidak Lulus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection

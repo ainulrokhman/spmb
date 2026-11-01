@@ -35,6 +35,7 @@ class AdmissionWave extends Model
         'quota',
         'opens_at',
         'closes_at',
+        'announcement_at',
         'is_active',
     ];
 
@@ -47,6 +48,7 @@ class AdmissionWave extends Model
         'quota' => 'integer',
         'opens_at' => 'datetime',
         'closes_at' => 'datetime',
+        'announcement_at' => 'datetime',
         'is_active' => 'boolean',
     ];
 
@@ -80,6 +82,15 @@ class AdmissionWave extends Model
      * The manual switch (is_active) overrides the schedule: a switched
      * off wave is never open. Otherwise the open period decides.
      */
+    /**
+     * Whether this wave's results have been announced to guardians:
+     * an announcement time is set and has been reached.
+     */
+    public function resultsAnnounced(): bool
+    {
+        return $this->announcement_at !== null && ! now()->lt($this->announcement_at);
+    }
+
     public function status(): string
     {
         if (! $this->is_active) {

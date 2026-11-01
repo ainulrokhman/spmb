@@ -21,10 +21,12 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdmissionInfoController;
 use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use App\Http\Controllers\Admin\FormPaymentController;
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Guardian\ApplicationController as GuardianApplicationController;
 use App\Http\Controllers\Guardian\DashboardController as GuardianDashboardController;
+use App\Http\Controllers\Guardian\InvoiceController as GuardianInvoiceController;
 use App\Http\Controllers\GuardianAuthController;
 use App\Http\Controllers\PaymentNotificationController;
 use Illuminate\Support\Facades\Route;
@@ -71,6 +73,12 @@ Route::middleware(['auth', 'role:Wali'])->prefix('wali')->name('guardian.')->gro
     Route::delete('pendaftaran/{application}/berkas/{documentType}', [GuardianApplicationController::class, 'deleteDocument'])->name('applications.documents.delete');
     Route::post('pendaftaran/{application}/kirim', [GuardianApplicationController::class, 'submit'])->name('applications.submit');
     Route::get('pendaftaran/{application}/bukti', [GuardianApplicationController::class, 'proof'])->name('applications.proof');
+    // Re-registration & invoice (Fase 4)
+    Route::get('pendaftaran/{application}/daftar-ulang', [GuardianInvoiceController::class, 'show'])->name('invoices.show');
+    Route::post('pendaftaran/{application}/daftar-ulang', [GuardianInvoiceController::class, 'store'])->name('invoices.store');
+    Route::post('pendaftaran/{application}/daftar-ulang/bayar', [GuardianInvoiceController::class, 'pay'])->name('invoices.pay');
+    Route::post('pendaftaran/{application}/daftar-ulang/pembayaran/{payment}/nyatakan-lunas', [GuardianInvoiceController::class, 'declarePaid'])->name('invoices.declare-paid');
+    Route::post('pendaftaran/{application}/daftar-ulang/pengajuan-diskon', [GuardianInvoiceController::class, 'requestDiscount'])->name('invoices.request-discount');
 });
 
 // Protected Admin Panel Group
@@ -127,6 +135,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('applications/{application}', [AdminApplicationController::class, 'show'])->name('applications.show')->middleware('permission:application-list');
     Route::post('applications/{application}/documents/{document}/verify', [AdminApplicationController::class, 'verifyDocument'])->name('applications.documents.verify')->middleware('permission:application-verify');
     Route::post('applications/{application}/decide', [AdminApplicationController::class, 'decide'])->name('applications.decide')->middleware('permission:application-verify');
+    Route::post('applications/announce', [AdminApplicationController::class, 'announce'])->name('applications.announce')->middleware('permission:application-verify');
+
+    // Re-registration invoices (Fase 4)
+    Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index')->middleware('permission:invoice-list');
+    Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show')->middleware('permission:invoice-list');
+    Route::post('invoices/{invoice}/decide-discount', [InvoiceController::class, 'decideDiscount'])->name('invoices.decide-discount')->middleware('permission:invoice-manage');
+    Route::post('invoices/payments/{payment}/confirm', [InvoiceController::class, 'confirm'])->name('invoices.confirm')->middleware('permission:invoice-manage');
 
     // Settings (payment channels)
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit')->middleware('permission:manage-settings');

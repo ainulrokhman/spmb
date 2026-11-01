@@ -182,6 +182,11 @@ class Application extends Model
         return $this->morphMany(Payment::class, 'payable');
     }
 
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Invoice::class);
+    }
+
     public function formFeeDecider(): BelongsTo
     {
         return $this->belongsTo(User::class, 'form_fee_decided_by');

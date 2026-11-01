@@ -93,6 +93,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'application-list',
             'application-verify',
 
+            'invoice-list',
+            'invoice-manage',
+
             'manage-settings',
             'activity-log-list',
         ];
@@ -184,6 +187,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'application-list',
             'application-verify',
+
+            'invoice-list',
+            'invoice-manage',
 
             'manage-settings',
         ]);
