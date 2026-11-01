@@ -31,7 +31,10 @@
                         <h5 class="fw-bold mb-1">{{ $application->child_name }}</h5>
                         <p class="text-muted small mb-0">Nomor {{ $application->registration_number }} &middot; Dikirim {{ $application->submitted_at?->format('d M Y H:i') }}</p>
                     </div>
-                    <span class="badge bg-primary fs-6">{{ $application->statusLabel() }}</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary fs-6">{{ $application->statusLabel() }}</span>
+                        <a href="{{ route('admin.applications.print', $application) }}" class="btn btn-sm btn-outline-primary d-print-none"><i class="bi bi-printer"></i> Cetak Formulir</a>
+                    </div>
                 </div>
                 <hr>
                 <div class="row small">

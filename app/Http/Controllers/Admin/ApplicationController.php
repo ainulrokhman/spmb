@@ -84,6 +84,23 @@ class ApplicationController extends Controller
     }
 
     /**
+     * The printable filled registration form (Bab 7).
+     */
+    public function print(Request $request, Application $application)
+    {
+        $this->ensureUnitAccess($request, $application);
+
+        $application->load(['user', 'schoolUnit.program', 'admissionWave.academicYear', 'admissionTrack', 'major', 'documents.documentType']);
+
+        $formFields = $application->schoolUnit->formFields()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('admin.applications.print', compact('application', 'formFields'));
+    }
+
+    /**
      * Record the check of one document (verified / revision).
      */
     public function verifyDocument(Request $request, Application $application, ApplicationDocument $document)

@@ -296,6 +296,19 @@
                         </li>
                         @endcan
 
+                        @canany(['application-list'])
+                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Laporan</li>
+                        @endcanany
+
+                        @can('application-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.reports.index') }}" class="nav-link {{ request()->is('admin/reports*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-bar-chart me-2"></i>
+                                <p>Laporan SPMB</p>
+                            </a>
+                        </li>
+                        @endcan
+
                         @canany(['user-list', 'role-list', 'permission-list'])
                         <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Pengguna & Akses</li>
                         @endcanany

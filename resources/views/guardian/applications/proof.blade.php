@@ -5,9 +5,14 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
     <h3 class="fw-bold mb-0">Bukti Pendaftaran</h3>
-    <button type="button" class="btn btn-primary" onclick="window.print()">
-        <i class="bi bi-printer"></i> Cetak Bukti
-    </button>
+    <div class="d-flex gap-2">
+        <a href="{{ route('guardian.applications.print', $application) }}" class="btn btn-outline-primary">
+            <i class="bi bi-file-text"></i> Cetak Formulir
+        </a>
+        <button type="button" class="btn btn-primary" onclick="window.print()">
+            <i class="bi bi-printer"></i> Cetak Bukti
+        </button>
+    </div>
 </div>
 
 <div class="card border-0 shadow-sm">
