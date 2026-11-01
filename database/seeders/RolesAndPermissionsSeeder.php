@@ -4,10 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\User;
 use App\Support\SystemAccess;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
@@ -184,40 +182,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-settings',
         ]);
 
-        // SuperAdmin Role
-        $superAdminRole = Role::firstOrCreate(['name' => SystemAccess::SUPER_ADMIN_ROLE]);
-        // No explicit permissions assigned because it bypasses checks via Gate::before in AppServiceProvider
-
-        // 3. Create Default Users for Testing
-
-        // SuperAdmin User
-        $superAdmin = User::firstOrCreate(
-            ['email' => SystemAccess::SUPER_ADMIN_EMAIL],
-            [
-                'name' => 'Super Admin User',
-                'password' => Hash::make('password'),
-            ]
-        );
-        $superAdmin->assignRole($superAdminRole);
-
-        // Admin User
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name' => 'Admin User',
-                'password' => Hash::make('password'),
-            ]
-        );
-        $admin->assignRole($adminRole);
-
-        // Regular User
-        $user = User::firstOrCreate(
-            ['email' => 'user@example.com'],
-            [
-                'name' => 'Regular User',
-                'password' => Hash::make('password'),
-            ]
-        );
-        $user->assignRole($userRole);
+        // SuperAdmin Role: no explicit permissions are assigned
+        // because it bypasses checks via Gate::before in
+        // AppServiceProvider. User accounts are NOT seeded here —
+        // the first Super Admin comes from InitialAdminSeeder
+        // (.env-driven, production-safe) and demo accounts live in
+        // DemoUserSeeder (testing only).
+        Role::firstOrCreate(['name' => SystemAccess::SUPER_ADMIN_ROLE]);
     }
 }
