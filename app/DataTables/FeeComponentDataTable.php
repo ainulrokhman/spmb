@@ -57,12 +57,12 @@ class FeeComponentDataTable
         return function ($feeComponent) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('fee-component-edit')) {
-                $html .= '<a href="'.route('admin.fee-components.edit', $feeComponent->id).'" class="btn btn-sm btn-light border" title="Edit Fee Component"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.fee-components.edit', $feeComponent->id).'" class="btn btn-sm btn-light border" title="Ubah Fee Component"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('fee-component-delete')) {
                 $html .= '<form action="'.route('admin.fee-components.destroy', $feeComponent->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus komponen biaya ini? Pemetaan unit dan nominalnya juga akan terhapus.\')">';
                 $html .= csrf_field().method_field('DELETE');
-                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete Fee Component"><i class="bi bi-trash text-danger"></i></button>';
+                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Hapus Fee Component"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';
             }
             $html .= '</div>';

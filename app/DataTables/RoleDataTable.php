@@ -114,7 +114,7 @@ class RoleDataTable
                 $html .= '<button class="btn btn-sm btn-light border" disabled title="SuperAdmin permissions are locked"><i class="bi bi-lock-fill text-muted me-1"></i> Locked</button>';
             } else {
                 if (auth()->user()->can('role-edit')) {
-                    $html .= '<a href="'.route('admin.roles.edit', $role->id).'" class="btn btn-sm btn-light border" title="Edit Role"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                    $html .= '<a href="'.route('admin.roles.edit', $role->id).'" class="btn btn-sm btn-light border" title="Ubah Role"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
                 }
                 if (auth()->user()->can('role-delete')) {
                     if ($this->roleService->isSystemRole($role)) {
@@ -122,7 +122,7 @@ class RoleDataTable
                     } else {
                         $html .= '<form action="'.route('admin.roles.destroy', $role->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus peran ini? Pengguna yang memilikinya akan kehilangan hak akses tersebut.\')">';
                         $html .= csrf_field().method_field('DELETE');
-                        $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete Role"><i class="bi bi-trash text-danger"></i></button>';
+                        $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Hapus Role"><i class="bi bi-trash text-danger"></i></button>';
                         $html .= '</form>';
                     }
                 }

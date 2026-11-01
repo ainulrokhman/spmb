@@ -113,7 +113,7 @@
             order: [[0, 'desc']],
             dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3"l>rt<"d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top"ip>',
             language: {
-                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Memuat logs...',
+                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Memuat log aktivitas...',
                 lengthMenu: "Tampilkan _MENU_ data",
                 search: "Cari:",
                 info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",

@@ -9,6 +9,7 @@ use App\Contracts\DocumentRequirementServiceInterface;
 use App\Contracts\DocumentTypeServiceInterface;
 use App\Contracts\FeeAmountServiceInterface;
 use App\Contracts\FeeComponentServiceInterface;
+use App\Contracts\ProgramServiceInterface;
 use App\Contracts\FeeServiceInterface;
 use App\Contracts\FormFieldServiceInterface;
 use App\Contracts\MajorServiceInterface;
@@ -24,6 +25,7 @@ use App\Services\DocumentRequirementService;
 use App\Services\DocumentTypeService;
 use App\Services\FeeAmountService;
 use App\Services\FeeComponentService;
+use App\Services\ProgramService;
 use App\Services\FeeService;
 use App\Services\FormFieldService;
 use App\Services\MajorService;
@@ -56,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(DocumentRequirementServiceInterface::class, DocumentRequirementService::class);
         $this->app->bind(FormFieldServiceInterface::class, FormFieldService::class);
         $this->app->bind(FeeComponentServiceInterface::class, FeeComponentService::class);
+        $this->app->bind(ProgramServiceInterface::class, ProgramService::class);
         $this->app->bind(FeeServiceInterface::class, FeeService::class);
         $this->app->bind(FeeAmountServiceInterface::class, FeeAmountService::class);
     }

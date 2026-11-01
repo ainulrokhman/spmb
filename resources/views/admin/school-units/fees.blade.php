@@ -18,7 +18,7 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
                     <h5 class="mb-0 fw-bold text-body">Pemetaan Biaya — {{ $schoolUnit->name }}</h5>
-                    <p class="text-muted small mb-0">{{ $schoolUnit->level }} &middot; {{ $schoolUnit->program }}. Pilih mode per komponen: fixed (ditentukan sistem), pilihan (orang tua memilih tingkat), atau bebas (orang tua mengisi nominal, boleh dengan minimum). Nominal dan tingkat dikelola di menu Nominal Biaya.</p>
+                    <p class="text-muted small mb-0">{{ $schoolUnit->level }} &middot; {{ $schoolUnit->program?->name }}. Pilih mode per komponen: fixed (ditentukan sistem), pilihan (orang tua memilih tingkat), atau bebas (orang tua mengisi nominal, boleh dengan minimum). Nominal dan tingkat dikelola di menu Nominal Biaya.</p>
                 </div>
                 <div class="card-body px-4 pb-4">
                     @if($errors->any())

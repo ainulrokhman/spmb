@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\DocumentType;
 use App\Models\FeeComponent;
+use App\Models\Program;
 use Illuminate\Database\Seeder;
 
 class SpmbMasterSeeder extends Seeder
@@ -29,6 +30,18 @@ class SpmbMasterSeeder extends Seeder
             DocumentType::firstOrCreate(
                 ['code' => $documentType['code']],
                 array_merge($documentType, ['is_active' => true])
+            );
+        }
+
+        $programs = [
+            ['name' => 'Reguler'],
+            ['name' => 'Boarding'],
+        ];
+
+        foreach ($programs as $program) {
+            Program::firstOrCreate(
+                ['name' => $program['name']],
+                array_merge($program, ['is_active' => true])
             );
         }
 

@@ -15,7 +15,9 @@ class SchoolUnitDataTable
      */
     public function make()
     {
-        $schoolUnits = SchoolUnit::select(['id', 'name', 'code', 'level', 'program', 'is_active']);
+        $schoolUnits = SchoolUnit::query()
+            ->leftJoin('programs', 'programs.id', '=', 'school_units.program_id')
+            ->select(['school_units.id', 'school_units.name', 'school_units.code', 'school_units.level', 'programs.name as program', 'school_units.is_active']);
 
         return DataTables::of($schoolUnits)
             ->addColumn('unit_name', $this->unitNameColumn())
@@ -61,9 +63,7 @@ class SchoolUnitDataTable
     private function programColumn(): \Closure
     {
         return function ($schoolUnit) {
-            $color = $schoolUnit->program === 'Boarding' ? 'warning' : 'info';
-
-            return '<span class=\"badge bg-'.$color.'\">'.e($schoolUnit->program).'</span>';
+            return '<span class=\"badge bg-info\">'.e($schoolUnit->program).'</span>';
         };
     }
 
@@ -91,12 +91,12 @@ class SchoolUnitDataTable
             if (auth()->user()->can('school-unit-edit')) {
                 $html .= '<a href="'.route('admin.school-units.document-requirements.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Document Requirements"><i class="bi bi-folder2-open text-warning"></i> Berkas</a>';
                 $html .= '<a href="'.route('admin.school-units.fees.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Fee Mappings"><i class="bi bi-cash-stack text-success"></i> Biaya</a>';
-                $html .= '<a href="'.route('admin.school-units.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Edit School Unit"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.school-units.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Ubah School Unit"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('school-unit-delete')) {
                 $html .= '<form action="'.route('admin.school-units.destroy', $schoolUnit->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus unit sekolah ini? Jalur pendaftaran dan jurusannya juga akan terhapus.\')">';
                 $html .= csrf_field().method_field('DELETE');
-                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete School Unit"><i class="bi bi-trash text-danger"></i></button>';
+                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Hapus School Unit"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';
             }
             $html .= '</div>';

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DocumentRequirementController;
 use App\Http\Controllers\Admin\DocumentTypeController;
 use App\Http\Controllers\Admin\FeeAmountController;
 use App\Http\Controllers\Admin\FeeComponentController;
+use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\FormFieldController;
 use App\Http\Controllers\Admin\MajorController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -52,6 +53,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // SPMB Master Data Routes
     Route::resource('academic-years', AcademicYearController::class)->middleware('permission:academic-year-list');
+    Route::resource('programs', ProgramController::class)->middleware('permission:program-list');
     Route::resource('school-units', SchoolUnitController::class)->middleware('permission:school-unit-list');
     Route::resource('admission-tracks', AdmissionTrackController::class)->middleware('permission:admission-track-list');
     Route::resource('majors', MajorController::class)->middleware('permission:major-list');

@@ -25,7 +25,7 @@ class StoreSchoolUnitRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'size:2', 'regex:/^[0-9]{2}$/', 'unique:school_units,code'],
             'level' => ['required', Rule::in(SchoolUnit::LEVELS)],
-            'program' => ['required', Rule::in(SchoolUnit::PROGRAMS)],
+            'program_id' => ['required', 'integer', Rule::exists('programs', 'id')],
             'address' => ['nullable', 'string'],
             'phone' => ['nullable', 'string', 'max:30'],
             'is_active' => ['nullable', 'boolean'],

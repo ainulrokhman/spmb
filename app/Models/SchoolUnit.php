@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SchoolUnit extends Model
@@ -25,16 +26,6 @@ class SchoolUnit extends Model
     ];
 
     /**
-     * Available programs.
-     *
-     * @var array<int, string>
-     */
-    public const PROGRAMS = [
-        'Reguler',
-        'Boarding',
-    ];
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -43,7 +34,7 @@ class SchoolUnit extends Model
         'name',
         'code',
         'level',
-        'program',
+        'program_id',
         'address',
         'phone',
         'is_active',
@@ -57,6 +48,14 @@ class SchoolUnit extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    /**
+     * The program this unit runs.
+     */
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class);
+    }
 
     /**
      * Admission tracks owned by this unit.

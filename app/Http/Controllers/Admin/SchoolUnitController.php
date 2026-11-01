@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SchoolUnit\StoreSchoolUnitRequest;
 use App\Http\Requests\SchoolUnit\UpdateSchoolUnitRequest;
+use App\Models\Program;
 use App\Models\SchoolUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -47,7 +48,9 @@ class SchoolUnitController extends Controller
     {
         Gate::authorize('school-unit-create');
 
-        return view('admin.school-units.create');
+        $programs = Program::where('is_active', true)->orderBy('name')->get();
+
+        return view('admin.school-units.create', compact('programs'));
     }
 
     /**
@@ -70,7 +73,9 @@ class SchoolUnitController extends Controller
     {
         Gate::authorize('school-unit-edit');
 
-        return view('admin.school-units.edit', compact('schoolUnit'));
+        $programs = Program::where('is_active', true)->orderBy('name')->get();
+
+        return view('admin.school-units.edit', compact('schoolUnit', 'programs'));
     }
 
     /**

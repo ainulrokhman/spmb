@@ -46,12 +46,12 @@ class AcademicYearDataTable
         return function ($academicYear) {
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('academic-year-edit')) {
-                $html .= '<a href="'.route('admin.academic-years.edit', $academicYear->id).'" class="btn btn-sm btn-light border" title="Edit Academic Year"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.academic-years.edit', $academicYear->id).'" class="btn btn-sm btn-light border" title="Ubah Academic Year"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('academic-year-delete')) {
                 $html .= '<form action="'.route('admin.academic-years.destroy', $academicYear->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus tahun ajaran ini?\')">';
                 $html .= csrf_field().method_field('DELETE');
-                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Delete Academic Year"><i class="bi bi-trash text-danger"></i></button>';
+                $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Hapus Academic Year"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';
             }
             $html .= '</div>';
