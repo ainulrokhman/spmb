@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\AdmissionTrack;
 
+use App\Rules\UnitAccessible;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -21,7 +22,7 @@ class StoreAdmissionTrackRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'school_unit_id' => ['required', 'exists:school_units,id'],
+            'school_unit_id' => ['required', 'exists:school_units,id', new UnitAccessible],
             'name' => ['required', 'string', 'max:255', Rule::unique('admission_tracks', 'name')->where('school_unit_id', $this->input('school_unit_id'))],
             'description' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],

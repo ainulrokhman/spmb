@@ -17,7 +17,10 @@ class SchoolUnitDataTable
     {
         $schoolUnits = SchoolUnit::query()
             ->leftJoin('programs', 'programs.id', '=', 'school_units.program_id')
-            ->select(['school_units.id', 'school_units.name', 'school_units.code', 'school_units.level', 'programs.name as program', 'school_units.is_active']);
+            ->select(['school_units.id', 'school_units.name', 'school_units.code', 'school_units.level', 'programs.name as program', 'school_units.is_active'])
+            ->when(request()->filled('unit_scope'), function ($query) {
+                $query->whereIn('school_units.id', explode(',', (string) request()->input('unit_scope')));
+            });
 
         return DataTables::of($schoolUnits)
             ->addColumn('unit_name', $this->unitNameColumn())
@@ -88,9 +91,13 @@ class SchoolUnitDataTable
     {
         return function ($schoolUnit) {
             $html = '<div class="d-flex justify-content-end gap-2">';
-            if (auth()->user()->can('school-unit-edit')) {
+            if (auth()->user()->can('school-unit-edit') || auth()->user()->can('unit-requirement-manage')) {
                 $html .= '<a href="'.route('admin.school-units.document-requirements.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Document Requirements"><i class="bi bi-folder2-open text-warning"></i> Berkas</a>';
+            }
+            if (auth()->user()->can('school-unit-edit') || auth()->user()->can('unit-fee-manage')) {
                 $html .= '<a href="'.route('admin.school-units.fees.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Fee Mappings"><i class="bi bi-cash-stack text-success"></i> Biaya</a>';
+            }
+            if (auth()->user()->can('school-unit-edit')) {
                 $html .= '<a href="'.route('admin.school-units.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Ubah School Unit"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('school-unit-delete')) {

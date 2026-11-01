@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\MajorServiceInterface;
 use App\DataTables\MajorDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Major\StoreMajorRequest;
 use App\Http\Requests\Major\UpdateMajorRequest;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Gate;
 
 class MajorController extends Controller
 {
-    use HandlesServiceExceptions;
+    use HandlesServiceExceptions, ScopesUnits;
 
     protected MajorServiceInterface $majorService;
 
@@ -35,10 +36,12 @@ class MajorController extends Controller
         Gate::authorize('major-list');
 
         if ($request->ajax()) {
+            $this->injectUnitScope($request);
+
             return $majorDataTable->make();
         }
 
-        $units = SchoolUnit::orderBy('name')->get();
+        $units = $this->accessibleUnits();
 
         return view('admin.majors.index', compact('units'));
     }
@@ -50,7 +53,7 @@ class MajorController extends Controller
     {
         Gate::authorize('major-create');
 
-        $units = SchoolUnit::orderBy('name')->get();
+        $units = $this->accessibleUnits();
 
         return view('admin.majors.create', compact('units'));
     }
@@ -74,8 +77,9 @@ class MajorController extends Controller
     public function edit(Major $major)
     {
         Gate::authorize('major-edit');
+        $this->ensureUnitAccess($major->school_unit_id);
 
-        $units = SchoolUnit::orderBy('name')->get();
+        $units = $this->accessibleUnits();
 
         return view('admin.majors.edit', compact('major', 'units'));
     }
@@ -86,6 +90,7 @@ class MajorController extends Controller
     public function update(UpdateMajorRequest $request, Major $major)
     {
         Gate::authorize('major-edit');
+        $this->ensureUnitAccess($major->school_unit_id);
 
         if ($errorRedirect = $this->runServiceAction(fn () => $this->majorService->updateMajor($major, $request->validated()), 'admin.majors.index')) {
             return $errorRedirect;
@@ -101,6 +106,7 @@ class MajorController extends Controller
     public function destroy(Major $major)
     {
         Gate::authorize('major-delete');
+        $this->ensureUnitAccess($major->school_unit_id);
 
         if ($errorRedirect = $this->runServiceAction(fn () => $this->majorService->deleteMajor($major), 'admin.majors.index')) {
             return $errorRedirect;

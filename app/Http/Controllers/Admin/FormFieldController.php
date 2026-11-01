@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\FormFieldServiceInterface;
 use App\DataTables\FormFieldDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FormField\StoreFormFieldRequest;
 use App\Http\Requests\FormField\UpdateFormFieldRequest;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Gate;
 
 class FormFieldController extends Controller
 {
-    use HandlesServiceExceptions;
+    use HandlesServiceExceptions, ScopesUnits;
 
     protected FormFieldServiceInterface $formFieldService;
 
@@ -35,10 +36,12 @@ class FormFieldController extends Controller
         Gate::authorize('form-field-list');
 
         if ($request->ajax()) {
+            $this->injectUnitScope($request);
+
             return $formFieldDataTable->make();
         }
 
-        $units = SchoolUnit::orderBy('name')->get();
+        $units = $this->accessibleUnits();
 
         return view('admin.form-fields.index', compact('units'));
     }
@@ -50,7 +53,7 @@ class FormFieldController extends Controller
     {
         Gate::authorize('form-field-create');
 
-        $units = SchoolUnit::orderBy('name')->get();
+        $units = $this->accessibleUnits();
 
         return view('admin.form-fields.create', compact('units'));
     }
@@ -76,8 +79,9 @@ class FormFieldController extends Controller
     public function edit(FormField $formField)
     {
         Gate::authorize('form-field-edit');
+        $this->ensureUnitAccess($formField->school_unit_id);
 
-        $units = SchoolUnit::orderBy('name')->get();
+        $units = $this->accessibleUnits();
 
         return view('admin.form-fields.edit', compact('formField', 'units'));
     }
@@ -88,6 +92,7 @@ class FormFieldController extends Controller
     public function update(UpdateFormFieldRequest $request, FormField $formField)
     {
         Gate::authorize('form-field-edit');
+        $this->ensureUnitAccess($formField->school_unit_id);
 
         if ($errorRedirect = $this->runServiceAction(fn () => $this->formFieldService->updateFormField($formField, $request->validated()), 'admin.form-fields.index')) {
             return $errorRedirect;
@@ -103,6 +108,7 @@ class FormFieldController extends Controller
     public function destroy(FormField $formField)
     {
         Gate::authorize('form-field-delete');
+        $this->ensureUnitAccess($formField->school_unit_id);
 
         if ($errorRedirect = $this->runServiceAction(fn () => $this->formFieldService->deleteFormField($formField), 'admin.form-fields.index')) {
             return $errorRedirect;
@@ -118,6 +124,8 @@ class FormFieldController extends Controller
     public function preview(SchoolUnit $schoolUnit)
     {
         Gate::authorize('form-field-list');
+
+        $this->ensureUnitAccess($schoolUnit->id);
 
         $fieldGroups = $schoolUnit->formFields()
             ->where('is_active', true)

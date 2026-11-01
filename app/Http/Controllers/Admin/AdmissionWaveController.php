@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\AdmissionWaveServiceInterface;
 use App\DataTables\AdmissionWaveDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdmissionWave\StoreAdmissionWaveRequest;
 use App\Http\Requests\AdmissionWave\UpdateAdmissionWaveRequest;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Gate;
 
 class AdmissionWaveController extends Controller
 {
-    use HandlesServiceExceptions;
+    use HandlesServiceExceptions, ScopesUnits;
 
     protected AdmissionWaveServiceInterface $admissionWaveService;
 
@@ -37,10 +38,12 @@ class AdmissionWaveController extends Controller
         Gate::authorize('admission-wave-list');
 
         if ($request->ajax()) {
+            $this->injectUnitScope($request);
+
             return $admissionWaveDataTable->make();
         }
 
-        $units = SchoolUnit::orderBy('name')->get();
+        $units = $this->accessibleUnits();
 
         return view('admin.admission-waves.index', compact('units'));
     }
@@ -76,6 +79,7 @@ class AdmissionWaveController extends Controller
     public function edit(AdmissionWave $admissionWave)
     {
         Gate::authorize('admission-wave-edit');
+        $this->ensureUnitAccess($admissionWave->school_unit_id);
 
         $admissionWave->load('admissionTracks');
 
@@ -91,6 +95,7 @@ class AdmissionWaveController extends Controller
     public function update(UpdateAdmissionWaveRequest $request, AdmissionWave $admissionWave)
     {
         Gate::authorize('admission-wave-edit');
+        $this->ensureUnitAccess($admissionWave->school_unit_id);
 
         if ($errorRedirect = $this->runServiceAction(fn () => $this->admissionWaveService->updateAdmissionWave($admissionWave, $request->validated()), 'admin.admission-waves.index')) {
             return $errorRedirect;
@@ -106,6 +111,7 @@ class AdmissionWaveController extends Controller
     public function destroy(AdmissionWave $admissionWave)
     {
         Gate::authorize('admission-wave-delete');
+        $this->ensureUnitAccess($admissionWave->school_unit_id);
 
         if ($errorRedirect = $this->runServiceAction(fn () => $this->admissionWaveService->deleteAdmissionWave($admissionWave), 'admin.admission-waves.index')) {
             return $errorRedirect;
@@ -121,7 +127,7 @@ class AdmissionWaveController extends Controller
     private function formData(): array
     {
         return [
-            'units' => SchoolUnit::orderBy('name')->get(),
+            'units' => $this->accessibleUnits(),
             'years' => AcademicYear::orderByDesc('name')->get(),
             'tracksByUnit' => AdmissionTrack::orderBy('name')->get()->groupBy('school_unit_id'),
         ];

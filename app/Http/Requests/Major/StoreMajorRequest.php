@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Major;
 
+use App\Rules\UnitAccessible;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -21,7 +22,7 @@ class StoreMajorRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'school_unit_id' => ['required', 'exists:school_units,id'],
+            'school_unit_id' => ['required', 'exists:school_units,id', new UnitAccessible],
             'name' => ['required', 'string', 'max:255', Rule::unique('majors', 'name')->where('school_unit_id', $this->input('school_unit_id'))],
             'code' => ['nullable', 'string', 'max:20'],
             'is_active' => ['nullable', 'boolean'],

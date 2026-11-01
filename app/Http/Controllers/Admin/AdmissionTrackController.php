@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\AdmissionTrackServiceInterface;
 use App\DataTables\AdmissionTrackDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdmissionTrack\StoreAdmissionTrackRequest;
 use App\Http\Requests\AdmissionTrack\UpdateAdmissionTrackRequest;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Gate;
 
 class AdmissionTrackController extends Controller
 {
-    use HandlesServiceExceptions;
+    use HandlesServiceExceptions, ScopesUnits;
 
     protected AdmissionTrackServiceInterface $admissionTrackService;
 
@@ -35,10 +36,12 @@ class AdmissionTrackController extends Controller
         Gate::authorize('admission-track-list');
 
         if ($request->ajax()) {
+            $this->injectUnitScope($request);
+
             return $admissionTrackDataTable->make();
         }
 
-        $units = SchoolUnit::orderBy('name')->get();
+        $units = $this->accessibleUnits();
 
         return view('admin.admission-tracks.index', compact('units'));
     }
@@ -50,7 +53,7 @@ class AdmissionTrackController extends Controller
     {
         Gate::authorize('admission-track-create');
 
-        $units = SchoolUnit::orderBy('name')->get();
+        $units = $this->accessibleUnits();
 
         return view('admin.admission-tracks.create', compact('units'));
     }
@@ -74,8 +77,9 @@ class AdmissionTrackController extends Controller
     public function edit(AdmissionTrack $admissionTrack)
     {
         Gate::authorize('admission-track-edit');
+        $this->ensureUnitAccess($admissionTrack->school_unit_id);
 
-        $units = SchoolUnit::orderBy('name')->get();
+        $units = $this->accessibleUnits();
 
         return view('admin.admission-tracks.edit', compact('admissionTrack', 'units'));
     }
@@ -86,6 +90,7 @@ class AdmissionTrackController extends Controller
     public function update(UpdateAdmissionTrackRequest $request, AdmissionTrack $admissionTrack)
     {
         Gate::authorize('admission-track-edit');
+        $this->ensureUnitAccess($admissionTrack->school_unit_id);
 
         if ($errorRedirect = $this->runServiceAction(fn () => $this->admissionTrackService->updateAdmissionTrack($admissionTrack, $request->validated()), 'admin.admission-tracks.index')) {
             return $errorRedirect;
@@ -101,6 +106,7 @@ class AdmissionTrackController extends Controller
     public function destroy(AdmissionTrack $admissionTrack)
     {
         Gate::authorize('admission-track-delete');
+        $this->ensureUnitAccess($admissionTrack->school_unit_id);
 
         if ($errorRedirect = $this->runServiceAction(fn () => $this->admissionTrackService->deleteAdmissionTrack($admissionTrack), 'admin.admission-tracks.index')) {
             return $errorRedirect;

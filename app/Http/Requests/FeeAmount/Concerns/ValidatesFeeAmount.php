@@ -15,12 +15,28 @@ trait ValidatesFeeAmount
     public function rules(): array
     {
         return [
-            'fee_id' => ['required', 'exists:fees,id'],
+            'fee_id' => ['required', 'exists:fees,id', $this->feeBelongsToAccessibleUnit()],
             'admission_track_id' => ['nullable', 'exists:admission_tracks,id', $this->trackBelongsToFeeUnit()],
             'gender' => ['nullable', Rule::in(array_keys(FeeAmount::GENDERS))],
             'amount' => ['required', 'integer', 'min:0'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ];
+    }
+
+    /**
+     * Build the rule ensuring the fee mapping belongs to a unit
+     * the current user may work with.
+     */
+    private function feeBelongsToAccessibleUnit(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail) {
+            $user = auth()->user();
+            $fee = Fee::find($value);
+
+            if ($user !== null && $fee !== null && ! $user->hasGlobalUnitAccess() && ! $user->hasUnitAccess($fee->school_unit_id)) {
+                $fail('Pemetaan biaya berada di luar penugasan Anda.');
+            }
+        };
     }
 
     /**

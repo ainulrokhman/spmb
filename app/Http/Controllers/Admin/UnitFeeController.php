@@ -26,7 +26,8 @@ class UnitFeeController extends Controller
      */
     public function edit(SchoolUnit $schoolUnit)
     {
-        Gate::authorize('school-unit-edit');
+        abort_unless(auth()->user()->can('school-unit-edit') || auth()->user()->can('unit-fee-manage'), 403);
+        abort_unless(auth()->user()->hasUnitAccess($schoolUnit->id), 403);
 
         $components = FeeComponent::where('is_active', true)->orderBy('name')->get();
         $mappings = $schoolUnit->fees()->withCount('amounts')->get()->keyBy('fee_component_id');
@@ -39,7 +40,8 @@ class UnitFeeController extends Controller
      */
     public function update(SyncUnitFeesRequest $request, SchoolUnit $schoolUnit)
     {
-        Gate::authorize('school-unit-edit');
+        abort_unless(auth()->user()->can('school-unit-edit') || auth()->user()->can('unit-fee-manage'), 403);
+        abort_unless(auth()->user()->hasUnitAccess($schoolUnit->id), 403);
 
         $this->feeService->syncUnitFees($schoolUnit, $request->mappings());
 

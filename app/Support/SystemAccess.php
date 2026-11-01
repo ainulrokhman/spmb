@@ -35,6 +35,13 @@ final class SystemAccess
     public const WALI_ROLE = 'Wali';
 
     /**
+     * The role held by unit committee members (Panitia): they run
+     * the admission process and manage the master data of the
+     * school units they are assigned to, nothing beyond them.
+     */
+    public const PANITIA_ROLE = 'Panitia';
+
+    /**
      * Every role the application treats as a protected system role.
      *
      * @var list<string>

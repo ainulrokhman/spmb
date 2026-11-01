@@ -96,6 +96,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'invoice-list',
             'invoice-manage',
 
+            'unit-fee-manage',
+            'unit-requirement-manage',
+
             'manage-settings',
             'activity-log-list',
         ];
@@ -113,6 +116,55 @@ class RolesAndPermissionsSeeder extends Seeder
         // Wali Role: guardians register themselves and only use the
         // guardian area, which is guarded by role, not permissions.
         Role::firstOrCreate(['name' => SystemAccess::WALI_ROLE]);
+
+        // Panitia Role: unit committee members. They run the
+        // admission process and manage the master data of their
+        // assigned units; unit scoping is enforced by the
+        // controllers, so these permissions only ever reach the
+        // units on their assignment list.
+        $panitiaRole = Role::firstOrCreate(['name' => SystemAccess::PANITIA_ROLE]);
+        $panitiaRole->givePermissionTo([
+            'view-dashboard',
+
+            'school-unit-list',
+
+            'admission-track-list',
+            'admission-track-create',
+            'admission-track-edit',
+            'admission-track-delete',
+
+            'major-list',
+            'major-create',
+            'major-edit',
+            'major-delete',
+
+            'admission-wave-list',
+            'admission-wave-create',
+            'admission-wave-edit',
+            'admission-wave-delete',
+
+            'form-field-list',
+            'form-field-create',
+            'form-field-edit',
+            'form-field-delete',
+
+            'fee-amount-list',
+            'fee-amount-create',
+            'fee-amount-edit',
+            'fee-amount-delete',
+
+            'unit-fee-manage',
+            'unit-requirement-manage',
+
+            'form-payment-list',
+            'form-payment-decide',
+
+            'application-list',
+            'application-verify',
+
+            'invoice-list',
+            'invoice-manage',
+        ]);
 
         // Admin Role
         $adminRole = Role::firstOrCreate(['name' => SystemAccess::ADMIN_ROLE]);
@@ -190,6 +242,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'invoice-list',
             'invoice-manage',
+
+            'unit-fee-manage',
+            'unit-requirement-manage',
 
             'manage-settings',
         ]);
