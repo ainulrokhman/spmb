@@ -105,13 +105,28 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
 - Satu akun wali dapat membuat **banyak pendaftaran — satu pendaftaran
   per anak** — dan anak-anak itu boleh mendaftar di satuan/gelombang
   yang berbeda. Data anak tersimpan pada pendaftarannya masing-masing;
-  data wali (nama, nomor HP, hubungan dengan anak) tersimpan pada akun.
+  data wali (nama, nomor HP) tersimpan pada akun.
+- **Hubungan pendaftar** dengan anak dipilih pada setiap pendaftaran
+  (satu akun yang sama dapat menjadi ayah bagi satu anak dan wali bagi
+  anak lain), dengan 3 jenis: **Ayah**, **Ibu**, atau **Wali**. Pilihan
+  ini menentukan bagian identitas mana yang terisi otomatis dari data
+  akun (nama dan nomor HP); isinya tetap dapat diubah per pendaftaran.
+- Setiap pendaftaran dilengkapi **formulir identitas orang tua**:
+  identitas **Ayah** dan identitas **Ibu** selalu ada dan wajib diisi,
+  sedangkan identitas **Wali** hanya diisi bila anak memiliki wali
+  (ditandai secara eksplisit pada formulir). Satu identitas berisi:
+  nama lengkap, status masih hidup/meninggal (khusus ayah dan ibu),
+  NIK (opsional), pekerjaan, pendidikan terakhir, penghasilan bulanan,
+  nomor HP, dan alamat bila berbeda; identitas wali ditambah hubungan
+  dengan anak. Ketiganya disimpan sebagai data terstruktur (JSON) pada
+  pendaftaran.
 - Wali membuat akun lalu mengisi pendaftaran untuk tiap anak:
   1. Pilih Satuan (jenjang + program Reguler/Boarding melekat pada
      satuan yang dipilih)
   2. Pilih Gelombang & Jalur (dan Jurusan bila satuan memilikinya)
   3. Isi formulir dinamis unit tersebut
-  4. Unggah berkas sesuai Syarat Berkas unit (wajib harus lengkap)
+  4. Lengkapi identitas ayah dan ibu, serta wali bila anak memilikinya
+  5. Unggah berkas sesuai Syarat Berkas unit (wajib harus lengkap)
 - **Nomor pendaftaran** terbit saat pendaftaran dikirim, dengan format
   gabungan 7 digit: kode unit 2 digit + tahun awal tahun ajaran
   2 digit + nomor urut 3 digit. Contoh: unit berkode `03`, tahun ajaran
@@ -124,6 +139,30 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
   `Draft → Menunggu Verifikasi → Terverifikasi / Perlu Perbaikan /
   Ditolak → Lulus / Tidak Lulus → Daftar Ulang (terkonfirmasi)`.
 - Pendaftar dapat mengunduh/mencetak bukti pendaftaran.
+
+### 3.1 Biaya Formulir, Pembebasan & Diskon
+
+- **Biaya formulir** diatur **per unit sekolah** (bidang nominal pada
+  data unit); besarnya dapat berbeda antarunit, dan nilai 0 berarti
+  unit tersebut tidak memungut biaya formulir. Biaya ini terpisah dari
+  biaya daftar ulang pada Bab 6.
+- Saat pendaftaran **dikirim**, nominal biaya formulir unit dibekukan
+  sebagai potret (snapshot) pada pendaftaran, beserta **status biaya
+  formulir**: `Gratis` (unit bernominal 0), `Belum Bayar`, `Lunas`,
+  atau `Dibebaskan`. Perubahan nominal unit sesudahnya tidak mengubah
+  pendaftaran yang sudah terkirim.
+- **Pembebasan**: calon siswa khusus dapat **dibebaskan** dari biaya
+  formulir. Pembebasan diberikan **per pendaftaran** oleh panitia
+  dengan alasan yang dicatat (mis. anak yatim, keluarga tidak mampu,
+  anak karyawan); status biaya formulir menjadi `Dibebaskan`.
+- **Diskon**: biaya yang sudah diatur dapat diberi potongan oleh
+  panitia per pendaftaran. Potongan diatur dengan **tipe** yang dapat
+  dipilih — **persen** (0–100%) atau **nominal** (Rp) — dan rancangan
+  tipe ini terbuka untuk ditambah jenis lain menyusul. Setiap potongan
+  mencatat tipe, nilai, dan alasannya; nominal akhir tidak boleh
+  kurang dari nol. Pembebasan adalah kasus khusus: potongan penuh
+  (100%). Mekanisme potongan yang sama berlaku juga untuk tagihan
+  daftar ulang (Bab 6.4).
 
 ## 4. Modul Verifikasi & Seleksi (Panitia)
 
@@ -197,6 +236,10 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
 - Tagihan berisi rincian per komponen dan total; tersimpan sebagai
   potret (snapshot) — perubahan pemetaan biaya sesudahnya tidak
   mengubah tagihan yang sudah terbit.
+- Sebelum dibayar, tagihan dapat diberi **diskon** oleh panitia dengan
+  mekanisme yang sama seperti biaya formulir (Bab 3.1): tipe persen
+  atau nominal (terbuka untuk tipe lain), beserta nilai dan alasannya;
+  total akhir tidak boleh kurang dari nol.
 - **Pembayaran melalui Midtrans** (Snap): wali membayar dari halaman
   daftar ulang; status tagihan diperbarui otomatis lewat notifikasi
   webhook Midtrans (tanda tangan diverifikasi). Status pembayaran:
@@ -224,6 +267,14 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
    tanggal, dengan saklar manual sebagai penimpa.
 7. **Seleksi** — **DITUNDA**: mekanismenya (poin maupun manual) akan
    dirancang tersendiri menyusul (Bab 4).
+8. **Biaya formulir** — diatur **per unit**; calon siswa khusus dapat
+   **dibebaskan** oleh panitia per pendaftaran (Bab 3.1).
+9. **Diskon** — potongan biaya diatur panitia dengan tipe **persen**
+   atau **nominal** (terbuka untuk tipe lain), berlaku untuk biaya
+   formulir dan tagihan daftar ulang (Bab 3.1 dan 6.4).
+10. **Identitas orang tua** — hubungan pendaftar adalah **Ayah, Ibu,
+    atau Wali** per pendaftaran; identitas ayah dan ibu selalu diisi,
+    identitas wali hanya bila anak memilikinya (Bab 3).
 
 ## 9. Peta Fase Implementasi
 
@@ -234,8 +285,8 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
 | 1C | Bidang Formulir per Unit |
 | 1D | Komponen Biaya + Pemetaan Biaya per Unit |
 | 1E | Penugasan Panitia per Unit (pivot user–unit + pengaturan di manajemen user) |
-| 2 | Akun Wali (registrasi & login nomor HP), pendaftaran multi-anak, formulir dinamis, unggah berkas, nomor pendaftaran |
-| 3 | Verifikasi berkas oleh panitia sesuai unit tugasnya |
+| 2 | Akun Wali (registrasi & login nomor HP), pendaftaran multi-anak, formulir dinamis, identitas ayah/ibu/wali, unggah berkas, nomor pendaftaran, biaya formulir (snapshot & status) |
+| 3 | Verifikasi berkas oleh panitia sesuai unit tugasnya; pembebasan & diskon biaya formulir |
 | 4 | Pengumuman, daftar ulang & tagihan, pembayaran Midtrans |
 | 5 | Dashboard SPMB & laporan/export |
 | Menyusul | Seleksi (poin/manual) — dirancang tersendiri |
