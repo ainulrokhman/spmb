@@ -81,24 +81,24 @@
                 <form action="{{ route('login') }}" method="POST" id="loginForm">
                     @csrf
                     
-                    <!-- Email Input -->
+                    <!-- Login Input: email (staf) atau nomor HP (wali) -->
                     <div class="input-group mb-3">
                         <div class="form-floating">
-                            <input type="email" 
-                                   class="form-control @error('email') is-invalid @enderror" 
-                                   id="email" 
-                                   name="email" 
-                                   value="{{ old('email') }}" 
-                                   placeholder="name@example.com" 
+                            <input type="text" 
+                                   class="form-control @error('login') is-invalid @enderror" 
+                                   id="login" 
+                                   name="login" 
+                                   value="{{ old('login', old('email')) }}" 
+                                   placeholder="Email atau nomor HP" 
                                    required 
-                                   autocomplete="email" 
+                                   autocomplete="username" 
                                    autofocus>
-                            <label for="email">Alamat Email</label>
+                            <label for="login">Email atau Nomor HP</label>
                         </div>
                         <div class="input-group-text bg-body-tertiary border-start-0 text-muted">
-                            <span class="bi bi-envelope"></span>
+                            <span class="bi bi-person"></span>
                         </div>
-                        @error('email')
+                        @error('login')
                             <div class="invalid-feedback d-block w-100 mt-1">
                                 {{ $message }}
                             </div>
@@ -144,6 +144,11 @@
                         </div>
                     </div>
                 </form>
+
+                <p class="text-center text-muted small mt-3 mb-0">
+                    Wali murid baru? <a href="{{ route('guardian.register') }}">Daftar di sini</a>
+                    &middot; <a href="{{ route('admissions.info') }}">Lihat unit yang membuka pendaftaran</a>
+                </p>
 
                 <!-- Quick testing accounts option panel -->
                 <div class="mt-4 pt-3 border-top">
@@ -211,7 +216,7 @@
         });
 
         function quickLogin(email, password) {
-            document.getElementById('email').value = email;
+            document.getElementById('login').value = email;
             document.getElementById('password').value = password;
             
             const form = document.getElementById('loginForm');

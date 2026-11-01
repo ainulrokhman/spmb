@@ -35,6 +35,7 @@ class SchoolUnit extends Model
         'code',
         'level',
         'program_id',
+        'form_fee',
         'address',
         'phone',
         'is_active',
@@ -47,6 +48,7 @@ class SchoolUnit extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        'form_fee' => 'integer',
     ];
 
     /**

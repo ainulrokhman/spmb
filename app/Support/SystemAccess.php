@@ -29,6 +29,12 @@ final class SystemAccess
     public const USER_ROLE = 'User';
 
     /**
+     * The role held by guardian (Wali) accounts, which log in with a
+     * phone number and only use the guardian area.
+     */
+    public const WALI_ROLE = 'Wali';
+
+    /**
      * Every role the application treats as a protected system role.
      *
      * @var list<string>
