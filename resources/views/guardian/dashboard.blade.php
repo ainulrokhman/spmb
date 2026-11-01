@@ -27,9 +27,11 @@
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
+                        @php($announced = $application->admissionWave !== null && $application->admissionWave->resultsAnnounced())
+                        @php($resultHidden = in_array($application->status, ['passed', 'failed'], true) && ! $announced)
                         <div class="d-flex justify-content-between align-items-start">
                             <h5 class="fw-bold mb-1">{{ $application->child_name ?? 'Pendaftaran Baru' }}</h5>
-                            <span class="badge bg-primary">{{ $application->statusLabel() }}</span>
+                            <span class="badge bg-primary">{{ $resultHidden ? 'Menunggu Pengumuman' : $application->statusLabel() }}</span>
                         </div>
                         <p class="text-muted small mb-2">
                             {{ $application->schoolUnit?->name }} &middot; {{ $application->admissionWave?->name }} ({{ $application->admissionWave?->academicYear?->name }}) &middot; {{ $application->admissionTrack?->name }}
@@ -40,6 +42,15 @@
                         @if($application->status === 'needs_revision' && $application->verification_note)
                             <div class="alert alert-danger bg-danger bg-opacity-10 text-body border-0 rounded-3 p-2 small mb-2">Perlu perbaikan: {{ $application->verification_note }}</div>
                         @endif
+                        @if($application->status === 'verified')
+                            <div class="alert alert-info bg-info bg-opacity-10 text-body border-0 rounded-3 p-2 small mb-2">Pendaftaran terverifikasi. Hasil diumumkan {{ $application->admissionWave?->announcement_at ? 'pada '.$application->admissionWave->announcement_at->format('d/m/Y H:i') : 'sesuai jadwal panitia' }}.</div>
+                        @endif
+                        @if($application->status === 'passed' && $announced)
+                            <div class="alert alert-success bg-success bg-opacity-10 text-body border-0 rounded-3 p-2 small mb-2"><strong>Lulus!</strong> Silakan lakukan daftar ulang untuk menyelesaikan pendaftaran.</div>
+                        @endif
+                        @if($application->status === 'failed' && $announced)
+                            <div class="alert alert-danger bg-danger bg-opacity-10 text-body border-0 rounded-3 p-2 small mb-2"><strong>Tidak Lulus.</strong> Terima kasih sudah mendaftar. Silakan coba pada gelombang atau unit lain bila tersedia.</div>
+                        @endif
                         <p class="small mb-3">
                             Biaya Formulir:
                             @if($application->form_fee_amount === 0)
@@ -49,13 +60,19 @@
                                 <span class="text-muted">({{ $application->feeStatusLabel() }})</span>
                             @endif
                         </p>
-                        <a href="{{ route('guardian.applications.show', $application) }}" class="btn btn-outline-primary btn-sm">
-                            @if($application->registration_number)
-                                Lihat Bukti
-                            @else
-                                Lanjutkan Pendaftaran
-                            @endif
-                        </a>
+                        @if($application->status === 'passed' && $announced)
+                            <a href="{{ route('guardian.invoices.show', $application) }}" class="btn btn-success btn-sm">Daftar Ulang</a>
+                        @elseif($application->status === 're_registered')
+                            <a href="{{ route('guardian.invoices.show', $application) }}" class="btn btn-outline-primary btn-sm">Lihat Daftar Ulang</a>
+                        @else
+                            <a href="{{ route('guardian.applications.show', $application) }}" class="btn btn-outline-primary btn-sm">
+                                @if($application->registration_number)
+                                    Lihat Bukti
+                                @else
+                                    Lanjutkan Pendaftaran
+                                @endif
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>

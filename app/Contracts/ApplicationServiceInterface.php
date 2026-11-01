@@ -85,4 +85,10 @@ interface ApplicationServiceInterface
      * rejected — the latter two require a note for the guardian.
      */
     public function decideVerification(Application $application, string $decision, ?string $note, User $decider): Application;
+
+    /**
+     * Announce the result of a verified application (Bab 5):
+     * 'passed' (Lulus) or 'failed' (Tidak Lulus).
+     */
+    public function decideAnnouncement(Application $application, string $decision): Application;
 }

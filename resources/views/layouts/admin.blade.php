@@ -243,7 +243,7 @@
                         </li>
                         @endcan
 
-                        @canany(['fee-component-list', 'fee-amount-list', 'form-payment-list'])
+                        @canany(['fee-component-list', 'fee-amount-list', 'form-payment-list', 'invoice-list'])
                         <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Biaya</li>
                         @endcanany
 
@@ -270,6 +270,15 @@
                             <a href="{{ route('admin.form-payments.index') }}" class="nav-link {{ request()->is('admin/form-payments*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-wallet2 me-2"></i>
                                 <p>Pembayaran Formulir</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('invoice-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.invoices.index') }}" class="nav-link {{ request()->is('admin/invoices*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-receipt me-2"></i>
+                                <p>Tagihan Daftar Ulang</p>
                             </a>
                         </li>
                         @endcan

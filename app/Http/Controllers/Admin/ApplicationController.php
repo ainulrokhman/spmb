@@ -132,6 +132,49 @@ class ApplicationController extends Controller
     }
 
     /**
+     * Announce results (Lulus / Tidak Lulus) for verified
+     * applications: either the given ids, or every verified
+     * application matching the unit/wave filters.
+     */
+    public function announce(Request $request)
+    {
+        $data = $request->validate([
+            'decision' => ['required', Rule::in(['passed', 'failed'])],
+            'application_ids' => ['nullable', 'array'],
+            'application_ids.*' => ['integer'],
+            'school_unit_id' => ['nullable', 'integer'],
+            'admission_wave_id' => ['nullable', 'integer'],
+        ]);
+
+        $query = Application::query()->where('status', 'verified');
+
+        if (! empty($data['application_ids'])) {
+            $query->whereIn('id', $data['application_ids']);
+        } else {
+            $query->when($data['school_unit_id'] ?? null, fn ($q, $unit) => $q->where('school_unit_id', $unit))
+                ->when($data['admission_wave_id'] ?? null, fn ($q, $wave) => $q->where('admission_wave_id', $wave));
+        }
+
+        $user = $request->user();
+
+        if (! $user->hasGlobalUnitAccess()) {
+            $query->whereIn('school_unit_id', $user->accessibleUnitIds());
+        }
+
+        $count = 0;
+
+        foreach ($query->get() as $application) {
+            $this->applications->decideAnnouncement($application, $data['decision']);
+            $count++;
+        }
+
+        $label = $data['decision'] === 'passed' ? 'Lulus' : 'Tidak Lulus';
+
+        return redirect()->route('admin.applications.index')
+            ->with('success', $count." pendaftar ditetapkan {$label}.");
+    }
+
+    /**
      * Units the current user may work with.
      */
     private function accessibleUnits(Request $request)

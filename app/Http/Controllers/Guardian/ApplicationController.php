@@ -86,6 +86,7 @@ class ApplicationController extends Controller
             'awaiting_form_fee' => 'guardian.applications.payment',
             'filling_form' => 'guardian.applications.form',
             'uploading_documents', 'needs_revision' => 'guardian.applications.documents',
+            'passed' => 'guardian.invoices.show',
             default => 'guardian.applications.proof',
         }, $application);
     }

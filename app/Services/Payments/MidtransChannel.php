@@ -34,7 +34,9 @@ class MidtransChannel implements PaymentChannelInterface
     public function createPayment(Payment $payment): array
     {
         $payable = $payment->payable;
-        $guardian = $payable->user;
+        $guardian = $payable instanceof \App\Models\Invoice
+            ? $payable->application?->user
+            : $payable->user;
 
         $response = Http::withBasicAuth((string) config('midtrans.server_key'), '')
             ->acceptJson()
@@ -50,10 +52,10 @@ class MidtransChannel implements PaymentChannelInterface
                 ],
                 'item_details' => [
                     [
-                        'id' => 'FORMFEE-'.$payable->id,
+                        'id' => ($payable instanceof \App\Models\Invoice ? 'TAGIHAN-' : 'FORMFEE-').$payable->id,
                         'price' => $payment->amount,
                         'quantity' => 1,
-                        'name' => 'Biaya Formulir SPMB',
+                        'name' => $payment->payable instanceof \App\Models\Invoice ? 'Tagihan Daftar Ulang SPMB' : 'Biaya Formulir SPMB',
                     ],
                 ],
             ]);
