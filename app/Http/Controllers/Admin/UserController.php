@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\SchoolUnit;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -53,7 +54,8 @@ class UserController extends Controller
         Gate::authorize('user-create');
 
         $roles = Role::all();
-        return view('admin.users.create', compact('roles'));
+        $schoolUnits = SchoolUnit::with('program')->orderBy('name')->get();
+        return view('admin.users.create', compact('roles', 'schoolUnits'));
     }
 
     /**
@@ -78,7 +80,9 @@ class UserController extends Controller
 
         $roles = Role::all();
         $userRoles = $user->roles->pluck('name')->toArray();
-        return view('admin.users.edit', compact('user', 'roles', 'userRoles'));
+        $schoolUnits = SchoolUnit::with('program')->orderBy('name')->get();
+        $userUnits = $user->schoolUnits->pluck('id')->toArray();
+        return view('admin.users.edit', compact('user', 'roles', 'userRoles', 'schoolUnits', 'userUnits'));
     }
 
     /**

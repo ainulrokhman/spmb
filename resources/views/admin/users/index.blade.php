@@ -59,6 +59,7 @@
                     <tr>
                         <th class="text-secondary fw-semibold">Detail Pengguna</th>
                         <th class="text-secondary fw-semibold">Peran yang Ditetapkan</th>
+                        <th class="text-secondary fw-semibold">Penugasan Unit</th>
                         <th class="text-secondary fw-semibold">Tanggal Bergabung</th>
                         <th style="width: 160px;" class="text-secondary fw-semibold text-end">Aksi</th>
                     </tr>
@@ -84,6 +85,7 @@
             columns: [
                 { data: 'user_details', name: 'user_details' },
                 { data: 'assigned_roles', name: 'assigned_roles', orderable: false },
+                { data: 'unit_assignments', name: 'unit_assignments', orderable: false, searchable: false },
                 { data: 'joined_date', name: 'joined_date' },
                 { data: 'actions', name: 'actions', orderable: false, searchable: false, class: 'text-end' }
             ],

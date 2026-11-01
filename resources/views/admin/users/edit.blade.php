@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Ubah Pengguna')
-@section('page-title', 'Edit User: ' . $user->name)
+@section('page-title', 'Ubah Pengguna: ' . $user->name)
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}" class="text-decoration-none">Users</a></li>
@@ -135,13 +135,13 @@
                                             </label>
                                             <span class="text-muted d-block small mt-0.5">
                                                 @if($role->name === \App\Support\SystemAccess::SUPER_ADMIN_ROLE)
-                                                    Full unrestricted system admin access (bypasses all checks).
+                                                    Akses admin sistem penuh tanpa batas (melewati semua pemeriksaan).
                                                 @elseif($role->name === \App\Support\SystemAccess::ADMIN_ROLE)
-                                                    Management access to view dashboard, edit users, and manage roles.
+                                                    Akses manajemen untuk melihat dasbor, mengubah pengguna, dan mengelola peran.
                                                 @elseif($role->name === \App\Support\SystemAccess::USER_ROLE)
-                                                    Standard user access, limited only to view dashboard details.
+                                                    Akses pengguna standar, terbatas hanya untuk melihat detail dasbor.
                                                 @else
-                                                    Custom role with specific access privileges.
+                                                    Peran kustom dengan hak akses tertentu.
                                                 @endif
                                             </span>
                                         </div>
@@ -153,6 +153,42 @@
                         <div class="text-center py-3">
                             <i class="bi bi-shield-slash fs-3 text-muted mb-2"></i>
                             <p class="text-muted small mb-0">Belum ada peran yang dibuat.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="mb-0 fw-bold text-body">Penugasan Unit</h5>
+                    <p class="text-muted small mb-0">Unit yang dapat dikelola pengguna ini sebagai panitia. Super Admin dan Admin yayasan mengakses semua unit tanpa penugasan.</p>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    @if(count($schoolUnits) > 0)
+                        <div class="d-flex flex-column gap-3">
+                            @foreach($schoolUnits as $unit)
+                                <div class="card border p-3 rounded-3 bg-light bg-opacity-20">
+                                    <div class="form-check d-flex align-items-center mb-0">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="school_units[]"
+                                               value="{{ $unit->id }}"
+                                               id="unit-{{ $unit->id }}"
+                                               {{ in_array($unit->id, old('school_units', $userUnits ?? [])) ? 'checked' : '' }}>
+                                        <div class="ms-3">
+                                            <label class="form-check-label fw-bold text-body mb-0" for="unit-{{ $unit->id }}">
+                                                {{ $unit->name }}
+                                            </label>
+                                            <span class="text-muted d-block small mt-0.5">{{ $unit->level }} &middot; {{ $unit->program?->name }} &middot; Kode {{ $unit->code }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-3">
+                            <i class="bi bi-building-slash fs-3 text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">Belum ada unit sekolah. Buat unit terlebih dahulu.</p>
                         </div>
                     @endif
                 </div>

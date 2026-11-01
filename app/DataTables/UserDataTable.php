@@ -16,11 +16,12 @@ class UserDataTable
      */
     public function make()
     {
-        $query = User::with('roles')->select(['id', 'name', 'email', 'created_at']);
+        $query = User::with(['roles', 'schoolUnits'])->select(['id', 'name', 'email', 'created_at']);
 
         return DataTables::of($query)
             ->addColumn('user_details', $this->userDetailsColumn())
             ->addColumn('assigned_roles', $this->assignedRolesColumn())
+            ->addColumn('unit_assignments', $this->unitAssignmentsColumn())
             ->addColumn('joined_date', $this->joinedDateColumn())
             ->addColumn('actions', $this->actionsColumn())
             ->filterColumn('user_details', function ($query, $keyword) {
@@ -32,7 +33,7 @@ class UserDataTable
             ->orderColumn('user_details', function ($query, $order) {
                 $query->orderBy('name', $order);
             })
-            ->rawColumns(['user_details', 'assigned_roles', 'joined_date', 'actions'])
+            ->rawColumns(['user_details', 'assigned_roles', 'unit_assignments', 'joined_date', 'actions'])
             ->make(true);
     }
 
@@ -85,6 +86,30 @@ class UserDataTable
     {
         return function ($user) {
             return '<span class="text-secondary small">'.$user->created_at->format('M d, Y').'</span>';
+        };
+    }
+
+    /**
+     * Build the `unit_assignments` column renderer.
+     */
+    private function unitAssignmentsColumn(): \Closure
+    {
+        return function ($user) {
+            if ($user->hasGlobalUnitAccess()) {
+                return '<span class="badge bg-primary">Semua Unit</span>';
+            }
+
+            if ($user->schoolUnits->isEmpty()) {
+                return '<span class="text-muted small">Belum ditugaskan</span>';
+            }
+
+            $html = '<div class="d-flex flex-wrap gap-1">';
+            foreach ($user->schoolUnits as $unit) {
+                $html .= '<span class="badge bg-secondary">'.e($unit->name).'</span>';
+            }
+            $html .= '</div>';
+
+            return $html;
         };
     }
 
