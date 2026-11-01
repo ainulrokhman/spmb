@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\User;
+use Database\Seeders\DemoUserSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
@@ -19,6 +20,7 @@ class DataTableTest extends TestCase
 
         // Seed default roles, permissions, and demo users
         $this->seed(RolesAndPermissionsSeeder::class);
+        $this->seed(DemoUserSeeder::class);
     }
 
     private function admin(): User

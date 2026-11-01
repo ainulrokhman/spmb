@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\User;
 use App\Services\UserService;
+use Database\Seeders\DemoUserSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -23,6 +24,7 @@ class UserServiceTest extends TestCase
 
         // Seed default roles, permissions, and demo users
         $this->seed(RolesAndPermissionsSeeder::class);
+        $this->seed(DemoUserSeeder::class);
 
         $this->service = new UserService;
     }

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\User;
+use Database\Seeders\DemoUserSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -17,8 +18,9 @@ class ProfileTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->seed(RolesAndPermissionsSeeder::class);
+        $this->seed(DemoUserSeeder::class);
     }
 
     /**
@@ -101,7 +103,7 @@ class ProfileTest extends TestCase
     public function test_user_can_upload_avatar(): void
     {
         Storage::fake('public');
-        
+
         $user = User::factory()->create();
         $avatar = UploadedFile::fake()->image('avatar.png');
 

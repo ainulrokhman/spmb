@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\DocumentType;
 use App\Models\FeeComponent;
 use App\Models\Program;
+use App\Models\Setting;
 use Illuminate\Database\Seeder;
 
 class SpmbMasterSeeder extends Seeder
@@ -57,6 +58,22 @@ class SpmbMasterSeeder extends Seeder
                 ['code' => $feeComponent['code']],
                 array_merge($feeComponent, ['is_active' => true])
             );
+        }
+
+        // Initial payment channel settings (Bab 6.4): the manual
+        // channel starts enabled with placeholder instructions the
+        // foundation edits in Pengaturan; online channels start off
+        // until their keys are configured in .env.
+        if (Setting::get('payment_manual_enabled') === null) {
+            Setting::set('payment_manual_enabled', '1');
+        }
+
+        if (Setting::get('payment_manual_instructions') === null) {
+            Setting::set('payment_manual_instructions', 'Transfer ke rekening yayasan (cantumkan nomor pendaftaran/nama anak pada berita transfer) atau bayar tunai di sekretariat sekolah, lalu tekan tombol "Saya Sudah Bayar" agar panitia dapat mengonfirmasi.');
+        }
+
+        if (Setting::get('payment_midtrans_enabled') === null) {
+            Setting::set('payment_midtrans_enabled', '0');
         }
     }
 }

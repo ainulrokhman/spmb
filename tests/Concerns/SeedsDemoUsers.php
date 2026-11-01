@@ -3,6 +3,7 @@
 namespace Tests\Concerns;
 
 use App\Models\User;
+use Database\Seeders\DemoUserSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 
 trait SeedsDemoUsers
@@ -13,6 +14,7 @@ trait SeedsDemoUsers
     protected function seedDemoUsers(): void
     {
         $this->seed(RolesAndPermissionsSeeder::class);
+        $this->seed(DemoUserSeeder::class);
     }
 
     /**
