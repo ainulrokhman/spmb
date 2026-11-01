@@ -360,6 +360,28 @@ class ApplicationController extends Controller
     }
 
     /**
+     * The printable filled registration form of a submitted
+     * application (Bab 7).
+     */
+    public function printForm(Application $application)
+    {
+        $this->ensureOwner($application);
+
+        if ($application->registration_number === null) {
+            return redirect()->route('guardian.applications.show', $application);
+        }
+
+        $application->load(['user', 'schoolUnit.program', 'admissionWave.academicYear', 'admissionTrack', 'major', 'documents.documentType']);
+
+        $formFields = $application->schoolUnit->formFields()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('guardian.applications.print', compact('application', 'formFields'));
+    }
+
+    /**
      * A guardian only ever sees their own applications.
      */
     private function ensureOwner(Application $application): void

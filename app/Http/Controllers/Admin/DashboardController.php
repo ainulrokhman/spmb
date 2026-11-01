@@ -2,18 +2,26 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\ReportServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private readonly ReportServiceInterface $reports,
+    ) {}
+
     /**
-     * Display the overview dashboard.
+     * Display the SPMB overview dashboard: applicant summary for
+     * the active academic year, per-unit reception totals, and the
+     * system counts. Committee members only see their own units.
      */
-    public function index()
+    public function index(Request $request)
     {
         Gate::authorize('view-dashboard');
 
@@ -26,11 +34,16 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        $user = $request->user();
+        $unitIds = $user->hasGlobalUnitAccess() ? null : $user->accessibleUnitIds();
+        $summary = $this->reports->dashboardSummary($unitIds);
+
         return view('admin.dashboard', compact(
             'usersCount',
             'rolesCount',
             'permissionsCount',
-            'recentUsers'
+            'recentUsers',
+            'summary'
         ));
     }
 }

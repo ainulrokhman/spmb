@@ -3,7 +3,18 @@
 @section('title', 'Daftar Ulang')
 
 @section('content')
-<h3 class="fw-bold mb-1">Daftar Ulang — {{ $application->child_name }}</h3>
+@if($invoice !== null && $invoice->status === 'paid')
+    <div class="d-none d-print-block text-center border-bottom pb-3 mb-3">
+        <h4 class="fw-bold mb-1">BUKTI DAFTAR ULANG SPMB</h4>
+        <p class="text-muted mb-0">{{ $application->schoolUnit?->name }} &middot; Tahun Ajaran {{ $application->admissionWave?->academicYear?->name }}</p>
+    </div>
+    <div class="d-flex justify-content-end mb-3 d-print-none">
+        <button type="button" class="btn btn-primary" onclick="window.print()">
+            <i class="bi bi-printer"></i> Cetak Bukti Daftar Ulang
+        </button>
+    </div>
+@endif
+<h3 class="fw-bold mb-1 d-print-none">Daftar Ulang — {{ $application->child_name }}</h3>
 <p class="text-muted mb-4">
     {{ $application->schoolUnit?->name }} &middot; {{ $application->admissionWave?->name }} &middot; {{ $application->admissionTrack?->name }}
     @if($application->registration_number)

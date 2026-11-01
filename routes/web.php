@@ -22,6 +22,7 @@ use App\Http\Controllers\AdmissionInfoController;
 use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use App\Http\Controllers\Admin\FormPaymentController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Guardian\ApplicationController as GuardianApplicationController;
@@ -73,6 +74,7 @@ Route::middleware(['auth', 'role:Wali'])->prefix('wali')->name('guardian.')->gro
     Route::delete('pendaftaran/{application}/berkas/{documentType}', [GuardianApplicationController::class, 'deleteDocument'])->name('applications.documents.delete');
     Route::post('pendaftaran/{application}/kirim', [GuardianApplicationController::class, 'submit'])->name('applications.submit');
     Route::get('pendaftaran/{application}/bukti', [GuardianApplicationController::class, 'proof'])->name('applications.proof');
+    Route::get('pendaftaran/{application}/cetak-formulir', [GuardianApplicationController::class, 'printForm'])->name('applications.print');
     // Re-registration & invoice (Fase 4)
     Route::get('pendaftaran/{application}/daftar-ulang', [GuardianInvoiceController::class, 'show'])->name('invoices.show');
     Route::post('pendaftaran/{application}/daftar-ulang', [GuardianInvoiceController::class, 'store'])->name('invoices.store');
@@ -142,6 +144,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show')->middleware('permission:invoice-list');
     Route::post('invoices/{invoice}/decide-discount', [InvoiceController::class, 'decideDiscount'])->name('invoices.decide-discount')->middleware('permission:invoice-manage');
     Route::post('invoices/payments/{payment}/confirm', [InvoiceController::class, 'confirm'])->name('invoices.confirm')->middleware('permission:invoice-manage');
+
+    // Reports & exports (Fase 5)
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:application-list');
+    Route::get('reports/export/pendaftar', [ReportController::class, 'exportApplications'])->name('reports.export.applications')->middleware('permission:application-list');
+    Route::get('reports/export/tagihan', [ReportController::class, 'exportInvoices'])->name('reports.export.invoices')->middleware('permission:invoice-list');
+    Route::get('applications/{application}/cetak', [AdminApplicationController::class, 'print'])->name('applications.print')->middleware('permission:application-list');
 
     // Settings (payment channels)
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit')->middleware('permission:manage-settings');
