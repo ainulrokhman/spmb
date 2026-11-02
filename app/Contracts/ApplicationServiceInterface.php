@@ -17,7 +17,7 @@ interface ApplicationServiceInterface
      * Start an application for a child: freezes the unit's form fee
      * and places the application at its first step.
      */
-    public function start(User $guardian, AdmissionWave $wave, AdmissionTrack $track, ?Major $major): Application;
+    public function start(User $guardian, AdmissionWave $wave, AdmissionTrack $track, ?Major $major, string $childName, string $guardianRelation, bool $createParentAccount = false): Application;
 
     /**
      * Record a guardian's relief request on the form fee. The
@@ -49,6 +49,19 @@ interface ApplicationServiceInterface
      * dynamic answers) and advance to the documents step.
      */
     public function saveForm(Application $application, array $data): Application;
+
+    /**
+     * Create (or link) the parent account the guardian opted
+     * into at the start step: the account belongs to the parent
+     * of the relation type declared there and takes its name and
+     * phone number from that identity section of the form data.
+     * A new account's generated password is returned here so the
+     * caller can show it exactly once; an existing account is
+     * linked to the application instead.
+     *
+     * @return list<array{label: string, name: string, phone: string, password: string|null, note: string}>
+     */
+    public function createParentAccounts(Application $application, array $data): array;
 
     /**
      * Store (or replace) one uploaded document of the application.

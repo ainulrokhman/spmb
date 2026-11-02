@@ -24,7 +24,7 @@ class ApplicationService implements ApplicationServiceInterface
      * Start an application for a child: freezes the unit's form fee
      * and places the application at its first step.
      */
-    public function start(User $guardian, AdmissionWave $wave, AdmissionTrack $track, ?Major $major): Application
+    public function start(User $guardian, AdmissionWave $wave, AdmissionTrack $track, ?Major $major, string $childName, string $guardianRelation, bool $createParentAccount = false): Application
     {
         if ($wave->status() !== AdmissionWave::STATUS_OPEN) {
             throw new InvalidArgumentException('Gelombang yang dipilih tidak sedang dibuka.');
@@ -52,6 +52,9 @@ class ApplicationService implements ApplicationServiceInterface
             'form_fee_amount' => $fee,
             'form_fee_status' => $isFree ? 'free' : 'unpaid',
             'status' => $isFree ? 'filling_form' : 'awaiting_form_fee',
+            'child_name' => $childName,
+            'guardian_relation' => $guardianRelation,
+            'create_parent_account' => $createParentAccount,
         ]);
     }
 
@@ -215,9 +218,6 @@ class ApplicationService implements ApplicationServiceInterface
             'birth_place' => $data['birth_place'],
             'birth_date' => $data['birth_date'],
             'gender' => $data['gender'],
-            'parent_name' => $data['parent_name'],
-            'parent_phone' => $data['parent_phone'],
-            'guardian_relation' => $data['guardian_relation'],
             'father_data' => $data['father'],
             'mother_data' => $data['mother'],
             'has_guardian' => (bool) ($data['has_guardian'] ?? false),
@@ -227,6 +227,89 @@ class ApplicationService implements ApplicationServiceInterface
         ]);
 
         return $application;
+    }
+
+    /**
+     * Create (or link) the parent account the guardian opted
+     * into at the start step (the register menu's "buatkan akun
+     * orang tua" checkbox). The account belongs to the parent of
+     * the relation type declared at the start and takes its name
+     * and phone number (the login identity) from that identity
+     * section of the form data; a new account's generated
+     * password is returned so the caller can show it exactly
+     * once. An existing account is linked to the application
+     * instead of duplicated, and the registrant's own number is
+     * left alone.
+     *
+     * @return list<array{label: string, name: string, phone: string, password: string|null, note: string}>
+     */
+    public function createParentAccounts(Application $application, array $data): array
+    {
+        if (! $application->create_parent_account) {
+            return [];
+        }
+
+        $key = match ($application->guardian_relation) {
+            'ayah' => 'father',
+            'ibu' => 'mother',
+            default => 'guardian',
+        };
+        $relation = $application->guardian_relation ?? 'wali';
+        $sections = [$key => $relation];
+        $results = [];
+
+        foreach ($sections as $key => $relation) {
+            $section = $data[$key] ?? null;
+
+            if (! is_array($section)) {
+                continue;
+            }
+
+            if ($key === 'guardian' && empty($data['has_guardian'])) {
+                $results[] = ['label' => Application::GUARDIAN_RELATIONS[$relation], 'name' => '', 'phone' => '', 'password' => null, 'note' => 'Akun tidak dibuat: bagian identitas wali tidak diisi.'];
+
+                continue;
+            }
+
+            $label = Application::GUARDIAN_RELATIONS[$relation];
+            $name = trim((string) ($section['name'] ?? ''));
+            $rawPhone = (string) ($section['phone'] ?? '');
+            $phone = \App\Support\PhoneNumber::normalize($rawPhone);
+
+            if ($name === '' || $phone === null) {
+                $results[] = ['label' => $label, 'name' => $name, 'phone' => $rawPhone, 'password' => null, 'note' => 'Akun tidak dibuat: nama atau nomor HP tidak valid.'];
+
+                continue;
+            }
+
+            $existing = User::where('phone', $phone)->first();
+
+            if ($existing !== null) {
+                if ($existing->id === $application->user_id) {
+                    $results[] = ['label' => $label, 'name' => $name, 'phone' => $phone, 'password' => null, 'note' => 'Nomor ini adalah nomor akun Anda sendiri; akun baru tidak diperlukan.'];
+                } else {
+                    $application->linkedUsers()->syncWithoutDetaching([$existing->id => ['relation' => $relation]]);
+                    $results[] = ['label' => $label, 'name' => $existing->name, 'phone' => $phone, 'password' => null, 'note' => 'Nomor sudah memiliki akun; akun tersebut kini terhubung ke pendaftaran ini.'];
+                }
+
+                continue;
+            }
+
+            $password = \Illuminate\Support\Str::password(10);
+
+            $user = User::create([
+                'name' => $name,
+                'phone' => $phone,
+                'password' => $password,
+            ]);
+            $user->assignRole(\App\Support\SystemAccess::WALI_ROLE);
+
+            $application->linkedUsers()->attach($user->id, ['relation' => $relation]);
+
+            $results[] = ['label' => $label, 'name' => $name, 'phone' => $phone, 'password' => $password, 'note' => 'Akun dibuat dan terhubung ke pendaftaran ini.'];
+        }
+
+        return $results;
     }
 
     /**

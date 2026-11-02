@@ -25,6 +25,9 @@ class StartApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'child_name' => ['required', 'string', 'max:255'],
+            'guardian_relation' => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Application::GUARDIAN_RELATIONS))],
+            'create_parent_account' => ['nullable', 'boolean'],
             'school_unit_id' => ['required', 'integer', 'exists:school_units,id'],
             'admission_wave_id' => ['required', 'integer', 'exists:admission_waves,id'],
             'admission_track_id' => ['required', 'integer', 'exists:admission_tracks,id'],

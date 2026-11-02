@@ -40,25 +40,9 @@
                     @error('birth_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold" for="parent_name">Nama Orang Tua <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('parent_name') is-invalid @enderror" id="parent_name" name="parent_name" value="{{ old('parent_name', $application->parent_name) }}" required>
-                    @error('parent_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold" for="parent_phone">Nomor HP Orang Tua <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('parent_phone') is-invalid @enderror" id="parent_phone" name="parent_phone" value="{{ old('parent_phone', $application->parent_phone) }}" required>
-                    @error('parent_phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold" for="guardian_relation">Hubungan Anda dengan Anak <span class="text-danger">*</span></label>
-                    <select class="form-select @error('guardian_relation') is-invalid @enderror" id="guardian_relation" name="guardian_relation" required>
-                        <option value="">Pilih hubungan...</option>
-                        @foreach(\App\Models\Application::GUARDIAN_RELATIONS as $key => $label)
-                            <option value="{{ $key }}" {{ old('guardian_relation', $application->guardian_relation) === $key ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    @error('guardian_relation')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    <div class="form-text">Pilihan ini menentukan identitas mana yang terisi otomatis dari akun Anda.</div>
+                    <label class="form-label fw-semibold" for="guardian_relation_info">Hubungan Anda dengan Anak</label>
+                    <input type="text" class="form-control" id="guardian_relation_info" value="{{ \App\Models\Application::GUARDIAN_RELATIONS[$application->guardian_relation] ?? '—' }}" disabled>
+                    <div class="form-text">Dipilih saat mulai pendaftaran; identitas yang sesuai terisi otomatis dari akun Anda. Data ayah/ibu/wali diisi pada kartu identitas di bawah.</div>
                 </div>
             </div>
         </div>

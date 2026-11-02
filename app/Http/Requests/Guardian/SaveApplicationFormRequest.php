@@ -33,9 +33,6 @@ class SaveApplicationFormRequest extends FormRequest
             'birth_place' => ['required', 'string', 'max:255'],
             'birth_date' => ['required', 'date', 'before:today'],
             'gender' => ['required', Rule::in(['L', 'P'])],
-            'parent_name' => ['required', 'string', 'max:255'],
-            'parent_phone' => ['required', 'string', 'max:20'],
-            'guardian_relation' => ['required', Rule::in(array_keys(Application::GUARDIAN_RELATIONS))],
             'has_guardian' => ['nullable', 'boolean'],
         ];
 
@@ -74,9 +71,6 @@ class SaveApplicationFormRequest extends FormRequest
             'birth_place' => 'tempat lahir',
             'birth_date' => 'tanggal lahir',
             'gender' => 'jenis kelamin',
-            'parent_name' => 'nama orang tua',
-            'parent_phone' => 'nomor HP orang tua',
-            'guardian_relation' => 'hubungan pendaftar',
             'father.name' => 'nama ayah',
             'mother.name' => 'nama ibu',
             'guardian.name' => 'nama wali',

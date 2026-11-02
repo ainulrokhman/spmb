@@ -17,6 +17,22 @@
 @endif
 <p class="text-muted mb-4">{{ $application->schoolUnit?->name }} &middot; {{ $application->child_name }}. Format yang diterima: JPG, PNG, atau PDF, maksimal 2MB per berkas.</p>
 
+@if(session('created_accounts'))
+    <div class="alert alert-info bg-info bg-opacity-10 text-body border-0 rounded-3 p-3 mb-3">
+        <strong>Akun orang tua:</strong>
+        <ul class="mb-0 mt-1">
+            @foreach(session('created_accounts') as $created)
+                <li>
+                    {{ $created['label'] }} — {{ $created['name'] }} ({{ $created['phone'] }}): {{ $created['note'] }}
+                    @if($created['password'])
+                        <br>Kata sandi awal: <strong>{{ $created['password'] }}</strong> — catat sekarang, kata sandi ini tidak ditampilkan lagi.
+                    @endif
+                </li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 @if($errors->any())
     <div class="alert alert-danger bg-danger bg-opacity-10 text-danger border-0 rounded-3 mb-4 p-3" role="alert">
         <strong>Periksa kembali berkas yang diunggah:</strong>
