@@ -44,7 +44,28 @@ class GuardianAuthController extends Controller
         $selectedWave = $waves->firstWhere('id', (int) (old('admission_wave_id') ?? $request->query('wave')))
             ?? ($waves->count() === 1 ? $waves->first() : null);
 
-        return view('auth.register', compact('units', 'selectedUnit', 'waves', 'selectedWave'));
+        // Everything the single registration form's client-side
+        // cascade needs: per unit its open waves (with the tracks
+        // each wave opens) and its majors. The form itself is one
+        // POST form — no round-trips, so typed data cannot be
+        // lost between cascade steps.
+        $cascade = $units->map(fn (SchoolUnit $unit) => [
+            'id' => $unit->id,
+            'majors' => $unit->majors->map(fn ($major) => ['id' => $major->id, 'name' => $major->name])->values(),
+            'waves' => $unit->admissionWaves()
+                ->with(['academicYear', 'admissionTracks'])
+                ->orderBy('opens_at')
+                ->get()
+                ->filter(fn (AdmissionWave $wave) => $wave->status() === AdmissionWave::STATUS_OPEN)
+                ->map(fn (AdmissionWave $wave) => [
+                    'id' => $wave->id,
+                    'label' => $wave->name.' ('.($wave->academicYear?->name ?? '-').') — s.d. '.($wave->closes_at?->format('d M Y') ?? '-'),
+                    'tracks' => $wave->admissionTracks->map(fn ($track) => ['id' => $track->id, 'name' => $track->name])->values(),
+                ])
+                ->values(),
+        ])->values();
+
+        return view('auth.register', compact('units', 'selectedUnit', 'waves', 'selectedWave', 'cascade'));
     }
 
     /**

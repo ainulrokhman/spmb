@@ -72,23 +72,25 @@
             <div class="card-body login-card-body p-4">
                 <p class="login-box-msg text-muted mb-4 small">Daftar akun Wali untuk mendaftarkan anak Anda — akun dan pendaftaran anak dibuat sekaligus</p>
 
-                <form method="GET" action="{{ route('guardian.register') }}">
+                <form action="{{ route('guardian.register.store') }}" method="POST">
+                    @csrf
+
                     <div class="mb-3">
                         <label for="name" class="form-label small fw-semibold">Nama Lengkap Anda</label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', request('name')) }}" placeholder="Nama lengkap" required autocomplete="name">
+                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" placeholder="Nama lengkap" required autocomplete="name">
                         @error('name')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="mb-3">
                         <label for="phone" class="form-label small fw-semibold">Nomor HP (untuk masuk)</label>
-                        <input type="text" class="form-control @error('phone') is-invalid @enderror @error('phone_normalized') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', request('phone')) }}" placeholder="08xxxxxxxxxx" required autocomplete="tel">
+                        <input type="text" class="form-control @error('phone') is-invalid @enderror @error('phone_normalized') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}" placeholder="08xxxxxxxxxx" required autocomplete="tel">
                         @error('phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         @error('phone_normalized')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="mb-3">
                         <label for="child_name" class="form-label small fw-semibold">Nama Lengkap Anak</label>
-                        <input type="text" class="form-control @error('child_name') is-invalid @enderror" id="child_name" name="child_name" value="{{ old('child_name', request('child_name')) }}" placeholder="Nama anak yang didaftarkan" required>
+                        <input type="text" class="form-control @error('child_name') is-invalid @enderror" id="child_name" name="child_name" value="{{ old('child_name') }}" placeholder="Nama anak yang didaftarkan" required>
                         @error('child_name')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
 
@@ -97,90 +99,128 @@
                         <select class="form-select @error('guardian_relation') is-invalid @enderror" id="guardian_relation" name="guardian_relation" required>
                             <option value="">Pilih hubungan...</option>
                             @foreach(\App\Models\Application::GUARDIAN_RELATIONS as $key => $label)
-                                <option value="{{ $key }}" {{ old('guardian_relation', request('guardian_relation')) === $key ? 'selected' : '' }}>{{ $label }}</option>
+                                <option value="{{ $key }}" {{ old('guardian_relation') === $key ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                         @error('guardian_relation')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="mb-3">
-                        <label for="unit" class="form-label small fw-semibold">Unit Sekolah</label>
-                        <select class="form-select @error('school_unit_id') is-invalid @enderror" id="unit" name="unit" onchange="this.form.submit()">
+                        <label for="school_unit_id" class="form-label small fw-semibold">Unit Sekolah</label>
+                        <select class="form-select @error('school_unit_id') is-invalid @enderror" id="school_unit_id" name="school_unit_id" required>
                             <option value="">Pilih unit...</option>
                             @foreach($units as $unit)
-                                <option value="{{ $unit->id }}" {{ $selectedUnit?->id === $unit->id ? 'selected' : '' }}>{{ $unit->name }} ({{ $unit->level }} &middot; {{ $unit->program?->name }})</option>
+                                <option value="{{ $unit->id }}" {{ (string) old('school_unit_id', $selectedUnit?->id) === (string) $unit->id ? 'selected' : '' }}>{{ $unit->name }} ({{ $unit->level }} &middot; {{ $unit->program?->name }})</option>
                             @endforeach
                         </select>
                         @error('school_unit_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
 
-                    @if($selectedUnit !== null)
-                        <div class="mb-3">
-                            <label for="wave" class="form-label small fw-semibold">Gelombang yang Dibuka</label>
-                            <select class="form-select @error('admission_wave_id') is-invalid @enderror" id="wave" name="wave" onchange="this.form.submit()">
-                                <option value="">Pilih gelombang...</option>
-                                @foreach($waves as $wave)
-                                    <option value="{{ $wave->id }}" {{ $selectedWave?->id === $wave->id ? 'selected' : '' }}>{{ $wave->name }} ({{ $wave->academicYear?->name }}) — s.d. {{ $wave->closes_at?->format('d M Y') }}</option>
-                                @endforeach
-                            </select>
-                            @error('admission_wave_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                            @if($waves->isEmpty())
-                                <div class="form-text text-danger">Unit ini belum memiliki gelombang yang sedang dibuka.</div>
-                            @endif
-                        </div>
-                    @endif
-                </form>
+                    <div class="mb-3">
+                        <label for="admission_wave_id" class="form-label small fw-semibold">Gelombang yang Dibuka</label>
+                        <select class="form-select @error('admission_wave_id') is-invalid @enderror" id="admission_wave_id" name="admission_wave_id" required>
+                            <option value="">Pilih gelombang...</option>
+                            @foreach($waves as $wave)
+                                <option value="{{ $wave->id }}" {{ (string) old('admission_wave_id', $selectedWave?->id) === (string) $wave->id ? 'selected' : '' }}>{{ $wave->name }} ({{ $wave->academicYear?->name }}) — s.d. {{ $wave->closes_at?->format('d M Y') }}</option>
+                            @endforeach
+                        </select>
+                        @error('admission_wave_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        <div class="form-text text-danger d-none" id="wave-empty-note">Unit ini belum memiliki gelombang yang sedang dibuka.</div>
+                    </div>
 
-                @if($selectedUnit !== null && $selectedWave !== null)
-                    <form action="{{ route('guardian.register.store') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="name" value="{{ old('name', request('name')) }}">
-                        <input type="hidden" name="phone" value="{{ old('phone', request('phone')) }}">
-                        <input type="hidden" name="child_name" value="{{ old('child_name', request('child_name')) }}">
-                        <input type="hidden" name="guardian_relation" value="{{ old('guardian_relation', request('guardian_relation')) }}">
-                        <input type="hidden" name="school_unit_id" value="{{ $selectedUnit->id }}">
-                        <input type="hidden" name="admission_wave_id" value="{{ $selectedWave->id }}">
-
-                        <div class="mb-3">
-                            <label for="admission_track_id" class="form-label small fw-semibold">Jalur Pendaftaran</label>
-                            <select class="form-select @error('admission_track_id') is-invalid @enderror" id="admission_track_id" name="admission_track_id" required>
-                                <option value="">Pilih jalur...</option>
+                    <div class="mb-3">
+                        <label for="admission_track_id" class="form-label small fw-semibold">Jalur Pendaftaran</label>
+                        <select class="form-select @error('admission_track_id') is-invalid @enderror" id="admission_track_id" name="admission_track_id" required>
+                            <option value="">Pilih jalur...</option>
+                            @if($selectedWave !== null)
                                 @foreach($selectedWave->admissionTracks as $track)
                                     <option value="{{ $track->id }}" {{ (string) old('admission_track_id') === (string) $track->id ? 'selected' : '' }}>{{ $track->name }}</option>
                                 @endforeach
-                            </select>
-                            @error('admission_track_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        </div>
+                            @endif
+                        </select>
+                        @error('admission_track_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    </div>
 
-                        @if($selectedUnit->majors->isNotEmpty())
-                            <div class="mb-3">
-                                <label for="major_id" class="form-label small fw-semibold">Jurusan</label>
-                                <select class="form-select @error('major_id') is-invalid @enderror" id="major_id" name="major_id">
-                                    <option value="">Tanpa jurusan / belum memilih</option>
-                                    @foreach($selectedUnit->majors as $major)
-                                        <option value="{{ $major->id }}" {{ (string) old('major_id') === (string) $major->id ? 'selected' : '' }}>{{ $major->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('major_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                            </div>
-                        @endif
+                    <div class="mb-3 {{ $selectedUnit !== null && $selectedUnit->majors->isNotEmpty() ? '' : 'd-none' }}" id="major-wrap">
+                        <label for="major_id" class="form-label small fw-semibold">Jurusan</label>
+                        <select class="form-select @error('major_id') is-invalid @enderror" id="major_id" name="major_id">
+                            <option value="">Tanpa jurusan / belum memilih</option>
+                            @if($selectedUnit !== null)
+                                @foreach($selectedUnit->majors as $major)
+                                    <option value="{{ $major->id }}" {{ (string) old('major_id') === (string) $major->id ? 'selected' : '' }}>{{ $major->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        @error('major_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    </div>
 
-                        <div class="mb-3">
-                            <label for="password" class="form-label small fw-semibold">Kata Sandi</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Minimal 8 karakter" required autocomplete="new-password">
-                            @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label small fw-semibold">Kata Sandi</label>
+                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Minimal 8 karakter" required autocomplete="new-password">
+                        @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    </div>
 
-                        <div class="mb-4">
-                            <label for="password_confirmation" class="form-label small fw-semibold">Ulangi Kata Sandi</label>
-                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Ulangi kata sandi" required autocomplete="new-password">
-                        </div>
+                    <div class="mb-4">
+                        <label for="password_confirmation" class="form-label small fw-semibold">Ulangi Kata Sandi</label>
+                        <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Ulangi kata sandi" required autocomplete="new-password">
+                    </div>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Daftar &amp; Mulai Pendaftaran</button>
-                        </div>
-                    </form>
-                @endif
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Daftar &amp; Mulai Pendaftaran</button>
+                    </div>
+                </form>
+
+                <script>
+                    // Client-side cascade for the single registration
+                    // form: changing the unit refills the wave, track
+                    // and major selects from the embedded data, so no
+                    // typed field is ever lost to a page reload.
+                    (function () {
+                        const cascade = @json($cascade);
+                        const unitSel = document.getElementById('school_unit_id');
+                        const waveSel = document.getElementById('admission_wave_id');
+                        const trackSel = document.getElementById('admission_track_id');
+                        const majorSel = document.getElementById('major_id');
+                        const majorWrap = document.getElementById('major-wrap');
+                        const waveEmptyNote = document.getElementById('wave-empty-note');
+
+                        const fill = (sel, items, placeholder, labelOf) => {
+                            sel.innerHTML = '';
+                            const first = document.createElement('option');
+                            first.value = '';
+                            first.textContent = placeholder;
+                            sel.appendChild(first);
+                            items.forEach((item) => {
+                                const opt = document.createElement('option');
+                                opt.value = item.id;
+                                opt.textContent = labelOf(item);
+                                sel.appendChild(opt);
+                            });
+                        };
+
+                        const currentUnit = () => cascade.find((u) => String(u.id) === unitSel.value) || null;
+
+                        const fillTracks = () => {
+                            const unit = currentUnit();
+                            const wave = unit ? unit.waves.find((w) => String(w.id) === waveSel.value) : null;
+                            fill(trackSel, wave ? wave.tracks : [], 'Pilih jalur...', (t) => t.name);
+                        };
+
+                        unitSel.addEventListener('change', () => {
+                            const unit = currentUnit();
+                            fill(waveSel, unit ? unit.waves : [], 'Pilih gelombang...', (w) => w.label);
+                            waveEmptyNote.classList.toggle('d-none', !(unit && unit.waves.length === 0));
+                            if (unit && unit.waves.length === 1) {
+                                waveSel.value = String(unit.waves[0].id);
+                            }
+                            fillTracks();
+                            fill(majorSel, unit ? unit.majors : [], 'Tanpa jurusan / belum memilih', (m) => m.name);
+                            majorWrap.classList.toggle('d-none', !(unit && unit.majors.length > 0));
+                        });
+
+                        waveSel.addEventListener('change', fillTracks);
+                    })();
+                </script>
 
                 <p class="text-center text-muted small mt-3 mb-0">
                     Sudah punya akun? <a href="{{ route('login') }}">Masuk di sini</a>

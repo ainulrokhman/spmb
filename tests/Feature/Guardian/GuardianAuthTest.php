@@ -65,6 +65,24 @@ class GuardianAuthTest extends TestCase
         ], $overrides);
     }
 
+    public function test_register_page_is_a_single_form_with_all_fields(): void
+    {
+        // Regression: the registration page must be ONE POST form —
+        // splitting the visible fields (a GET cascade form) from
+        // the submitting form silently dropped the typed data.
+        $scenario = $this->scenario();
+
+        $response = $this->get(route('guardian.register'));
+
+        $response->assertOk();
+        $this->assertSame(1, substr_count($response->getContent(), '<form'));
+        $response->assertSee('name="child_name"', false);
+        $response->assertSee('name="guardian_relation"', false);
+        $response->assertSee('name="school_unit_id"', false);
+        $response->assertSee('name="admission_track_id"', false);
+        $response->assertDontSee('type="hidden" name="child_name"', false);
+    }
+
     public function test_guardian_can_register_with_phone_number(): void
     {
         $scenario = $this->scenario();
