@@ -153,7 +153,7 @@
             <!-- Sidebar Menu -->
             <div class="sidebar-wrapper py-3" data-simplebar>
                 <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+                    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                         {{-- Menu utama: yang paling sering dipakai selama penerimaan --}}
                         @can('view-dashboard')
                         <li class="nav-item">
