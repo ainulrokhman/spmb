@@ -26,10 +26,25 @@ class SidebarMenuTest extends TestCase
      */
     private function sidebarOf(string $html): string
     {
-        $start = strpos($html, 'nav-sidebar');
+        $start = strpos($html, 'sidebar-menu');
         $end = strpos($html, '</nav>', $start === false ? 0 : $start);
 
         return ($start === false || $end === false) ? '' : substr($html, $start, $end - $start);
+    }
+
+    /**
+     * AdminLTE v4's stylesheet hides .nav-treeview only under a
+     * .sidebar-menu ancestor; without that class every submenu
+     * renders expanded. Guard the class contract here.
+     */
+    public function test_sidebar_menu_uses_adminlte_sidebar_menu_class(): void
+    {
+        $html = $this->actingAs($this->superAdmin())->get(route('admin.dashboard'))->getContent();
+
+        $this->assertMatchesRegularExpression(
+            '/<ul class="[^"]*\bsidebar-menu\b[^"]*"[^>]*data-lte-toggle="treeview"/',
+            $html
+        );
     }
 
     public function test_frequent_menus_come_before_submenus(): void
