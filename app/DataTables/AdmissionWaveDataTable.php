@@ -15,9 +15,9 @@ class AdmissionWaveDataTable
      */
     public function make()
     {
-        $admissionWaves = AdmissionWave::with(['schoolUnit', 'academicYear'])
-            ->withCount('admissionTracks')
+        $admissionWaves = AdmissionWave::with(['schoolUnit.program', 'academicYear'])
             ->select(['id', 'school_unit_id', 'academic_year_id', 'name', 'quota', 'opens_at', 'closes_at', 'is_active'])
+            ->withCount('admissionTracks')
             ->when(request()->filled('school_unit_id'), function ($query) {
                 $query->where('school_unit_id', request()->integer('school_unit_id'));
             })
@@ -43,7 +43,7 @@ class AdmissionWaveDataTable
     {
         return function ($admissionWave) {
             return '<span class="fw-semibold text-body">'.e($admissionWave->schoolUnit?->name ?? '-').'</span>'
-                .'<span class="text-muted small d-block">'.e($admissionWave->schoolUnit?->level ?? '').' &middot; '.e($admissionWave->schoolUnit?->program ?? '').'</span>';
+                .'<span class="text-muted small d-block">'.e($admissionWave->schoolUnit?->level ?? '').' &middot; '.e($admissionWave->schoolUnit?->program?->name ?? '').'</span>';
         };
     }
 

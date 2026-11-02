@@ -15,7 +15,7 @@ class MajorDataTable
      */
     public function make()
     {
-        $majors = Major::with('schoolUnit')
+        $majors = Major::with('schoolUnit.program')
             ->select(['id', 'school_unit_id', 'name', 'code', 'is_active'])
             ->when(request()->filled('school_unit_id'), function ($query) {
                 $query->where('school_unit_id', request()->integer('school_unit_id'));
@@ -39,7 +39,7 @@ class MajorDataTable
     {
         return function ($major) {
             return '<span class="fw-semibold text-body">'.e($major->schoolUnit?->name ?? '-').'</span>'
-                .'<span class="text-muted small d-block">'.e($major->schoolUnit?->level ?? '').' &middot; '.e($major->schoolUnit?->program ?? '').'</span>';
+                .'<span class="text-muted small d-block">'.e($major->schoolUnit?->level ?? '').' &middot; '.e($major->schoolUnit?->program?->name ?? '').'</span>';
         };
     }
 

@@ -33,7 +33,7 @@
                         <select class="form-select @error('school_unit_id') is-invalid @enderror" id="school_unit_id" name="school_unit_id" required>
                             <option value="">Pilih unit...</option>
                             @foreach($units as $unit)
-                                <option value="{{ $unit->id }}" {{ (string) old('school_unit_id', $admissionWave->school_unit_id ?? '') === (string) $unit->id ? 'selected' : '' }}>{{ $unit->name }} ({{ $unit->level }} &middot; {{ $unit->program }})</option>
+                                <option value="{{ $unit->id }}" {{ (string) old('school_unit_id', $admissionWave->school_unit_id ?? '') === (string) $unit->id ? 'selected' : '' }}>{{ $unit->name }} ({{ $unit->level }} &middot; {{ $unit->program?->name }})</option>
                             @endforeach
                         </select>
                         @error('school_unit_id')

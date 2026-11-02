@@ -15,7 +15,7 @@ class AdmissionTrackDataTable
      */
     public function make()
     {
-        $admissionTracks = AdmissionTrack::with('schoolUnit')
+        $admissionTracks = AdmissionTrack::with('schoolUnit.program')
             ->select(['id', 'school_unit_id', 'name', 'is_active'])
             ->when(request()->filled('school_unit_id'), function ($query) {
                 $query->where('school_unit_id', request()->integer('school_unit_id'));
@@ -39,7 +39,7 @@ class AdmissionTrackDataTable
     {
         return function ($admissionTrack) {
             return '<span class="fw-semibold text-body">'.e($admissionTrack->schoolUnit?->name ?? '-').'</span>'
-                .'<span class="text-muted small d-block">'.e($admissionTrack->schoolUnit?->level ?? '').' &middot; '.e($admissionTrack->schoolUnit?->program ?? '').'</span>';
+                .'<span class="text-muted small d-block">'.e($admissionTrack->schoolUnit?->level ?? '').' &middot; '.e($admissionTrack->schoolUnit?->program?->name ?? '').'</span>';
         };
     }
 
