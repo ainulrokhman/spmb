@@ -154,6 +154,7 @@
             <div class="sidebar-wrapper py-3" data-simplebar>
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+                        {{-- Menu utama: yang paling sering dipakai selama penerimaan --}}
                         @can('view-dashboard')
                         <li class="nav-item">
                             <a href="/admin" class="nav-link {{ request()->is('admin') ? 'active bg-primary text-white' : 'text-body' }}">
@@ -163,104 +164,11 @@
                         </li>
                         @endcan
 
-                        @canany(['academic-year-list', 'program-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list'])
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Data Master</li>
-                        @endcanany
-
-                        @can('academic-year-list')
+                        @can('application-list')
                         <li class="nav-item">
-                            <a href="{{ route('admin.academic-years.index') }}" class="nav-link {{ request()->is('admin/academic-years*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-calendar-range me-2"></i>
-                                <p>Tahun Ajaran</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @can('program-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.programs.index') }}" class="nav-link {{ request()->is('admin/programs*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-collection me-2"></i>
-                                <p>Program</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @can('school-unit-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.school-units.index') }}" class="nav-link {{ request()->is('admin/school-units*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-building me-2"></i>
-                                <p>Unit Sekolah</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @can('admission-track-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.admission-tracks.index') }}" class="nav-link {{ request()->is('admin/admission-tracks*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-signpost-split me-2"></i>
-                                <p>Jalur Pendaftaran</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @can('major-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.majors.index') }}" class="nav-link {{ request()->is('admin/majors*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-diagram-3 me-2"></i>
-                                <p>Jurusan</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @can('admission-wave-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.admission-waves.index') }}" class="nav-link {{ request()->is('admin/admission-waves*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-water me-2"></i>
-                                <p>Gelombang Pendaftaran</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @canany(['document-type-list', 'form-field-list'])
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Berkas & Formulir</li>
-                        @endcanany
-
-                        @can('document-type-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.document-types.index') }}" class="nav-link {{ request()->is('admin/document-types*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-file-earmark-text me-2"></i>
-                                <p>Jenis Berkas</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @can('form-field-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.form-fields.index') }}" class="nav-link {{ request()->is('admin/form-fields*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-ui-checks me-2"></i>
-                                <p>Bidang Formulir</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @canany(['fee-component-list', 'fee-amount-list', 'form-payment-list', 'invoice-list'])
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Biaya</li>
-                        @endcanany
-
-                        @can('fee-component-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.fee-components.index') }}" class="nav-link {{ request()->is('admin/fee-components*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-tags me-2"></i>
-                                <p>Komponen Biaya</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @can('fee-amount-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.fee-amounts.index') }}" class="nav-link {{ request()->is('admin/fee-amounts*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-cash-stack me-2"></i>
-                                <p>Nominal Biaya</p>
+                            <a href="{{ route('admin.applications.index') }}" class="nav-link {{ request()->is('admin/applications*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-clipboard-check me-2"></i>
+                                <p>Verifikasi Pendaftaran</p>
                             </a>
                         </li>
                         @endcan
@@ -283,23 +191,6 @@
                         </li>
                         @endcan
 
-                        @canany(['application-list'])
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Pendaftaran</li>
-                        @endcanany
-
-                        @can('application-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.applications.index') }}" class="nav-link {{ request()->is('admin/applications*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-clipboard-check me-2"></i>
-                                <p>Verifikasi Pendaftaran</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @canany(['application-list'])
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Laporan</li>
-                        @endcanany
-
                         @can('application-list')
                         <li class="nav-item">
                             <a href="{{ route('admin.reports.index') }}" class="nav-link {{ request()->is('admin/reports*') ? 'active bg-primary text-white' : 'text-body' }}">
@@ -309,58 +200,200 @@
                         </li>
                         @endcan
 
+                        {{-- Submenu: Master Data --}}
+                        @canany(['academic-year-list', 'program-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list'])
+                        @php($masterOpen = request()->is('admin/academic-years*') || request()->is('admin/programs*') || request()->is('admin/school-units*') || request()->is('admin/admission-tracks*') || request()->is('admin/majors*') || request()->is('admin/admission-waves*'))
+                        <li class="nav-item {{ $masterOpen ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link {{ $masterOpen ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-database me-2"></i>
+                                <p>Master Data <i class="nav-arrow bi bi-chevron-right"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @can('academic-year-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.academic-years.index') }}" class="nav-link {{ request()->is('admin/academic-years*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-calendar-range me-2"></i>
+                                        <p>Tahun Ajaran</p>
+                                    </a>
+                                </li>
+                                @endcan
+
+                                @can('program-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.programs.index') }}" class="nav-link {{ request()->is('admin/programs*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-collection me-2"></i>
+                                        <p>Program</p>
+                                    </a>
+                                </li>
+                                @endcan
+
+                                @can('school-unit-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.school-units.index') }}" class="nav-link {{ request()->is('admin/school-units*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-building me-2"></i>
+                                        <p>Unit Sekolah</p>
+                                    </a>
+                                </li>
+                                @endcan
+
+                                @can('admission-track-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.admission-tracks.index') }}" class="nav-link {{ request()->is('admin/admission-tracks*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-signpost-split me-2"></i>
+                                        <p>Jalur Pendaftaran</p>
+                                    </a>
+                                </li>
+                                @endcan
+
+                                @can('major-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.majors.index') }}" class="nav-link {{ request()->is('admin/majors*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-diagram-3 me-2"></i>
+                                        <p>Jurusan</p>
+                                    </a>
+                                </li>
+                                @endcan
+
+                                @can('admission-wave-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.admission-waves.index') }}" class="nav-link {{ request()->is('admin/admission-waves*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-water me-2"></i>
+                                        <p>Gelombang Pendaftaran</p>
+                                    </a>
+                                </li>
+                                @endcan
+                            </ul>
+                        </li>
+                        @endcanany
+
+                        {{-- Submenu: Berkas & Formulir --}}
+                        @canany(['document-type-list', 'form-field-list'])
+                        @php($berkasOpen = request()->is('admin/document-types*') || request()->is('admin/form-fields*'))
+                        <li class="nav-item {{ $berkasOpen ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link {{ $berkasOpen ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-folder2-open me-2"></i>
+                                <p>Berkas &amp; Formulir <i class="nav-arrow bi bi-chevron-right"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @can('document-type-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.document-types.index') }}" class="nav-link {{ request()->is('admin/document-types*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-file-earmark-text me-2"></i>
+                                        <p>Jenis Berkas</p>
+                                    </a>
+                                </li>
+                                @endcan
+
+                                @can('form-field-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.form-fields.index') }}" class="nav-link {{ request()->is('admin/form-fields*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-ui-checks me-2"></i>
+                                        <p>Bidang Formulir</p>
+                                    </a>
+                                </li>
+                                @endcan
+                            </ul>
+                        </li>
+                        @endcanany
+
+                        {{-- Submenu: Biaya --}}
+                        @canany(['fee-component-list', 'fee-amount-list'])
+                        @php($biayaOpen = request()->is('admin/fee-components*') || request()->is('admin/fee-amounts*'))
+                        <li class="nav-item {{ $biayaOpen ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link {{ $biayaOpen ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-cash-coin me-2"></i>
+                                <p>Biaya <i class="nav-arrow bi bi-chevron-right"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @can('fee-component-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.fee-components.index') }}" class="nav-link {{ request()->is('admin/fee-components*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-tags me-2"></i>
+                                        <p>Komponen Biaya</p>
+                                    </a>
+                                </li>
+                                @endcan
+
+                                @can('fee-amount-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.fee-amounts.index') }}" class="nav-link {{ request()->is('admin/fee-amounts*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-cash-stack me-2"></i>
+                                        <p>Nominal Biaya</p>
+                                    </a>
+                                </li>
+                                @endcan
+                            </ul>
+                        </li>
+                        @endcanany
+
+                        {{-- Submenu: Pengguna & Akses --}}
                         @canany(['user-list', 'role-list', 'permission-list'])
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Pengguna & Akses</li>
-                        @endcanany
-
-                        @can('user-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->is('admin/users*') ? 'active bg-primary text-white' : 'text-body' }}">
+                        @php($aksesOpen = request()->is('admin/users*') || request()->is('admin/roles*') || request()->is('admin/permissions*'))
+                        <li class="nav-item {{ $aksesOpen ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link {{ $aksesOpen ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-people me-2"></i>
-                                <p>Pengguna</p>
+                                <p>Pengguna &amp; Akses <i class="nav-arrow bi bi-chevron-right"></i></p>
                             </a>
-                        </li>
-                        @endcan
+                            <ul class="nav nav-treeview">
+                                @can('user-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->is('admin/users*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-people me-2"></i>
+                                        <p>Pengguna</p>
+                                    </a>
+                                </li>
+                                @endcan
 
-                        @can('role-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->is('admin/roles*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-shield-lock me-2"></i>
-                                <p>Peran</p>
-                            </a>
-                        </li>
-                        @endcan
+                                @can('role-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->is('admin/roles*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-shield-lock me-2"></i>
+                                        <p>Peran</p>
+                                    </a>
+                                </li>
+                                @endcan
 
-                        @can('permission-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.permissions.index') }}" class="nav-link {{ request()->is('admin/permissions*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-key me-2"></i>
-                                <p>Hak Akses</p>
-                            </a>
+                                @can('permission-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.permissions.index') }}" class="nav-link {{ request()->is('admin/permissions*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-key me-2"></i>
+                                        <p>Hak Akses</p>
+                                    </a>
+                                </li>
+                                @endcan
+                            </ul>
                         </li>
-                        @endcan
-
-                        @canany(['activity-log-list', 'manage-settings'])
-                        <li class="nav-header text-uppercase fs-7 fw-bold px-3 py-2 text-muted">Sistem</li>
                         @endcanany
 
-                        @can('activity-log-list')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.activity-logs.index') }}" class="nav-link {{ request()->is('admin/activity-logs*') ? 'active bg-primary text-white' : 'text-body' }}">
-                                <i class="nav-icon bi bi-journal-text me-2"></i>
-                                <p>Log Aktivitas</p>
-                            </a>
-                        </li>
-                        @endcan
-
-                        @can('manage-settings')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.settings.edit') }}" class="nav-link {{ request()->is('admin/settings*') ? 'active bg-primary text-white' : 'text-body' }}">
+                        {{-- Submenu: Sistem --}}
+                        @canany(['activity-log-list', 'manage-settings'])
+                        @php($sistemOpen = request()->is('admin/activity-logs*') || request()->is('admin/settings*'))
+                        <li class="nav-item {{ $sistemOpen ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link {{ $sistemOpen ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-gear me-2"></i>
-                                <p>Pengaturan</p>
+                                <p>Sistem <i class="nav-arrow bi bi-chevron-right"></i></p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                @can('activity-log-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.activity-logs.index') }}" class="nav-link {{ request()->is('admin/activity-logs*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-journal-text me-2"></i>
+                                        <p>Log Aktivitas</p>
+                                    </a>
+                                </li>
+                                @endcan
+
+                                @can('manage-settings')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.settings.edit') }}" class="nav-link {{ request()->is('admin/settings*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-gear me-2"></i>
+                                        <p>Pengaturan</p>
+                                    </a>
+                                </li>
+                                @endcan
+                            </ul>
                         </li>
-                        @endcan
+                        @endcanany
                     </ul>
                 </nav>
             </div>
