@@ -98,12 +98,6 @@
                     @endif
                 </div>
 
-                <div class="form-check mt-4">
-                    <input class="form-check-input" type="checkbox" id="create_parent_account" name="create_parent_account" value="1" {{ old('create_parent_account') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="create_parent_account">Buatkan akun orang tua</label>
-                    <div class="form-text">Bila dicentang, setelah formulir biodata terisi sistem membuatkan akun login untuk orang tua sesuai tipe ortu di atas (memakai nama dan nomor HP dari formulir identitasnya). Kata sandi awal ditampilkan satu kali untuk disampaikan kepada yang bersangkutan, dan akun tersebut terhubung ke pendaftaran ini.</div>
-                </div>
-
                 <div class="alert alert-info bg-info bg-opacity-10 text-body border-0 rounded-3 mt-4 mb-4 p-3">
                     Biaya formulir unit ini:
                     @if($selectedUnit->form_fee > 0)

@@ -103,6 +103,7 @@ class SaveApplicationFormRequest extends FormRequest
             $prefix.'.education' => ['nullable', Rule::in(Application::EDUCATION_LEVELS)],
             $prefix.'.income' => ['nullable', Rule::in(Application::INCOME_RANGES)],
             $prefix.'.phone' => ['nullable', 'string', 'max:20'],
+            $prefix.'.create_account' => ['nullable', 'boolean'],
             $prefix.'.address' => ['nullable', 'string', 'max:500'],
         ];
 

@@ -72,4 +72,13 @@
         <textarea class="form-control" id="{{ $prefix }}-address" name="{{ $prefix }}[address]" rows="2">{{ old($prefix.'.address', $data['address'] ?? '') }}</textarea>
     </div>
 
+    @if($withAccount ?? false)
+        <div class="col-12">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="{{ $prefix }}-create-account" name="{{ $prefix }}[create_account]" value="1" {{ old($prefix.'.create_account') ? 'checked' : '' }}>
+                <label class="form-check-label" for="{{ $prefix }}-create-account">Buatkan akun login untuk {{ $accountLabel ?? 'orang tua' }} ini (memakai nomor HP di atas)</label>
+                <div class="form-text">Hanya bila dicentang: akun dibuatkan saat formulir disimpan dan terhubung ke pendaftaran anak ini, agar yang bersangkutan dapat ikut memantau dan melanjutkan pendaftaran. Kata sandi awal dibuatkan sistem dan <strong>ditampilkan satu kali</strong> setelah formulir disimpan. Bila tidak dicentang, tidak ada akun yang dibuat.</div>
+            </div>
+        </div>
+    @endif
 </div>
