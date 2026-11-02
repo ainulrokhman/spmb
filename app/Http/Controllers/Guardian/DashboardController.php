@@ -13,7 +13,7 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
-        $applications = $request->user()->applications()
+        $applications = $request->user()->visibleApplications()
             ->with(['schoolUnit.program', 'admissionWave.academicYear', 'admissionTrack'])
             ->latest()
             ->get();

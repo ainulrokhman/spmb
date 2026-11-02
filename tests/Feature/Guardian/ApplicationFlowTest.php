@@ -74,6 +74,8 @@ class ApplicationFlowTest extends TestCase
     {
         $response = $this->actingAs($this->guardian)
             ->post(route('guardian.applications.store'), [
+                'child_name' => 'Anak Pertama',
+                'guardian_relation' => 'ayah',
                 'school_unit_id' => $scenario['unit']->id,
                 'admission_wave_id' => $scenario['wave']->id,
                 'admission_track_id' => $scenario['track']->id,
@@ -92,9 +94,6 @@ class ApplicationFlowTest extends TestCase
             'birth_place' => 'Jakarta',
             'birth_date' => '2015-05-01',
             'gender' => 'L',
-            'parent_name' => 'Orang Tua',
-            'parent_phone' => '081234567890',
-            'guardian_relation' => 'ayah',
             'father' => ['name' => 'Bapak', 'status' => 'Masih Hidup'],
             'mother' => ['name' => 'Ibu', 'status' => 'Masih Hidup'],
             'answers' => ['asal_sekolah' => 'SDN 01'],
@@ -308,6 +307,8 @@ class ApplicationFlowTest extends TestCase
 
         $this->actingAs($this->guardian)
             ->post(route('guardian.applications.store'), [
+                'child_name' => 'Anak Pertama',
+                'guardian_relation' => 'ayah',
                 'school_unit_id' => $scenario['unit']->id,
                 'admission_wave_id' => $scenario['wave']->id,
                 'admission_track_id' => $otherTrack->id,

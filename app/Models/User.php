@@ -72,6 +72,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Applications shared with this guardian account by their
+     * owner (e.g. a parent whose account was created from the
+     * application form).
+     */
+    public function linkedApplications(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Application::class, 'application_access')
+            ->withPivot('relation')
+            ->withTimestamps();
+    }
+
+    /**
+     * Query of every application this guardian may see: their own
+     * plus the ones shared with them.
+     */
+    public function visibleApplications(): \Illuminate\Database\Eloquent\Builder
+    {
+        return Application::query()->where(function ($query) {
+            $query->where('user_id', $this->id)
+                ->orWhereHas('linkedUsers', fn ($link) => $link->where('users.id', $this->id));
+        });
+    }
+
+    /**
      * Whether the user bypasses unit assignments: foundation-level
      * roles (SuperAdmin and Admin) access every school unit.
      */
