@@ -71,4 +71,5 @@
         <label class="form-label fw-semibold" for="{{ $prefix }}-address">Alamat (bila berbeda dengan anak)</label>
         <textarea class="form-control" id="{{ $prefix }}-address" name="{{ $prefix }}[address]" rows="2">{{ old($prefix.'.address', $data['address'] ?? '') }}</textarea>
     </div>
+
 </div>

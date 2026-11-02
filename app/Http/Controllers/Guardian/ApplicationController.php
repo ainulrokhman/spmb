@@ -65,7 +65,15 @@ class ApplicationController extends Controller
             : null;
 
         try {
-            $application = $this->applications->start($request->user(), $wave, $track, $major);
+            $application = $this->applications->start(
+                $request->user(),
+                $wave,
+                $track,
+                $major,
+                $request->validated('child_name'),
+                $request->validated('guardian_relation'),
+                (bool) $request->validated('create_parent_account', false),
+            );
         } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage())->withInput();
         }
@@ -243,8 +251,11 @@ class ApplicationController extends Controller
             return back()->with('error', $e->getMessage())->withInput();
         }
 
+        $createdAccounts = $this->applications->createParentAccounts($application, $data);
+
         return redirect()->route('guardian.applications.documents', $application)
-            ->with('success', 'Formulir tersimpan. Lanjutkan dengan mengunggah berkas.');
+            ->with('success', 'Formulir tersimpan. Lanjutkan dengan mengunggah berkas.')
+            ->with('created_accounts', $createdAccounts);
     }
 
     /**
@@ -370,6 +381,6 @@ class ApplicationController extends Controller
      */
     private function ensureOwner(Application $application): void
     {
-        abort_unless($application->user_id === auth()->id(), 404);
+        abort_unless($application->hasGuardianAccess(auth()->user()), 404);
     }
 }

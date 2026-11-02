@@ -249,6 +249,6 @@ class InvoiceController extends Controller
 
     private function ensureOwner(Application $application): void
     {
-        abort_unless($application->user_id === auth()->id(), 404);
+        abort_unless($application->hasGuardianAccess(auth()->user()), 404);
     }
 }

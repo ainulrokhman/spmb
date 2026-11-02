@@ -102,6 +102,7 @@ class Application extends Model
         'parent_name',
         'parent_phone',
         'guardian_relation',
+        'create_parent_account',
         'father_data',
         'mother_data',
         'has_guardian',
@@ -145,6 +146,31 @@ class Application extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Additional guardian accounts sharing access to this
+     * application (e.g. a parent account created from the form).
+     */
+    public function linkedUsers(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'application_access')
+            ->withPivot('relation')
+            ->withTimestamps();
+    }
+
+    /**
+     * Whether the given user owns or shares access to this
+     * application (guardian area authorization).
+     */
+    public function hasGuardianAccess(?User $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        return $this->user_id === $user->id
+            || $this->linkedUsers()->whereKey($user->id)->exists();
     }
 
     public function schoolUnit(): BelongsTo

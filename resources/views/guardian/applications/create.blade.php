@@ -4,7 +4,7 @@
 
 @section('content')
 <h3 class="fw-bold mb-1">Mulai Pendaftaran</h3>
-<p class="text-muted mb-4">Langkah 1 dari 3 tahap: pilih unit, gelombang, dan jalur. Setelah ini Anda menyelesaikan <strong>pembayaran formulir</strong>, lalu mengisi formulir, lalu mengunggah berkas.</p>
+<p class="text-muted mb-4">Langkah 1 dari 3 tahap: pilih unit, gelombang, dan jalur, lalu isi nama anak dan hubungan Anda. Setelah ini Anda menyelesaikan <strong>pembayaran formulir</strong>, lalu mengisi formulir, lalu mengunggah berkas.</p>
 
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
@@ -48,6 +48,28 @@
 
                 <div class="row g-3">
                     <div class="col-md-6">
+                        <label for="child_name" class="form-label fw-semibold">Nama Lengkap Anak <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('child_name') is-invalid @enderror" id="child_name" name="child_name" value="{{ old('child_name') }}" required>
+                        @error('child_name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="guardian_relation" class="form-label fw-semibold">Tipe Ortu — Hubungan Anda dengan Anak <span class="text-danger">*</span></label>
+                        <select class="form-select @error('guardian_relation') is-invalid @enderror" id="guardian_relation" name="guardian_relation" required>
+                            <option value="">Pilih hubungan...</option>
+                            @foreach(\App\Models\Application::GUARDIAN_RELATIONS as $key => $label)
+                                <option value="{{ $key }}" {{ old('guardian_relation') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @error('guardian_relation')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">Identitas yang sesuai hubungan ini terisi otomatis dari akun Anda saat mengisi formulir.</div>
+                    </div>
+
+                    <div class="col-md-6">
                         <label for="admission_track_id" class="form-label fw-semibold">Jalur Pendaftaran <span class="text-danger">*</span></label>
                         <select class="form-select @error('admission_track_id') is-invalid @enderror" id="admission_track_id" name="admission_track_id" required>
                             <option value="">Pilih jalur...</option>
@@ -74,6 +96,12 @@
                             @enderror
                         </div>
                     @endif
+                </div>
+
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="create_parent_account" name="create_parent_account" value="1" {{ old('create_parent_account') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="create_parent_account">Buatkan akun orang tua</label>
+                    <div class="form-text">Bila dicentang, setelah formulir biodata terisi sistem membuatkan akun login untuk orang tua sesuai tipe ortu di atas (memakai nama dan nomor HP dari formulir identitasnya). Kata sandi awal ditampilkan satu kali untuk disampaikan kepada yang bersangkutan, dan akun tersebut terhubung ke pendaftaran ini.</div>
                 </div>
 
                 <div class="alert alert-info bg-info bg-opacity-10 text-body border-0 rounded-3 mt-4 mb-4 p-3">

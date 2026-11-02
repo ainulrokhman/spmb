@@ -316,9 +316,6 @@ class DemoSeeder extends Seeder
                 'birth_place' => 'Yogyakarta',
                 'birth_date' => '2020-04-12',
                 'gender' => 'L',
-                'parent_name' => 'Wali Demo Satu',
-                'parent_phone' => '081200000001',
-                'guardian_relation' => 'ayah',
                 'father' => ['name' => 'Wali Demo Satu', 'status' => 'Masih Hidup', 'job' => 'Wiraswasta'],
                 'mother' => ['name' => 'Ibu Demo Satu', 'status' => 'Masih Hidup', 'job' => 'Guru'],
                 'has_guardian' => false,
@@ -350,7 +347,7 @@ class DemoSeeder extends Seeder
 
         $wave->loadMissing('admissionTracks');
 
-        return $service->start($guardian, $wave, $wave->admissionTracks->firstOrFail(), null);
+        return $service->start($guardian, $wave, $wave->admissionTracks->firstOrFail(), null, 'Calon Siswa Demo', 'wali');
     }
 
     /**
