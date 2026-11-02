@@ -22,6 +22,7 @@ trait ScopesUnits
         $user = auth()->user();
 
         return SchoolUnit::query()
+            ->with('program')
             ->when($user !== null && ! $user->hasGlobalUnitAccess(),
                 fn ($query) => $query->whereIn('id', $user->accessibleUnitIds()))
             ->orderBy('name')

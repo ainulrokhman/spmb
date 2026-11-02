@@ -15,7 +15,7 @@ class FormFieldDataTable
      */
     public function make()
     {
-        $formFields = FormField::with('schoolUnit')
+        $formFields = FormField::with('schoolUnit.program')
             ->select(['id', 'school_unit_id', 'key', 'label', 'type', 'is_required', 'section', 'sort_order', 'is_active'])
             ->when(request()->filled('school_unit_id'), function ($query) {
                 $query->where('school_unit_id', request()->integer('school_unit_id'));
@@ -44,7 +44,7 @@ class FormFieldDataTable
     {
         return function ($formField) {
             return '<span class="fw-semibold text-body">'.e($formField->schoolUnit?->name ?? '-').'</span>'
-                .'<span class="text-muted small d-block">'.e($formField->schoolUnit?->level ?? '').' &middot; '.e($formField->schoolUnit?->program ?? '').'</span>';
+                .'<span class="text-muted small d-block">'.e($formField->schoolUnit?->level ?? '').' &middot; '.e($formField->schoolUnit?->program?->name ?? '').'</span>';
         };
     }
 
