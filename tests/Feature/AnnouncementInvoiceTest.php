@@ -237,12 +237,12 @@ class AnnouncementInvoiceTest extends TestCase
 
         $this->actingAs($this->guardian)
             ->post(route('guardian.invoices.request-discount', $application), [
-                'kind' => 'discount', 'type' => 'percent', 'value' => 50, 'reason' => 'Anak karyawan yayasan',
+                'reason' => 'Anak karyawan yayasan',
             ])
             ->assertRedirect();
 
         $this->actingAs($this->admin())
-            ->post(route('admin.invoices.decide-discount', $invoice), ['decision' => 'approve'])
+            ->post(route('admin.invoices.decide-discount', $invoice), ['decision' => 'approve', 'relief_type' => 'percent', 'relief_value' => 50])
             ->assertRedirect();
 
         $invoice->refresh();
@@ -260,8 +260,8 @@ class AnnouncementInvoiceTest extends TestCase
             $fees['infaq']->id => ['free' => 50000],
         ]);
 
-        $this->invoices()->requestDiscount($invoice, 'waiver', null, null, 'Anak yatim');
-        $this->invoices()->decideDiscount($invoice->fresh(), true, $this->admin(), null);
+        $this->invoices()->requestDiscount($invoice, 'Anak yatim');
+        $this->invoices()->decideDiscount($invoice->fresh(), true, 'waiver', null, $this->admin(), null);
 
         $this->assertSame('paid', $invoice->fresh()->status);
         $this->assertSame('re_registered', $application->fresh()->status);

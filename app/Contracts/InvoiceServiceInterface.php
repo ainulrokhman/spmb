@@ -27,14 +27,24 @@ interface InvoiceServiceInterface
     public function createInvoice(Application $application, array $selections): Invoice;
 
     /**
-     * Record a guardian's discount/waiver request on the invoice.
+     * Record a guardian's relief request on the invoice. The
+     * guardian only states a reason; the committee decides the
+     * form and size of the relief.
      */
-    public function requestDiscount(Invoice $invoice, string $kind, ?string $type, ?int $value, string $reason): Invoice;
+    public function requestDiscount(Invoice $invoice, string $reason): Invoice;
 
     /**
-     * Decide a pending discount/waiver request (committee side).
+     * Decide a pending relief request (committee side). When
+     * approving, the committee chooses the relief itself: 'waiver'
+     * (full), 'percent' or 'nominal' with its value.
      */
-    public function decideDiscount(Invoice $invoice, bool $approve, User $decider, ?string $note): Invoice;
+    public function decideDiscount(Invoice $invoice, bool $approve, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Invoice;
+
+    /**
+     * Grant invoice relief directly, without a guardian request
+     * (committee initiative).
+     */
+    public function grantDiscount(Invoice $invoice, string $reliefType, ?int $reliefValue, User $decider, ?string $note): Invoice;
 
     /**
      * Settle the invoice and mark the application as re-registered.

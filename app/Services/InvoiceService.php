@@ -131,9 +131,11 @@ class InvoiceService implements InvoiceServiceInterface
     }
 
     /**
-     * Record a guardian's discount/waiver request on the invoice.
+     * Record a guardian's relief request on the invoice. The
+     * guardian only states a reason; the committee decides the
+     * form and size of the relief when deciding the request.
      */
-    public function requestDiscount(Invoice $invoice, string $kind, ?string $type, ?int $value, string $reason): Invoice
+    public function requestDiscount(Invoice $invoice, string $reason): Invoice
     {
         if ($invoice->status === 'paid') {
             throw new InvalidArgumentException('Tagihan sudah lunas.');
@@ -143,10 +145,18 @@ class InvoiceService implements InvoiceServiceInterface
             throw new InvalidArgumentException('Masih ada pengajuan yang menunggu keputusan panitia.');
         }
 
+        if ($invoice->installment_request_status === 'pending') {
+            throw new InvalidArgumentException('Masih ada pengajuan cicilan yang menunggu keputusan panitia.');
+        }
+
+        if ($invoice->installments()->exists()) {
+            throw new InvalidArgumentException('Tagihan ini sudah memiliki rincian cicilan.');
+        }
+
         $invoice->update([
-            'request_kind' => $kind,
-            'request_type' => $kind === 'discount' ? $type : null,
-            'request_value' => $kind === 'discount' ? $value : null,
+            'request_kind' => null,
+            'request_type' => null,
+            'request_value' => null,
             'request_reason' => $reason,
             'request_status' => 'pending',
             'decision_note' => null,
@@ -156,9 +166,11 @@ class InvoiceService implements InvoiceServiceInterface
     }
 
     /**
-     * Decide a pending discount/waiver request (committee side).
+     * Decide a pending relief request (committee side). When
+     * approving, the committee itself chooses the relief: 'waiver'
+     * for a full waiver, or 'percent' / 'nominal' with a value.
      */
-    public function decideDiscount(Invoice $invoice, bool $approve, User $decider, ?string $note): Invoice
+    public function decideDiscount(Invoice $invoice, bool $approve, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Invoice
     {
         if ($invoice->request_status !== 'pending') {
             throw new InvalidArgumentException('Tidak ada pengajuan yang menunggu keputusan.');
@@ -170,13 +182,7 @@ class InvoiceService implements InvoiceServiceInterface
         $invoice->decided_at = now();
 
         if ($approve) {
-            if ($invoice->request_kind === 'waiver') {
-                $invoice->discount_type = 'percent';
-                $invoice->discount_value = 100;
-            } else {
-                $invoice->discount_type = $invoice->request_type;
-                $invoice->discount_value = $invoice->request_value;
-            }
+            $this->applyRelief($invoice, ...$this->validatedRelief($reliefType, $reliefValue));
 
             if ($invoice->payableAmount() === 0) {
                 $invoice->save();
@@ -190,6 +196,86 @@ class InvoiceService implements InvoiceServiceInterface
         $invoice->save();
 
         return $invoice;
+    }
+
+    /**
+     * Grant invoice relief directly, without a guardian request
+     * (committee initiative).
+     */
+    public function grantDiscount(Invoice $invoice, string $reliefType, ?int $reliefValue, User $decider, ?string $note): Invoice
+    {
+        if ($invoice->status === 'paid') {
+            throw new InvalidArgumentException('Tagihan sudah lunas.');
+        }
+
+        if ($invoice->request_status === 'pending' || $invoice->installment_request_status === 'pending') {
+            throw new InvalidArgumentException('Ada pengajuan yang menunggu keputusan; putuskan pengajuan tersebut.');
+        }
+
+        if ($invoice->discount_type !== null) {
+            throw new InvalidArgumentException('Keringanan sudah pernah diberikan untuk tagihan ini.');
+        }
+
+        if ($invoice->installments()->exists()) {
+            throw new InvalidArgumentException('Tagihan ini sudah memiliki rincian cicilan; keringanan tidak dapat diberikan lagi.');
+        }
+
+        $invoice->decision_note = $note;
+        $invoice->decided_by = $decider->id;
+        $invoice->decided_at = now();
+
+        $this->applyRelief($invoice, ...$this->validatedRelief($reliefType, $reliefValue));
+
+        if ($invoice->payableAmount() === 0) {
+            $invoice->save();
+
+            return $this->markPaid($invoice);
+        }
+
+        $invoice->status = 'unpaid';
+        $invoice->save();
+
+        return $invoice;
+    }
+
+    /**
+     * Validate a committee-chosen relief and return it as
+     * [type, value]; 'waiver' means a full (100%) relief.
+     *
+     * @return array{0: string, 1: int|null}
+     */
+    private function validatedRelief(?string $type, ?int $value): array
+    {
+        if ($type === 'waiver') {
+            return ['waiver', null];
+        }
+
+        if ($type === 'percent' && $value !== null && $value >= 1 && $value <= 100) {
+            return ['percent', $value];
+        }
+
+        if ($type === 'nominal' && $value !== null && $value >= 1) {
+            return ['nominal', $value];
+        }
+
+        throw new InvalidArgumentException('Pilih bentuk keringanan yang valid: pembebasan penuh, diskon persen (1-100), atau diskon nominal.');
+    }
+
+    /**
+     * Apply a validated relief to the invoice's discount fields
+     * (a full waiver is stored as a 100% percent discount).
+     */
+    private function applyRelief(Invoice $invoice, string $type, ?int $value): void
+    {
+        if ($type === 'waiver') {
+            $invoice->discount_type = 'percent';
+            $invoice->discount_value = 100;
+
+            return;
+        }
+
+        $invoice->discount_type = $type;
+        $invoice->discount_value = $value;
     }
 
     /**

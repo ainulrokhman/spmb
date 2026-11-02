@@ -293,10 +293,10 @@ class DemoSeeder extends Seeder
         // (a) Waiting at the form fee step (SMP, Rp 50.000).
         $this->findOrStart($service, $wali1, $waves['31']);
 
-        // (b) Waiver request pending a committee decision (SMP).
+        // (b) Relief request (reason only) pending a committee decision (SMP).
         $relief = $this->findOrStart($service, $wali2, $waves['31']);
         if ($relief->form_fee_request_status !== 'pending') {
-            $service->requestFeeRelief($relief, 'waiver', null, null, 'Anak yatim; surat keterangan dari kelurahan terlampir.');
+            $service->requestFeeRelief($relief, 'Anak yatim; surat keterangan dari kelurahan terlampir.');
         }
 
         // (c) Fee paid manually and confirmed; ready to fill the form (SMK).

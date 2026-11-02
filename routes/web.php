@@ -81,6 +81,9 @@ Route::middleware(['auth', 'role:Wali'])->prefix('wali')->name('guardian.')->gro
     Route::post('pendaftaran/{application}/daftar-ulang/bayar', [GuardianInvoiceController::class, 'pay'])->name('invoices.pay');
     Route::post('pendaftaran/{application}/daftar-ulang/pembayaran/{payment}/nyatakan-lunas', [GuardianInvoiceController::class, 'declarePaid'])->name('invoices.declare-paid');
     Route::post('pendaftaran/{application}/daftar-ulang/pengajuan-diskon', [GuardianInvoiceController::class, 'requestDiscount'])->name('invoices.request-discount');
+    Route::post('pendaftaran/{application}/daftar-ulang/pengajuan-cicilan', [GuardianInvoiceController::class, 'requestInstallment'])->name('invoices.request-installment');
+    Route::post('pendaftaran/{application}/daftar-ulang/termin/{installment}/bayar', [GuardianInvoiceController::class, 'payInstallment'])->name('invoices.pay-installment');
+    Route::post('pendaftaran/{application}/daftar-ulang/pembayaran-cicilan/{payment}/nyatakan-lunas', [GuardianInvoiceController::class, 'declareInstallmentPaid'])->name('invoices.declare-installment-paid');
 });
 
 // Protected Admin Panel Group
@@ -130,6 +133,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Form fee decisions & manual payment confirmations (Fase 2)
     Route::get('form-payments', [FormPaymentController::class, 'index'])->name('form-payments.index')->middleware('permission:form-payment-list');
     Route::post('form-payments/{application}/decide', [FormPaymentController::class, 'decide'])->name('form-payments.decide')->middleware('permission:form-payment-decide');
+    Route::post('form-payments/{application}/grant', [FormPaymentController::class, 'grant'])->name('form-payments.grant')->middleware('permission:form-payment-decide');
     Route::post('form-payments/payments/{payment}/confirm', [FormPaymentController::class, 'confirm'])->name('form-payments.confirm')->middleware('permission:form-payment-decide');
 
     // Application verification (Fase 3)
@@ -143,6 +147,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index')->middleware('permission:invoice-list');
     Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show')->middleware('permission:invoice-list');
     Route::post('invoices/{invoice}/decide-discount', [InvoiceController::class, 'decideDiscount'])->name('invoices.decide-discount')->middleware('permission:invoice-manage');
+    Route::post('invoices/{invoice}/grant-discount', [InvoiceController::class, 'grantDiscount'])->name('invoices.grant-discount')->middleware('permission:invoice-manage');
+    Route::post('invoices/{invoice}/decide-installment', [InvoiceController::class, 'decideInstallment'])->name('invoices.decide-installment')->middleware('permission:invoice-manage');
+    Route::post('invoices/{invoice}/revise-installments', [InvoiceController::class, 'reviseInstallments'])->name('invoices.revise-installments')->middleware('permission:invoice-manage');
     Route::post('invoices/payments/{payment}/confirm', [InvoiceController::class, 'confirm'])->name('invoices.confirm')->middleware('permission:invoice-manage');
 
     // Reports & exports (Fase 5)

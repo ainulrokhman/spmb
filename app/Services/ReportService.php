@@ -121,7 +121,7 @@ class ReportService implements ReportServiceInterface
                 'invoices_unpaid' => $invoices->where('status', '!=', 'paid')->count(),
                 'billed_total' => (int) $invoices->sum('total'),
                 'discount_total' => (int) $invoices->sum(fn (Invoice $invoice) => $invoice->discountAmount()),
-                'outstanding_total' => (int) $invoices->where('status', '!=', 'paid')->sum(fn (Invoice $invoice) => $invoice->payableAmount()),
+                'outstanding_total' => (int) $invoices->where('status', '!=', 'paid')->sum(fn (Invoice $invoice) => $invoice->remainingAmount()),
             ];
         }
 
@@ -182,7 +182,7 @@ class ReportService implements ReportServiceInterface
      */
     private function paidAmountForUnit(string $payableType, int $unitId, ?int $academicYearId): int
     {
-        return (int) Payment::query()
+        $sum = (int) Payment::query()
             ->where('status', 'paid')
             ->where('payable_type', $payableType)
             ->whereHasMorph('payable', [$payableType], function ($query) use ($payableType, $unitId, $academicYearId) {
@@ -197,5 +197,22 @@ class ReportService implements ReportServiceInterface
                 }
             })
             ->sum('amount');
+
+        if ($payableType === Invoice::class) {
+            // Installment terms are separate payables; their settled
+            // payments count as invoice reception for the unit too.
+            $sum += (int) Payment::query()
+                ->where('status', 'paid')
+                ->where('payable_type', \App\Models\InvoiceInstallment::class)
+                ->whereHasMorph('payable', [\App\Models\InvoiceInstallment::class], function ($query) use ($unitId, $academicYearId) {
+                    $query->whereHas('invoice.application', function ($q) use ($unitId, $academicYearId) {
+                        $q->where('school_unit_id', $unitId)
+                            ->when($academicYearId !== null, fn ($inner) => $inner->where('academic_year_id', $academicYearId));
+                    });
+                })
+                ->sum('amount');
+        }
+
+        return $sum;
     }
 }

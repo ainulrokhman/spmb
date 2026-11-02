@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Contracts\ApplicationServiceInterface;
+use App\Contracts\InstallmentServiceInterface;
 use App\Contracts\InvoiceServiceInterface;
 use App\Models\Application;
 use App\Models\Invoice;
+use App\Models\InvoiceInstallment;
 use App\Models\Payment;
 use App\Services\Payments\ManualChannel;
 use App\Services\Payments\MidtransChannel;
@@ -25,6 +27,7 @@ class PaymentService
     public function __construct(
         private readonly ApplicationServiceInterface $applications,
         private readonly InvoiceServiceInterface $invoices,
+        private readonly InstallmentServiceInterface $installments,
     ) {}
 
     /**
@@ -87,6 +90,10 @@ class PaymentService
             throw new InvalidArgumentException('Tagihan sudah lunas.');
         }
 
+        if ($invoice->hasInstallmentPlan()) {
+            throw new InvalidArgumentException('Tagihan ini dibayar per termin cicilan.');
+        }
+
         if ($invoice->payableAmount() <= 0) {
             throw new InvalidArgumentException('Tidak ada nominal yang perlu dibayar.');
         }
@@ -94,6 +101,29 @@ class PaymentService
         $result = $this->createOrResume($invoice, $invoice->payableAmount(), $channelKey, 'INV');
 
         $invoice->update(['status' => 'awaiting_payment']);
+
+        return $result;
+    }
+
+    /**
+     * Start (or resume) the payment of one installment term on the
+     * chosen channel. Each term is paid in full as its own payment.
+     *
+     * @return array{payment: Payment, view: array<string, mixed>}
+     */
+    public function startInstallmentPayment(InvoiceInstallment $installment, string $channelKey): array
+    {
+        if ($installment->status === 'paid') {
+            throw new InvalidArgumentException('Termin ini sudah lunas.');
+        }
+
+        if ($installment->invoice?->status === 'paid') {
+            throw new InvalidArgumentException('Tagihan sudah lunas.');
+        }
+
+        $result = $this->createOrResume($installment, (int) $installment->amount, $channelKey, 'CIC');
+
+        $installment->update(['status' => 'awaiting_payment']);
 
         return $result;
     }
@@ -152,6 +182,8 @@ class PaymentService
             $payment->payable->update(['form_fee_status' => 'awaiting_confirmation']);
         } elseif ($payment->payable instanceof Invoice) {
             $payment->payable->update(['status' => 'awaiting_confirmation']);
+        } elseif ($payment->payable instanceof InvoiceInstallment) {
+            $payment->payable->update(['status' => 'awaiting_confirmation']);
         }
 
         return $payment;
@@ -174,6 +206,8 @@ class PaymentService
             $this->applications->settleFeeByPayment($payment->payable);
         } elseif ($payment->payable instanceof Invoice) {
             $this->invoices->markPaid($payment->payable);
+        } elseif ($payment->payable instanceof InvoiceInstallment) {
+            $this->installments->settleInstallment($payment->payable);
         }
 
         return $payment;
@@ -223,6 +257,11 @@ class PaymentService
         }
 
         if ($payment->payable instanceof Invoice
+            && $payment->payable->status !== 'paid') {
+            $payment->payable->update(['status' => 'unpaid']);
+        }
+
+        if ($payment->payable instanceof InvoiceInstallment
             && $payment->payable->status !== 'paid') {
             $payment->payable->update(['status' => 'unpaid']);
         }

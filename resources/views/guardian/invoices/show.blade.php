@@ -114,6 +114,22 @@
                             <td>Yang harus dibayar</td>
                             <td class="text-end">Rp {{ number_format($invoice->payableAmount(), 0, ',', '.') }}</td>
                         </tr>
+                        @if($invoice->paidAmount() > 0)
+                            <tr>
+                                <td class="text-muted">Sudah dibayar</td>
+                                <td class="text-end text-success">Rp {{ number_format($invoice->paidAmount(), 0, ',', '.') }}</td>
+                            </tr>
+                            <tr class="fw-bold">
+                                <td>Sisa tagihan</td>
+                                <td class="text-end">Rp {{ number_format($invoice->remainingAmount(), 0, ',', '.') }}</td>
+                            </tr>
+                        @endif
+                        @if($invoice->installments->isNotEmpty())
+                            <tr>
+                                <td class="text-muted">Cicilan</td>
+                                <td class="text-end">{{ $invoice->installments->where('status', 'paid')->count() }} dari {{ $invoice->installments->count() }} termin lunas</td>
+                            </tr>
+                        @endif
                         <tr>
                             <td class="text-muted">Status</td>
                             <td class="text-end"><span class="badge {{ $invoice->status === 'paid' ? 'bg-success' : 'bg-warning text-dark' }}">{{ $invoice->statusLabel() }}</span></td>
@@ -124,7 +140,7 @@
 
             @if($invoice->request_status === 'pending')
                 <div class="alert alert-warning bg-warning bg-opacity-10 text-body border-0 rounded-3 p-3">
-                    <strong>Pengajuan {{ $invoice->request_kind === 'waiver' ? 'pembebasan' : 'diskon' }} tagihan sedang menunggu keputusan panitia.</strong>
+                    <strong>Pengajuan keringanan tagihan sedang menunggu keputusan panitia.</strong>
                     <div class="small text-muted">Alasan Anda: {{ $invoice->request_reason }}</div>
                 </div>
             @elseif($invoice->request_status === 'rejected')
@@ -136,7 +152,86 @@
                 </div>
             @endif
 
-            @if($invoice->status !== 'paid')
+            @if($invoice->installment_request_status === 'pending')
+                <div class="alert alert-warning bg-warning bg-opacity-10 text-body border-0 rounded-3 p-3">
+                    <strong>Pengajuan cicilan sedang menunggu keputusan panitia.</strong>
+                    <div class="small text-muted">Alasan Anda: {{ $invoice->installment_request_reason }}</div>
+                </div>
+            @elseif($invoice->installment_request_status === 'rejected')
+                <div class="alert alert-danger bg-danger bg-opacity-10 text-body border-0 rounded-3 p-3">
+                    <strong>Pengajuan cicilan ditolak panitia.</strong>
+                    @if($invoice->installment_decision_note)
+                        <div class="small text-muted">Catatan panitia: {{ $invoice->installment_decision_note }}</div>
+                    @endif
+                </div>
+            @endif
+
+            @if($invoice->status !== 'paid' && $invoice->installments->isNotEmpty())
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Rincian Cicilan</h5>
+                        <p class="text-muted small">Tagihan ini dibayar per termin sesuai rincian panitia. Setiap termin dibayar lunas satu per satu melalui kanal pembayaran.</p>
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Termin</th>
+                                    <th class="text-end">Nominal</th>
+                                    <th>Jatuh Tempo</th>
+                                    <th class="text-end">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($invoice->installments as $installment)
+                                    <tr>
+                                        <td>Termin {{ $installment->sequence }}</td>
+                                        <td class="text-end">Rp {{ number_format($installment->amount, 0, ',', '.') }}</td>
+                                        <td>{{ $installment->due_date?->format('d/m/Y') }}</td>
+                                        <td class="text-end"><span class="badge {{ $installment->status === 'paid' ? 'bg-success' : 'bg-warning text-dark' }}">{{ $installment->statusLabel() }}</span></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        @foreach($invoice->installments as $installment)
+                            @if($installment->status !== 'paid')
+                                @php($activeInstPayment = $activeInstallmentPayments[$installment->id] ?? null)
+                                <div class="border rounded-3 p-3 mb-3">
+                                    <div class="fw-semibold mb-2">Bayar Termin {{ $installment->sequence }} — Rp {{ number_format($installment->amount, 0, ',', '.') }}</div>
+                                    @if($activeInstPayment !== null)
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="text-muted small">{{ $channels[$activeInstPayment->channel]->label() ?? $activeInstPayment->channel }} &middot; Referensi: {{ $activeInstPayment->reference }}</div>
+                                            <span class="badge bg-info">{{ $activeInstPayment->statusLabel() }}</span>
+                                        </div>
+                                        @if($activeInstPayment->channel === 'manual' && $activeInstPayment->status === 'pending')
+                                            <p class="small mt-3 mb-2">{{ \App\Models\Setting::get('payment_manual_instructions', 'Transfer ke rekening yayasan atau bayar tunai di sekolah, lalu tekan tombol di bawah agar panitia dapat mengonfirmasi.') }}</p>
+                                            <form method="POST" action="{{ route('guardian.invoices.declare-installment-paid', [$application, $activeInstPayment]) }}">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm">Saya Sudah Bayar</button>
+                                            </form>
+                                        @elseif($activeInstPayment->channel === 'manual')
+                                            <p class="small mt-3 mb-0 text-muted">Menunggu konfirmasi panitia.</p>
+                                        @elseif($activeInstPayment->channel === 'midtrans' && $activeInstPayment->snap_token)
+                                            <button type="button" class="btn btn-success btn-sm mt-3 pay-snap-installment" data-snap-token="{{ $activeInstPayment->snap_token }}">Bayar Sekarang</button>
+                                        @endif
+                                    @else
+                                        <form method="POST" action="{{ route('guardian.invoices.pay-installment', [$application, $installment]) }}" class="d-flex flex-wrap gap-2 align-items-center">
+                                            @csrf
+                                            <select name="channel" class="form-select form-select-sm" style="width: auto;" required>
+                                                @foreach($channels as $key => $channel)
+                                                    <option value="{{ $key }}">{{ $channel->label() }}</option>
+                                                @endforeach
+                                            </select>
+                                            <button type="submit" class="btn btn-primary btn-sm">Buat Pembayaran Termin</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @if($invoice->status !== 'paid' && $invoice->installments->isEmpty())
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
                         <h5 class="fw-bold mb-3">Pilih Kanal Pembayaran</h5>
@@ -191,45 +286,54 @@
 
         <div class="col-lg-5">
             @if($invoice->status !== 'paid')
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm mb-3">
                     <div class="card-body">
                         <h5 class="fw-bold mb-2">Butuh Keringanan?</h5>
-                        <p class="text-muted small">Anda dapat mengajukan pembebasan penuh atau diskon tagihan daftar ulang. Panitia akan memutuskan pengajuan ini sebelum Anda membayar.</p>
-
-                        @if($invoice->request_status !== 'pending')
-                            <form method="POST" action="{{ route('guardian.invoices.request-discount', $application) }}">
-                                @csrf
-                                <div class="mb-3">
-                                    <label for="kind" class="form-label fw-semibold">Jenis Pengajuan</label>
-                                    <select class="form-select" id="kind" name="kind" required>
-                                        <option value="waiver" {{ old('kind') === 'waiver' ? 'selected' : '' }}>Pembebasan penuh</option>
-                                        <option value="discount" {{ old('kind') === 'discount' ? 'selected' : '' }}>Diskon sebagian</option>
-                                    </select>
-                                </div>
-                                <div class="row g-2 mb-3">
-                                    <div class="col-6">
-                                        <label for="type" class="form-label fw-semibold">Tipe Diskon</label>
-                                        <select class="form-select" id="type" name="type">
-                                            <option value="">—</option>
-                                            <option value="percent" {{ old('type') === 'percent' ? 'selected' : '' }}>Persen (%)</option>
-                                            <option value="nominal" {{ old('type') === 'nominal' ? 'selected' : '' }}>Nominal (Rp)</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-6">
-                                        <label for="value" class="form-label fw-semibold">Nilai</label>
-                                        <input type="number" min="1" class="form-control" id="value" name="value" value="{{ old('value') }}" placeholder="mis. 50 atau 25000">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="reason" class="form-label fw-semibold">Alasan Pengajuan <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="reason" name="reason" rows="3" required placeholder="mis. Anak yatim, keluarga tidak mampu, anak karyawan yayasan">{{ old('reason') }}</textarea>
-                                </div>
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-outline-primary">Kirim Pengajuan</button>
-                                </div>
-                            </form>
+                        @if($invoice->installments->isNotEmpty())
+                            <p class="text-muted small mb-0">Tagihan ini sudah memiliki rincian cicilan dari panitia, sehingga pengajuan keringanan tidak tersedia.</p>
                         @else
-                            <p class="small text-muted mb-0">Pengajuan Anda sedang diproses panitia. Anda belum dapat mengajukan lagi sampai ada keputusan.</p>
+                            <p class="text-muted small">Cukup tuliskan alasan Anda — bentuk dan besar keringanan (pembebasan penuh atau diskon) ditentukan oleh panitia.</p>
+
+                            @if($invoice->request_status !== 'pending' && $invoice->installment_request_status !== 'pending')
+                                <form method="POST" action="{{ route('guardian.invoices.request-discount', $application) }}">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label for="reason" class="form-label fw-semibold">Alasan Pengajuan <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="reason" name="reason" rows="3" required placeholder="mis. Anak yatim, keluarga tidak mampu, anak karyawan yayasan">{{ old('reason') }}</textarea>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-outline-primary">Kirim Pengajuan</button>
+                                    </div>
+                                </form>
+                            @else
+                                <p class="small text-muted mb-0">Ada pengajuan Anda yang sedang diproses panitia. Anda belum dapat mengajukan lagi sampai ada keputusan.</p>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-2">Mau Bayar Bertahap?</h5>
+                        @if($invoice->installments->isNotEmpty())
+                            <p class="text-muted small mb-0">Tagihan ini dibayar dengan cicilan — {{ $invoice->installments->where('status', 'paid')->count() }} dari {{ $invoice->installments->count() }} termin sudah lunas. Rincian termin ada di panel Rincian Cicilan.</p>
+                        @else
+                            <p class="text-muted small">Ajukan cicilan dengan alasan Anda. Bila disetujui, panitia yang merincikan jumlah termin, nominal, dan jatuh temponya.</p>
+
+                            @if($invoice->installment_request_status !== 'pending' && $invoice->request_status !== 'pending')
+                                <form method="POST" action="{{ route('guardian.invoices.request-installment', $application) }}">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label for="installment-reason" class="form-label fw-semibold">Alasan Pengajuan <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="installment-reason" name="reason" rows="3" required placeholder="mis. Membayar bertahap mengikuti gaji bulanan">{{ old('reason') }}</textarea>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-outline-primary">Ajukan Cicilan</button>
+                                    </div>
+                                </form>
+                            @else
+                                <p class="small text-muted mb-0">Ada pengajuan Anda yang sedang diproses panitia. Anda belum dapat mengajukan lagi sampai ada keputusan.</p>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -237,7 +341,7 @@
         </div>
     </div>
 
-    @if(session('payment_view.type') === 'snap' || ($activePayment?->channel === 'midtrans' && $activePayment?->snap_token))
+    @if(session('payment_view.type') === 'snap' || ($activePayment?->channel === 'midtrans' && $activePayment?->snap_token) || $activeInstallmentPayments->contains(fn ($p) => $p->channel === 'midtrans' && $p->snap_token))
         @push('scripts')
             <script src="{{ session('payment_view.snap_js_url', config('midtrans.snap_js_url')) }}" data-client-key="{{ session('payment_view.client_key', config('midtrans.client_key')) }}"></script>
             <script>
@@ -255,6 +359,17 @@
                     if (btn) {
                         btn.addEventListener('click', openSnap);
                     }
+                    document.querySelectorAll('.pay-snap-installment').forEach(function (el) {
+                        el.addEventListener('click', function () {
+                            if (window.snap) {
+                                window.snap.pay(el.dataset.snapToken, {
+                                    onSuccess: function () { window.location.reload(); },
+                                    onPending: function () { window.location.reload(); },
+                                    onError: function () { window.location.reload(); }
+                                });
+                            }
+                        });
+                    });
                     @if(session('payment_view.type') === 'snap')
                         openSnap();
                     @endif

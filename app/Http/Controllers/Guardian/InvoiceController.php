@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Guardian;
 
+use App\Contracts\InstallmentServiceInterface;
 use App\Contracts\InvoiceServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\Invoice;
+use App\Models\InvoiceInstallment;
 use App\Models\Payment;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
@@ -23,6 +25,7 @@ class InvoiceController extends Controller
     public function __construct(
         private readonly InvoiceServiceInterface $invoices,
         private readonly PaymentService $payments,
+        private readonly InstallmentServiceInterface $installments,
     ) {}
 
     /**
@@ -43,15 +46,23 @@ class InvoiceController extends Controller
                 ->with('error', 'Hasil pendaftaran belum diumumkan untuk gelombang ini.');
         }
 
-        $invoice = $application->invoice?->load(['items', 'payments']);
+        $invoice = $application->invoice?->load(['items', 'payments', 'installments.payments']);
         $draftLines = $invoice === null ? $this->invoices->draftLines($application) : [];
         $channels = $invoice === null ? [] : $this->payments->enabledChannels();
         $activePayment = $invoice?->payments
             ->whereIn('status', ['pending', 'awaiting_confirmation'])
             ->sortByDesc('id')
             ->first();
+        $activeInstallmentPayments = $invoice === null ? collect() : $invoice->installments
+            ->mapWithKeys(fn (InvoiceInstallment $installment) => [
+                $installment->id => $installment->payments
+                    ->whereIn('status', ['pending', 'awaiting_confirmation'])
+                    ->sortByDesc('id')
+                    ->first(),
+            ])
+            ->filter();
 
-        return view('guardian.invoices.show', compact('application', 'invoice', 'draftLines', 'channels', 'activePayment'));
+        return view('guardian.invoices.show', compact('application', 'invoice', 'draftLines', 'channels', 'activePayment', 'activeInstallmentPayments'));
     }
 
     /**
@@ -128,7 +139,9 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Request a discount or full waiver on the invoice.
+     * Request relief on the invoice. The guardian only states a
+     * reason; the committee decides the form and size of the
+     * relief.
      */
     public function requestDiscount(Request $request, Application $application)
     {
@@ -137,34 +150,90 @@ class InvoiceController extends Controller
         $invoice = $this->invoiceOf($application);
 
         $data = $request->validate([
-            'kind' => ['required', Rule::in(['waiver', 'discount'])],
-            'type' => ['nullable', Rule::in(array_keys(Application::DISCOUNT_TYPES))],
-            'value' => ['nullable', 'integer', 'min:1'],
             'reason' => ['required', 'string', 'max:500'],
         ]);
 
-        if ($data['kind'] === 'discount') {
-            if (empty($data['type'])) {
-                return back()->with('error', 'Pilih tipe diskon (persen atau nominal).')->withInput();
-            }
-            if ($data['type'] === 'percent' && (int) $data['value'] > 100) {
-                return back()->with('error', 'Diskon persen tidak boleh lebih dari 100%.')->withInput();
-            }
-        }
-
         try {
-            $this->invoices->requestDiscount(
-                $invoice,
-                $data['kind'],
-                $data['type'] ?? null,
-                isset($data['value']) ? (int) $data['value'] : null,
-                $data['reason'],
-            );
+            $this->invoices->requestDiscount($invoice, $data['reason']);
         } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         }
 
         return back()->with('success', 'Pengajuan terkirim. Panitia akan memutuskan pengajuan Anda.');
+    }
+
+    /**
+     * Request an installment plan for the invoice. The guardian
+     * only states a reason; the committee details the terms when
+     * approving.
+     */
+    public function requestInstallment(Request $request, Application $application)
+    {
+        $this->ensureOwner($application);
+
+        $invoice = $this->invoiceOf($application);
+
+        $data = $request->validate([
+            'reason' => ['required', 'string', 'max:500'],
+        ]);
+
+        try {
+            $this->installments->requestInstallment($invoice, $data['reason']);
+        } catch (InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Pengajuan cicilan terkirim. Panitia akan memutuskan dan merincikan terminnya.');
+    }
+
+    /**
+     * Start (or resume) the payment of one installment term.
+     */
+    public function payInstallment(Request $request, Application $application, InvoiceInstallment $installment)
+    {
+        $this->ensureOwner($application);
+
+        $invoice = $this->invoiceOf($application);
+
+        if ((int) $installment->invoice_id !== (int) $invoice->id) {
+            abort(404);
+        }
+
+        $data = $request->validate([
+            'channel' => ['required', Rule::in(array_keys($this->payments->enabledChannels()))],
+        ]);
+
+        try {
+            $result = $this->payments->startInstallmentPayment($installment, $data['channel']);
+        } catch (InvalidArgumentException|RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('guardian.invoices.show', $application)
+            ->with('payment_view', $result['view'])
+            ->with('success', 'Pembayaran termin dibuat. Selesaikan pembayaran termin ini.');
+    }
+
+    /**
+     * The guardian declares a manual installment payment as paid;
+     * the committee still confirms it on their side.
+     */
+    public function declareInstallmentPaid(Application $application, Payment $payment)
+    {
+        $this->ensureOwner($application);
+
+        if ($payment->payable_type !== InvoiceInstallment::class
+            || (int) $payment->payable?->invoice_id !== (int) $application->invoice?->id) {
+            abort(404);
+        }
+
+        try {
+            $this->payments->declareManualPaid($payment);
+        } catch (InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Terima kasih. Panitia akan mengonfirmasi pembayaran termin Anda.');
     }
 
     private function invoiceOf(Application $application): Invoice

@@ -164,13 +164,12 @@ class ApplicationFlowTest extends TestCase
 
         $this->actingAs($this->guardian)
             ->post(route('guardian.applications.request-relief', $application), [
-                'kind' => 'waiver',
                 'reason' => 'Anak yatim',
             ])
             ->assertSessionHas('success');
 
         $this->actingAs($this->admin())
-            ->post(route('admin.form-payments.decide', $application), ['decision' => 'approve', 'note' => 'Layak'])
+            ->post(route('admin.form-payments.decide', $application), ['decision' => 'approve', 'relief_type' => 'waiver', 'note' => 'Layak'])
             ->assertSessionHas('success');
 
         $application->refresh();
@@ -185,14 +184,11 @@ class ApplicationFlowTest extends TestCase
 
         $this->actingAs($this->guardian)
             ->post(route('guardian.applications.request-relief', $application), [
-                'kind' => 'discount',
-                'type' => 'percent',
-                'value' => 50,
                 'reason' => 'Anak karyawan',
             ]);
 
         $this->actingAs($this->admin())
-            ->post(route('admin.form-payments.decide', $application), ['decision' => 'approve']);
+            ->post(route('admin.form-payments.decide', $application), ['decision' => 'approve', 'relief_type' => 'percent', 'relief_value' => 50]);
 
         $application->refresh();
         $this->assertSame(25000, $application->payableAmount());
@@ -207,7 +203,6 @@ class ApplicationFlowTest extends TestCase
 
         $this->actingAs($this->guardian)
             ->post(route('guardian.applications.request-relief', $application), [
-                'kind' => 'waiver',
                 'reason' => 'Mohon gratis',
             ]);
 
