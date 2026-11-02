@@ -36,7 +36,7 @@
 
         @if($application->form_fee_request_status === 'pending')
             <div class="alert alert-warning bg-warning bg-opacity-10 text-body border-0 rounded-3 p-3">
-                <strong>Pengajuan {{ $application->form_fee_request_kind === 'waiver' ? 'pembebasan' : 'diskon' }} sedang menunggu keputusan panitia.</strong>
+                <strong>Pengajuan keringanan sedang menunggu keputusan panitia.</strong>
                 <div class="small text-muted">Alasan Anda: {{ $application->form_fee_request_reason }}</div>
             </div>
         @elseif($application->form_fee_request_status === 'rejected')
@@ -109,32 +109,11 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <h5 class="fw-bold mb-2">Butuh Keringanan?</h5>
-                <p class="text-muted small">Calon siswa khusus dapat mengajukan pembebasan penuh atau diskon biaya formulir. Panitia akan memutuskan pengajuan ini sebelum Anda membayar.</p>
+                <p class="text-muted small">Cukup tuliskan alasan Anda — bentuk dan besar keringanan (pembebasan penuh atau diskon) ditentukan oleh panitia sebelum Anda membayar.</p>
 
                 @if($application->form_fee_request_status !== 'pending')
                     <form method="POST" action="{{ route('guardian.applications.request-relief', $application) }}">
                         @csrf
-                        <div class="mb-3">
-                            <label for="kind" class="form-label fw-semibold">Jenis Pengajuan</label>
-                            <select class="form-select" id="kind" name="kind" required>
-                                <option value="waiver" {{ old('kind') === 'waiver' ? 'selected' : '' }}>Pembebasan penuh</option>
-                                <option value="discount" {{ old('kind') === 'discount' ? 'selected' : '' }}>Diskon sebagian</option>
-                            </select>
-                        </div>
-                        <div class="row g-2 mb-3">
-                            <div class="col-6">
-                                <label for="type" class="form-label fw-semibold">Tipe Diskon</label>
-                                <select class="form-select" id="type" name="type">
-                                    <option value="">—</option>
-                                    <option value="percent" {{ old('type') === 'percent' ? 'selected' : '' }}>Persen (%)</option>
-                                    <option value="nominal" {{ old('type') === 'nominal' ? 'selected' : '' }}>Nominal (Rp)</option>
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <label for="value" class="form-label fw-semibold">Nilai</label>
-                                <input type="number" min="1" class="form-control" id="value" name="value" value="{{ old('value') }}" placeholder="mis. 50 atau 25000">
-                            </div>
-                        </div>
                         <div class="mb-3">
                             <label for="reason" class="form-label fw-semibold">Alasan Pengajuan <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="reason" name="reason" rows="3" required placeholder="mis. Anak yatim, keluarga tidak mampu, anak karyawan yayasan">{{ old('reason') }}</textarea>

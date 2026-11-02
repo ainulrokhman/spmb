@@ -20,14 +20,24 @@ interface ApplicationServiceInterface
     public function start(User $guardian, AdmissionWave $wave, AdmissionTrack $track, ?Major $major): Application;
 
     /**
-     * Record a guardian's request for a form fee waiver or discount.
+     * Record a guardian's relief request on the form fee. The
+     * guardian only states a reason; the committee decides the
+     * form and size of the relief.
      */
-    public function requestFeeRelief(Application $application, string $kind, ?string $type, ?int $value, string $reason): Application;
+    public function requestFeeRelief(Application $application, string $reason): Application;
 
     /**
-     * Decide a pending fee relief request (committee side).
+     * Decide a pending fee relief request (committee side). When
+     * approving, the committee chooses the relief itself: 'waiver'
+     * (full), 'percent' or 'nominal' with its value.
      */
-    public function decideFeeRequest(Application $application, bool $approve, User $decider, ?string $note): Application;
+    public function decideFeeRequest(Application $application, bool $approve, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Application;
+
+    /**
+     * Grant form fee relief directly, without a guardian request
+     * (committee initiative).
+     */
+    public function grantFeeRelief(Application $application, string $reliefType, ?int $reliefValue, User $decider, ?string $note): Application;
 
     /**
      * Mark the form fee as paid and unlock the form step.

@@ -155,36 +155,20 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Request a form fee waiver or discount at the payment step.
+     * Request form fee relief at the payment step. The guardian
+     * only states a reason; the committee decides the form and
+     * size of the relief.
      */
     public function requestRelief(Request $request, Application $application)
     {
         $this->ensureOwner($application);
 
         $data = $request->validate([
-            'kind' => ['required', Rule::in(['waiver', 'discount'])],
-            'type' => ['nullable', Rule::in(array_keys(Application::DISCOUNT_TYPES))],
-            'value' => ['nullable', 'integer', 'min:1'],
             'reason' => ['required', 'string', 'max:500'],
         ]);
 
-        if ($data['kind'] === 'discount') {
-            if (empty($data['type'])) {
-                return back()->with('error', 'Pilih tipe diskon (persen atau nominal).')->withInput();
-            }
-            if ($data['type'] === 'percent' && (int) $data['value'] > 100) {
-                return back()->with('error', 'Diskon persen tidak boleh lebih dari 100%.')->withInput();
-            }
-        }
-
         try {
-            $this->applications->requestFeeRelief(
-                $application,
-                $data['kind'],
-                $data['type'] ?? null,
-                isset($data['value']) ? (int) $data['value'] : null,
-                $data['reason'],
-            );
+            $this->applications->requestFeeRelief($application, $data['reason']);
         } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         }

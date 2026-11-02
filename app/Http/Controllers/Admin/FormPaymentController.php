@@ -8,6 +8,7 @@ use App\Models\Application;
 use App\Models\Payment;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use InvalidArgumentException;
 
 class FormPaymentController extends Controller
@@ -33,6 +34,16 @@ class FormPaymentController extends Controller
             ->oldest('updated_at')
             ->get();
 
+        $grantable = Application::query()
+            ->with(['user', 'schoolUnit', 'admissionWave'])
+            ->where('status', 'awaiting_form_fee')
+            ->where('form_fee_status', 'unpaid')
+            ->whereNull('form_fee_discount_type')
+            ->where(fn ($query) => $query->whereNull('form_fee_request_status')->orWhere('form_fee_request_status', '!=', 'pending'))
+            ->when($unitIds !== null, fn ($query) => $query->whereIn('school_unit_id', $unitIds))
+            ->oldest()
+            ->get();
+
         $awaitingConfirmations = Payment::query()
             ->with(['payable.user', 'payable.schoolUnit'])
             ->where('status', 'awaiting_confirmation')
@@ -45,11 +56,13 @@ class FormPaymentController extends Controller
             ->oldest()
             ->get();
 
-        return view('admin.form-payments.index', compact('pendingRequests', 'awaitingConfirmations'));
+        return view('admin.form-payments.index', compact('pendingRequests', 'grantable', 'awaitingConfirmations'));
     }
 
     /**
-     * Approve or reject a pending waiver / discount request.
+     * Approve or reject a pending relief request. When approving,
+     * the committee chooses the relief (full waiver, or a percent
+     * / nominal discount with its value).
      */
     public function decide(Request $request, Application $application)
     {
@@ -57,6 +70,8 @@ class FormPaymentController extends Controller
 
         $data = $request->validate([
             'decision' => ['required', 'in:approve,reject'],
+            'relief_type' => ['nullable', Rule::in(['waiver', 'percent', 'nominal'])],
+            'relief_value' => ['nullable', 'integer', 'min:1'],
             'note' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -64,6 +79,8 @@ class FormPaymentController extends Controller
             $this->applications->decideFeeRequest(
                 $application,
                 $data['decision'] === 'approve',
+                $data['relief_type'] ?? null,
+                isset($data['relief_value']) ? (int) $data['relief_value'] : null,
                 $request->user(),
                 $data['note'] ?? null,
             );
@@ -72,6 +89,34 @@ class FormPaymentController extends Controller
         }
 
         return back()->with('success', 'Pengajuan biaya formulir telah diputuskan.');
+    }
+
+    /**
+     * Grant form fee relief directly, without a guardian request.
+     */
+    public function grant(Request $request, Application $application)
+    {
+        $this->ensureUnitAccess($request, $application->school_unit_id);
+
+        $data = $request->validate([
+            'relief_type' => ['required', Rule::in(['waiver', 'percent', 'nominal'])],
+            'relief_value' => ['nullable', 'integer', 'min:1'],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        try {
+            $this->applications->grantFeeRelief(
+                $application,
+                $data['relief_type'],
+                isset($data['relief_value']) ? (int) $data['relief_value'] : null,
+                $request->user(),
+                $data['note'] ?? null,
+            );
+        } catch (InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Keringanan biaya formulir diberikan.');
     }
 
     /**

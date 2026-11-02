@@ -56,9 +56,11 @@ class ApplicationService implements ApplicationServiceInterface
     }
 
     /**
-     * Record a guardian's request for a form fee waiver or discount.
+     * Record a guardian's relief request on the form fee. The
+     * guardian only states a reason; the committee decides the
+     * form and size of the relief when deciding the request.
      */
-    public function requestFeeRelief(Application $application, string $kind, ?string $type, ?int $value, string $reason): Application
+    public function requestFeeRelief(Application $application, string $reason): Application
     {
         if ($application->feeSettled() || $application->status !== 'awaiting_form_fee') {
             throw new InvalidArgumentException('Pengajuan hanya dapat dilakukan sebelum biaya formulir diselesaikan.');
@@ -69,9 +71,9 @@ class ApplicationService implements ApplicationServiceInterface
         }
 
         $application->update([
-            'form_fee_request_kind' => $kind,
-            'form_fee_request_type' => $kind === 'discount' ? $type : null,
-            'form_fee_request_value' => $kind === 'discount' ? $value : null,
+            'form_fee_request_kind' => null,
+            'form_fee_request_type' => null,
+            'form_fee_request_value' => null,
             'form_fee_request_reason' => $reason,
             'form_fee_request_status' => 'pending',
             'form_fee_decision_note' => null,
@@ -81,9 +83,11 @@ class ApplicationService implements ApplicationServiceInterface
     }
 
     /**
-     * Decide a pending fee relief request (committee side).
+     * Decide a pending fee relief request (committee side). When
+     * approving, the committee itself chooses the relief: 'waiver'
+     * for a full waiver, or 'percent' / 'nominal' with a value.
      */
-    public function decideFeeRequest(Application $application, bool $approve, User $decider, ?string $note): Application
+    public function decideFeeRequest(Application $application, bool $approve, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Application
     {
         if ($application->form_fee_request_status !== 'pending') {
             throw new InvalidArgumentException('Tidak ada pengajuan yang menunggu keputusan.');
@@ -95,26 +99,89 @@ class ApplicationService implements ApplicationServiceInterface
         $application->form_fee_decided_at = now();
 
         if ($approve) {
-            if ($application->form_fee_request_kind === 'waiver') {
-                $application->form_fee_status = 'waived';
-                $application->status = 'filling_form';
-            } else {
-                $application->form_fee_discount_type = $application->form_fee_request_type;
-                $application->form_fee_discount_value = $application->form_fee_request_value;
-
-                if ($application->payableAmount() === 0) {
-                    $application->form_fee_status = 'waived';
-                    $application->status = 'filling_form';
-                } else {
-                    // The guardian still pays the remainder.
-                    $application->form_fee_status = 'unpaid';
-                }
-            }
+            $this->applyFeeRelief($application, ...$this->validatedRelief($reliefType, $reliefValue));
         }
 
         $application->save();
 
         return $application;
+    }
+
+    /**
+     * Grant form fee relief directly, without a guardian request
+     * (committee initiative).
+     */
+    public function grantFeeRelief(Application $application, string $reliefType, ?int $reliefValue, User $decider, ?string $note): Application
+    {
+        if ($application->feeSettled() || $application->status !== 'awaiting_form_fee') {
+            throw new InvalidArgumentException('Keringanan hanya dapat diberikan sebelum biaya formulir diselesaikan.');
+        }
+
+        if ($application->form_fee_request_status === 'pending') {
+            throw new InvalidArgumentException('Ada pengajuan yang menunggu keputusan; putuskan pengajuan tersebut.');
+        }
+
+        if ($application->form_fee_discount_type !== null) {
+            throw new InvalidArgumentException('Keringanan sudah pernah diberikan untuk biaya formulir ini.');
+        }
+
+        $application->form_fee_decision_note = $note;
+        $application->form_fee_decided_by = $decider->id;
+        $application->form_fee_decided_at = now();
+
+        $this->applyFeeRelief($application, ...$this->validatedRelief($reliefType, $reliefValue));
+
+        $application->save();
+
+        return $application;
+    }
+
+    /**
+     * Validate a committee-chosen relief and return it as
+     * [type, value]; 'waiver' means a full (100%) relief.
+     *
+     * @return array{0: string, 1: int|null}
+     */
+    private function validatedRelief(?string $type, ?int $value): array
+    {
+        if ($type === 'waiver') {
+            return ['waiver', null];
+        }
+
+        if ($type === 'percent' && $value !== null && $value >= 1 && $value <= 100) {
+            return ['percent', $value];
+        }
+
+        if ($type === 'nominal' && $value !== null && $value >= 1) {
+            return ['nominal', $value];
+        }
+
+        throw new InvalidArgumentException('Pilih bentuk keringanan yang valid: pembebasan penuh, diskon persen (1-100), atau diskon nominal.');
+    }
+
+    /**
+     * Apply a validated relief to the form fee and advance the
+     * application when nothing remains to be paid.
+     */
+    private function applyFeeRelief(Application $application, string $type, ?int $value): void
+    {
+        if ($type === 'waiver') {
+            $application->form_fee_status = 'waived';
+            $application->status = 'filling_form';
+
+            return;
+        }
+
+        $application->form_fee_discount_type = $type;
+        $application->form_fee_discount_value = $value;
+
+        if ($application->payableAmount() === 0) {
+            $application->form_fee_status = 'waived';
+            $application->status = 'filling_form';
+        } else {
+            // The guardian still pays the remainder.
+            $application->form_fee_status = 'unpaid';
+        }
     }
 
     /**

@@ -39,6 +39,11 @@ class Invoice extends Model
         'decision_note',
         'decided_by',
         'decided_at',
+        'installment_request_reason',
+        'installment_request_status',
+        'installment_decision_note',
+        'installment_decided_by',
+        'installment_decided_at',
         'paid_at',
     ];
 
@@ -46,6 +51,7 @@ class Invoice extends Model
     {
         return [
             'decided_at' => 'datetime',
+            'installment_decided_at' => 'datetime',
             'paid_at' => 'datetime',
         ];
     }
@@ -68,6 +74,52 @@ class Invoice extends Model
     public function decider(): BelongsTo
     {
         return $this->belongsTo(User::class, 'decided_by');
+    }
+
+    /**
+     * The installment terms of this invoice, in payment order.
+     */
+    public function installments(): HasMany
+    {
+        return $this->hasMany(InvoiceInstallment::class)->orderBy('sequence');
+    }
+
+    public function installmentDecider(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'installment_decided_by');
+    }
+
+    /**
+     * Whether the committee has detailed an installment plan.
+     */
+    public function hasInstallmentPlan(): bool
+    {
+        return $this->installments()->exists();
+    }
+
+    /**
+     * Total actually received for this invoice: direct payments
+     * plus payments of its installment terms.
+     */
+    public function paidAmount(): int
+    {
+        $own = (int) $this->payments()->where('status', 'paid')->sum('amount');
+
+        $viaInstallments = (int) Payment::query()
+            ->where('status', 'paid')
+            ->where('payable_type', InvoiceInstallment::class)
+            ->whereIn('payable_id', $this->installments()->select('id'))
+            ->sum('amount');
+
+        return $own + $viaInstallments;
+    }
+
+    /**
+     * The amount still outstanding after discounts and payments.
+     */
+    public function remainingAmount(): int
+    {
+        return max(0, $this->payableAmount() - $this->paidAmount());
     }
 
     /**
