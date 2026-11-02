@@ -230,44 +230,39 @@ class ApplicationService implements ApplicationServiceInterface
     }
 
     /**
-     * Create (or link) the parent account the guardian opted
-     * into at the start step (the register menu's "buatkan akun
-     * orang tua" checkbox). The account belongs to the parent of
-     * the relation type declared at the start and takes its name
-     * and phone number (the login identity) from that identity
-     * section of the form data; a new account's generated
-     * password is returned so the caller can show it exactly
-     * once. An existing account is linked to the application
-     * instead of duplicated, and the registrant's own number is
-     * left alone.
+     * Create (or link) guardian accounts for the biodata
+     * identity sections whose 'create_account' checkbox was
+     * ticked. Nothing happens for unticked sections. The account
+     * takes its name and phone number (the login identity) from
+     * its section; a new account's generated password is returned
+     * so the caller can show it exactly once. An existing account
+     * is linked to the application instead of duplicated, and
+     * the section of the account holder's own relation is always
+     * skipped.
      *
      * @return list<array{label: string, name: string, phone: string, password: string|null, note: string}>
      */
     public function createParentAccounts(Application $application, array $data): array
     {
-        if (! $application->create_parent_account) {
-            return [];
-        }
-
-        $key = match ($application->guardian_relation) {
+        // One entry per identity section; the section matching the
+        // account holder's own relation never gets an account (the
+        // holder IS that parent), whatever the form sent.
+        $sections = ['father' => 'ayah', 'mother' => 'ibu', 'guardian' => 'wali'];
+        $ownKey = match ($application->guardian_relation) {
             'ayah' => 'father',
             'ibu' => 'mother',
             default => 'guardian',
         };
-        $relation = $application->guardian_relation ?? 'wali';
-        $sections = [$key => $relation];
         $results = [];
 
         foreach ($sections as $key => $relation) {
             $section = $data[$key] ?? null;
 
-            if (! is_array($section)) {
+            if (! is_array($section) || empty($section['create_account']) || $key === $ownKey) {
                 continue;
             }
 
             if ($key === 'guardian' && empty($data['has_guardian'])) {
-                $results[] = ['label' => Application::GUARDIAN_RELATIONS[$relation], 'name' => '', 'phone' => '', 'password' => null, 'note' => 'Akun tidak dibuat: bagian identitas wali tidak diisi.'];
-
                 continue;
             }
 

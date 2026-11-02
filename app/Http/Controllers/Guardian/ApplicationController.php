@@ -72,7 +72,6 @@ class ApplicationController extends Controller
                 $major,
                 $request->validated('child_name'),
                 $request->validated('guardian_relation'),
-                (bool) $request->validated('create_parent_account', false),
             );
         } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage())->withInput();
@@ -203,15 +202,30 @@ class ApplicationController extends Controller
             ->groupBy(fn ($field) => $field->section ?: 'Formulir Tambahan');
 
         $user = auth()->user();
-        $relation = old('guardian_relation', $application->guardian_relation);
+        $relation = $application->guardian_relation;
 
-        // Pre-fill the identity section matching the declared
-        // relation from the guardian account on first fill.
-        $father = old('father', $application->father_data) ?? ($relation === 'ayah' ? ['name' => $user->name, 'phone' => $user->phone] : []);
-        $mother = old('mother', $application->mother_data) ?? ($relation === 'ibu' ? ['name' => $user->name, 'phone' => $user->phone] : []);
-        $guardian = old('guardian', $application->guardian_data) ?? ($relation === 'wali' ? ['name' => $user->name, 'phone' => $user->phone] : []);
+        // For a later child, pre-fill the parent identities from
+        // the guardian's most recent other application that has
+        // them, so siblings do not need the parents retyped. The
+        // account-creation checkbox state is never carried over.
+        $previous = null;
 
-        return view('guardian.applications.form', compact('application', 'fields', 'father', 'mother', 'guardian'));
+        if ($application->father_data === null) {
+            $previous = $user->visibleApplications()
+                ->whereKeyNot($application->id)
+                ->whereNotNull('father_data')
+                ->latest('updated_at')
+                ->first();
+        }
+
+        $strip = fn (?array $data) => collect($data ?? [])->except('create_account')->all();
+
+        $father = old('father', $application->father_data) ?? ($previous !== null ? $strip($previous->father_data) : ($relation === 'ayah' ? ['name' => $user->name, 'phone' => $user->phone] : []));
+        $mother = old('mother', $application->mother_data) ?? ($previous !== null ? $strip($previous->mother_data) : ($relation === 'ibu' ? ['name' => $user->name, 'phone' => $user->phone] : []));
+        $guardian = old('guardian', $application->guardian_data) ?? ($previous !== null ? $strip($previous->guardian_data) : ($relation === 'wali' ? ['name' => $user->name, 'phone' => $user->phone] : []));
+        $hasGuardianDefault = $previous !== null ? (bool) $previous->has_guardian : (bool) $application->has_guardian;
+
+        return view('guardian.applications.form', compact('application', 'fields', 'father', 'mother', 'guardian', 'hasGuardianDefault'));
     }
 
     /**

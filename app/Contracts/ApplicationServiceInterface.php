@@ -51,13 +51,11 @@ interface ApplicationServiceInterface
     public function saveForm(Application $application, array $data): Application;
 
     /**
-     * Create (or link) the parent account the guardian opted
-     * into at the start step: the account belongs to the parent
-     * of the relation type declared there and takes its name and
-     * phone number from that identity section of the form data.
-     * A new account's generated password is returned here so the
-     * caller can show it exactly once; an existing account is
-     * linked to the application instead.
+     * Create (or link) guardian accounts for the biodata identity
+     * sections whose 'create_account' checkbox was ticked. A new
+     * account's generated password is returned here so the caller
+     * can show it exactly once; an existing account is linked to
+     * the application instead.
      *
      * @return list<array{label: string, name: string, phone: string, password: string|null, note: string}>
      */

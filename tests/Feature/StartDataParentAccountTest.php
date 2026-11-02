@@ -18,10 +18,10 @@ use Tests\Concerns\SeedsDemoUsers;
 use Tests\TestCase;
 
 /**
- * Start-step data (child name, relation, parent-account opt-in)
- * and parent accounts created from the register menu's checkbox:
- * the account belongs to the parent of the relation type
- * declared at the start and shares access to the application.
+ * Start-step data (child name and relation captured up front),
+ * parent accounts created from the biodata checkboxes (never
+ * for the account holder's own section, never when unticked),
+ * and parent identities prefilled for later children.
  */
 class StartDataParentAccountTest extends TestCase
 {
@@ -77,7 +77,7 @@ class StartDataParentAccountTest extends TestCase
         $this->actingAs($this->guardian)
             ->post(route('guardian.applications.store'), array_merge([
                 'child_name' => 'Anak Pertama',
-                'guardian_relation' => 'ibu',
+                'guardian_relation' => 'ayah',
                 'school_unit_id' => $scenario['unit']->id,
                 'admission_wave_id' => $scenario['wave']->id,
                 'admission_track_id' => $scenario['track']->id,
@@ -100,13 +100,12 @@ class StartDataParentAccountTest extends TestCase
         ], $overrides);
     }
 
-    public function test_start_stores_child_name_relation_and_parent_account_flag(): void
+    public function test_start_stores_child_name_and_relation(): void
     {
-        $application = $this->startApplication($this->scenario(), ['create_parent_account' => '1']);
+        $application = $this->startApplication($this->scenario());
 
         $this->assertSame('Anak Pertama', $application->child_name);
-        $this->assertSame('ibu', $application->guardian_relation);
-        $this->assertTrue((bool) $application->create_parent_account);
+        $this->assertSame('ayah', $application->guardian_relation);
         $this->assertSame('filling_form', $application->status);
 
         $this->actingAs($this->guardian)
@@ -133,12 +132,29 @@ class StartDataParentAccountTest extends TestCase
         $this->assertSame('uploading_documents', $application->fresh()->status);
     }
 
-    public function test_parent_account_created_for_the_declared_relation(): void
+    public function test_account_checkbox_hidden_for_the_holders_own_section(): void
     {
-        $application = $this->startApplication($this->scenario(), ['create_parent_account' => '1']);
+        // The holder registered as the father: only the mother and
+        // guardian sections offer an account checkbox.
+        $application = $this->startApplication($this->scenario());
+
+        $this->actingAs($this->guardian)
+            ->get(route('guardian.applications.form', $application))
+            ->assertOk()
+            ->assertDontSee('name="father[create_account]"', false)
+            ->assertSee('name="mother[create_account]"', false)
+            ->assertSee('name="guardian[create_account]"', false);
+    }
+
+    public function test_checked_section_creates_account_when_the_form_is_saved(): void
+    {
+        $application = $this->startApplication($this->scenario());
+
+        $payload = $this->formPayload();
+        $payload['mother']['create_account'] = '1';
 
         $response = $this->actingAs($this->guardian)
-            ->post(route('guardian.applications.form.save', $application), $this->formPayload());
+            ->post(route('guardian.applications.form.save', $application), $payload);
 
         $response->assertSessionHas('created_accounts');
         $created = session('created_accounts');
@@ -152,8 +168,7 @@ class StartDataParentAccountTest extends TestCase
         $this->assertTrue(Auth::attempt(['phone' => '081299988877', 'password' => $created[0]['password']]));
         Auth::logout();
 
-        // The father's phone got no account: only the declared
-        // relation (ibu) is created.
+        // The father's section was not ticked: no account for him.
         $this->assertNull(User::where('phone', '081211112222')->first());
 
         // Shared access: the mother sees and can open the application.
@@ -166,7 +181,6 @@ class StartDataParentAccountTest extends TestCase
             ->get(route('guardian.applications.show', $application))
             ->assertRedirect(route('guardian.applications.documents', $application));
 
-        // An unrelated guardian cannot.
         $stranger = User::factory()->create(['phone' => '081200001111']);
         $stranger->assignRole('Wali');
         $this->actingAs($stranger)
@@ -174,7 +188,22 @@ class StartDataParentAccountTest extends TestCase
             ->assertNotFound();
     }
 
-    public function test_no_account_created_without_the_checkbox(): void
+    public function test_holders_own_section_never_creates_an_account_even_if_flagged(): void
+    {
+        $application = $this->startApplication($this->scenario());
+
+        $payload = $this->formPayload();
+        $payload['father']['create_account'] = '1'; // holder IS the father
+
+        $this->actingAs($this->guardian)
+            ->post(route('guardian.applications.form.save', $application), $payload)
+            ->assertRedirect();
+
+        $this->assertNull(User::where('phone', '081211112222')->first());
+        $this->assertSame(0, $application->fresh()->linkedUsers()->count());
+    }
+
+    public function test_unticked_sections_create_no_accounts(): void
     {
         $application = $this->startApplication($this->scenario());
 
@@ -183,6 +212,7 @@ class StartDataParentAccountTest extends TestCase
             ->assertRedirect();
 
         $this->assertNull(User::where('phone', '081299988877')->first());
+        $this->assertNull(User::where('phone', '081211112222')->first());
         $this->assertSame(0, $application->fresh()->linkedUsers()->count());
     }
 
@@ -194,12 +224,14 @@ class StartDataParentAccountTest extends TestCase
         $service = app(ApplicationServiceInterface::class);
         $application = Application::factory()->create([
             'user_id' => $this->guardian->id,
-            'guardian_relation' => 'ibu',
-            'create_parent_account' => true,
+            'guardian_relation' => 'ayah',
             'status' => 'filling_form',
         ]);
 
-        $results = $service->createParentAccounts($application, $this->formPayload());
+        $payload = $this->formPayload();
+        $payload['mother']['create_account'] = '1';
+
+        $results = $service->createParentAccounts($application, $payload);
 
         $this->assertCount(1, $results);
         $this->assertNull($results[0]['password']);
@@ -207,22 +239,26 @@ class StartDataParentAccountTest extends TestCase
         $this->assertTrue($application->linkedUsers()->whereKey($existing->id)->exists());
     }
 
-    public function test_registrants_own_number_is_left_alone(): void
+    public function test_second_child_prefills_parent_identities_from_the_previous_application(): void
     {
-        $service = app(ApplicationServiceInterface::class);
-        $application = Application::factory()->create([
-            'user_id' => $this->guardian->id,
-            'guardian_relation' => 'ibu',
-            'create_parent_account' => true,
-            'status' => 'filling_form',
-        ]);
+        $scenario = $this->scenario();
+        $first = $this->startApplication($scenario, ['child_name' => 'Anak Sulung']);
 
-        $results = $service->createParentAccounts($application, $this->formPayload([
-            'mother' => ['name' => 'Ibu', 'status' => 'Masih Hidup', 'phone' => '081234567890'],
-        ]));
+        $this->actingAs($this->guardian)
+            ->post(route('guardian.applications.form.save', $first), $this->formPayload([
+                'child_name' => 'Anak Sulung',
+                'father' => ['name' => 'Bapak Sulung', 'status' => 'Masih Hidup', 'phone' => '081211112222', 'job' => 'Petani'],
+                'mother' => ['name' => 'Ibu Sulung', 'status' => 'Masih Hidup', 'phone' => '081299988877'],
+            ]))
+            ->assertRedirect();
 
-        $this->assertCount(1, $results);
-        $this->assertStringContainsString('akun Anda sendiri', $results[0]['note']);
-        $this->assertSame(0, $application->linkedUsers()->count());
+        $second = $this->startApplication($scenario, ['child_name' => 'Anak Bungsu']);
+
+        $this->actingAs($this->guardian)
+            ->get(route('guardian.applications.form', $second))
+            ->assertOk()
+            ->assertSee('value="Bapak Sulung"', false)
+            ->assertSee('value="Ibu Sulung"', false)
+            ->assertSee('value="081299988877"', false);
     }
 }

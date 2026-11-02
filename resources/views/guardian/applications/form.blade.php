@@ -53,7 +53,7 @@
             <h5 class="mb-0 fw-bold">Identitas Ayah</h5>
         </div>
         <div class="card-body px-4 pb-4">
-            @include('guardian.applications._parent_fields', ['prefix' => 'father', 'data' => $father, 'withStatus' => true, 'withRelation' => false])
+            @include('guardian.applications._parent_fields', ['prefix' => 'father', 'data' => $father, 'withStatus' => true, 'withRelation' => false, 'withAccount' => $application->guardian_relation !== 'ayah', 'accountLabel' => 'ayah'])
         </div>
     </div>
 
@@ -62,7 +62,7 @@
             <h5 class="mb-0 fw-bold">Identitas Ibu</h5>
         </div>
         <div class="card-body px-4 pb-4">
-            @include('guardian.applications._parent_fields', ['prefix' => 'mother', 'data' => $mother, 'withStatus' => true, 'withRelation' => false])
+            @include('guardian.applications._parent_fields', ['prefix' => 'mother', 'data' => $mother, 'withStatus' => true, 'withRelation' => false, 'withAccount' => $application->guardian_relation !== 'ibu', 'accountLabel' => 'ibu'])
         </div>
     </div>
 
@@ -70,12 +70,12 @@
         <div class="card-header bg-transparent border-0 pt-4 px-4">
             <h5 class="mb-0 fw-bold">Identitas Wali (bila ada)</h5>
             <div class="form-check mt-2">
-                <input class="form-check-input" type="checkbox" id="has_guardian" name="has_guardian" value="1" {{ old('has_guardian', $application->has_guardian) ? 'checked' : '' }}>
+                <input class="form-check-input" type="checkbox" id="has_guardian" name="has_guardian" value="1" {{ old('has_guardian', $hasGuardianDefault ?? $application->has_guardian) ? 'checked' : '' }}>
                 <label class="form-check-label" for="has_guardian">Anak memiliki wali (selain ayah/ibu)</label>
             </div>
         </div>
         <div class="card-body px-4 pb-4">
-            @include('guardian.applications._parent_fields', ['prefix' => 'guardian', 'data' => $guardian, 'withStatus' => false, 'withRelation' => true])
+            @include('guardian.applications._parent_fields', ['prefix' => 'guardian', 'data' => $guardian, 'withStatus' => false, 'withRelation' => true, 'withAccount' => $application->guardian_relation !== 'wali', 'accountLabel' => 'wali'])
             <p class="form-text mb-0">Isi bagian ini hanya bila kotak di atas dicentang.</p>
         </div>
     </div>
