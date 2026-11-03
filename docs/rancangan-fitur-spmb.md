@@ -86,9 +86,15 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
 
 - Kolom: `school_unit_id`, `key` (unik per unit), `label`, `type`
   (`text`, `textarea`, `number`, `date`, `select`, `radio`, `checkbox`,
-  `file`), `options` (JSON, untuk tipe pilihan), `is_required`,
-  `section` (pengelompokan, mis. Data Siswa / Data Orang Tua),
-  `sort_order`, `help_text`, `is_active`.
+  `file`, `school_unit`, `siblings`), `options` (JSON, untuk tipe
+  pilihan), `is_required`, `section` (pengelompokan, mis. Data Siswa /
+  Data Orang Tua), `sort_order`, `help_text`, `is_active`.
+- Dua tipe terhubung ke master data (PR #36): **Pilihan Unit Sekolah**
+  (`school_unit`) — pilihannya adalah unit-unit aktif yayasan ditambah
+  "Sekolah lain di luar yayasan", dan jawaban tersimpan sebagai ID
+  unit; **Saudara Kandung** (`siblings`) — wali menambah satu baris per
+  saudara (nama + unit yayasan atau nama sekolah luar), tersimpan
+  sebagai daftar pada JSON jawaban.
 - Bidang inti bersifat tetap sebagai kolom sungguhan pada pendaftaran
   (tidak didefinisikan di sini): nama lengkap, tempat & tanggal lahir,
   jenis kelamin, nama orang tua/wali, nomor HP orang tua.
@@ -196,10 +202,22 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
 - Verifikasi per berkas: Setujui / Tolak + catatan. Berkas ditolak
   mengubah status pendaftaran menjadi **Perlu Perbaikan** dan wali
   dapat mengunggah ulang berkas tersebut.
-- **Seleksi/penetapan kelulusan DITUNDA** — mekanismenya (berbasis
-  **poin** maupun **manual**) diputuskan menyusul dalam rancangan
-  tersendiri. Selama belum diputuskan, status akhir yang dikelola
-  modul ini adalah Terverifikasi.
+- **Seleksi berbasis poin (opsional per unit)** — unit mengaktifkan
+  seleksi lewat tombol Seleksi pada daftar Unit Sekolah (izin
+  `selection-manage`). Aturan poin per unit (`selection_rules`):
+  rentang **umur** (acuan 1 Juli tahun ajaran), **jawaban pilihan**,
+  **rentang angka**, **asal sekolah** unit yayasan, **saudara kandung**
+  terdeklarasi (poin per saudara di dalam/di luar yayasan, batas
+  maksimum opsional, kecocokan dengan siswa daftar ulang ditampilkan
+  sebagai petunjuk verifikasi), dan **status anak** terverifikasi.
+  Poin dihitung otomatis saat pendaftar Terverifikasi (tersimpan
+  sebagai snapshot rincian + total), dilengkapi **kriteria manual**
+  yang diisi panitia per pendaftar dan **koreksi +/− beralasan wajib**;
+  hitung ulang tidak menghapus keduanya, dan keduanya terkunci setelah
+  hasil ditetapkan. Wali tidak melihat poin. Gelombang dapat memiliki
+  **batas poin lulus**; tombol **Tetapkan dari Poin** menetapkan
+  Lulus/Tidak Lulus bagi pendaftar Terverifikasi lewat pratinjau
+  peringkat terlebih dahulu (PR #35, #36, #37).
 
 ## 5. Modul Pengumuman & Daftar Ulang
 
@@ -241,9 +259,12 @@ dibedakan menurut:
 - **Global** — berlaku untuk semua pendaftar pada unit tersebut
 - **Jalur** — nominal khusus untuk jalur tertentu milik unit itu
 - **Jender** — nominal khusus laki-laki / perempuan
+- **Status anak** — nominal khusus untuk status anak terverifikasi
+  pendaftar (Yatim, Anak Guru, dst.; PR #35)
 
 Penyelesaian memakai aturan **paling spesifik menang**:
-kombinasi jalur+jender → jalur → jender → global. Panitia cukup mengisi
+status+jalur+jender → status+jalur → status+jender → jalur+jender →
+status → jalur → jender → global. Panitia cukup mengisi
 tarif global dan hanya menulis pengecualian yang memang berbeda.
 
 ### 6.4 Tagihan (`invoices` & `invoice_items`)
@@ -334,6 +355,25 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
     (lonceng + daftar notifikasi). Notifikasi WhatsApp/email tetap
     di luar cakupan (Bab 10). Keputusan 3 November 2026; diwujudkan
     pada Fase 7 Peta Perbaikan Lanjutan.
+16. **Status anak** — master data bersama yayasan (Reguler, Yatim,
+    Yatim Piatu, Anak Guru, Anak Karyawan, Kurang Mampu); satu status
+    per pendaftaran, **dipilih wali saat biodata dan diverifikasi /
+    dikoreksi panitia** saat verifikasi. Status terverifikasi menjadi
+    dimensi nominal biaya daftar ulang (keputusan 6.3) dan salah satu
+    sumber poin seleksi. Biaya formulir tidak dibedakan per status —
+    tetap lewat mekanisme keringanan (PR #35).
+17. **Bidang formulir terhubung master data** — tipe **Pilihan Unit
+    Sekolah** mengambil pilihan dari master Unit Sekolah (jawaban =
+    ID unit) dan tipe **Saudara Kandung** menampung deklarasi saudara
+    (dapat lebih dari satu) sebagai dasar poin, menggantikan tebakan
+    hubungan keluarga dari akun/nomor HP (PR #36).
+18. **Seleksi poin** — opsional per unit; keputusan akhir tetap
+    panitia. Total = poin otomatis + kriteria manual + koreksi
+    beralasan; tanggal acuan umur adalah **1 Juli tahun ajaran**;
+    gelombang dapat memasang **batas poin** dan penetapan massal
+    **Tetapkan dari Poin** (pratinjau dulu, baru terapkan) ikut
+    dibangun. Urutan pengerjaan yang disepakati: Seleksi, lalu Fase 6,
+    lalu Fase 7 (PR #35, #36, #37).
 
 ## 9. Peta Fase Implementasi
 
@@ -352,7 +392,7 @@ ter-merge ke branch `done` (terakhir diverifikasi 3 November 2026).
 | 4 | Pengumuman, daftar ulang & tagihan, pembayaran Midtrans |
 | 5 | Dashboard SPMB & laporan/export |
 | 6 | Peran Panitia resmi + pembatasan akses per unit di seluruh master data dan halaman operasional |
-| Menyusul | Seleksi (poin/manual) — dirancang tersendiri |
+| Seleksi | Seleksi poin per unit (aturan otomatis, kriteria manual, koreksi, Tetapkan dari Poin) + Status Anak & biaya per status + tipe bidang master data — PR #35, #36, #37 |
 
 ### 9.1 Peta Perbaikan Lanjutan (UX & fitur tambahan)
 
@@ -362,8 +402,11 @@ ter-merge ke branch `done` (terakhir diverifikasi 3 November 2026).
 | 1 | Filter lestari: Nominal Biaya (PR #28) | Selesai |
 | 2 | Pengaturan biaya dua arah: Atur per Unit per komponen, nominal langsung di halaman Biaya per unit, menu Biaya per Unit (PR #30) | Selesai |
 | 3 | Filter lestari halaman operasional: Verifikasi Pendaftaran & Tagihan; Pembayaran Formulir dan Laporan terverifikasi sudah lestari (PR #31) | Selesai |
-| 4 | Filter lestari master data: Gelombang, Jalur, Jurusan, Bidang Formulir, dan halaman lain yang terbukti berfilter | Direncanakan |
-| 5 | Upload berkas: bukti transfer **wajib** untuk pembayaran manual (formulir, tagihan, cicilan) dan lampiran **opsional** untuk pengajuan keringanan; berkas tersimpan privat, dilihat panitia lewat rute berizin; unggah ulang menggantikan berkas lama | Direncanakan |
+| 4 | Filter lestari master data: Gelombang, Jalur, Jurusan, Bidang Formulir, dan halaman lain yang terbukti berfilter (PR #33) | Selesai |
+| 5 | Upload berkas: bukti transfer **wajib** untuk pembayaran manual (formulir, tagihan, cicilan) dan lampiran **opsional** untuk pengajuan keringanan; berkas tersimpan privat, dilihat panitia lewat rute berizin; unggah ulang menggantikan berkas lama (PR #34) | Selesai |
+| Seleksi A | Status Anak: master data, pilihan wali di biodata, koreksi panitia, nominal biaya per status (PR #35) | Selesai |
+| Seleksi B | Tipe bidang Pilihan Unit Sekolah & Saudara Kandung dari master data (PR #36) | Selesai |
+| Seleksi C | Mesin seleksi poin: aturan per unit, hitung otomatis saat Terverifikasi, kriteria manual, koreksi beralasan, kolom poin terurut, Tetapkan dari Poin (PR #37) | Selesai |
 | 6 | Cicilan dirinci **per komponen** (matriks termin × komponen: SPI/SOP/DU/INFAQ per termin; jumlah per komponen wajib pas) + **tambah termin** setelah rincian dibuat; rincian rencana lama diisi otomatis saat migrasi | Direncanakan |
 | 7 | Notifikasi petugas terkait pengajuan keringanan & cicilan **dan** pembayaran manual menunggu konfirmasi, di dalam aplikasi (Bab 8 keputusan 15) | Direncanakan |
 
