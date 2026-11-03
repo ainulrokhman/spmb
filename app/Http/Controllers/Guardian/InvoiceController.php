@@ -41,7 +41,7 @@ class InvoiceController extends Controller
             return redirect()->route('guardian.applications.show', $application);
         }
 
-        if ($application->status === 'passed' && ! $application->admissionWave->resultsAnnounced()) {
+        if ($application->status === 'passed' && ! $application->resultsAnnounced()) {
             return redirect()->route('guardian.dashboard')
                 ->with('error', 'Hasil pendaftaran belum diumumkan untuk gelombang ini.');
         }

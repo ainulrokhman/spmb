@@ -27,7 +27,7 @@
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
-                        @php($announced = $application->admissionWave !== null && $application->admissionWave->resultsAnnounced())
+                        @php($announced = $application->resultsAnnounced())
                         @php($resultHidden = in_array($application->status, ['passed', 'failed'], true) && ! $announced)
                         <div class="d-flex justify-content-between align-items-start">
                             <h5 class="fw-bold mb-1">{{ $application->child_name ?? 'Pendaftaran Baru' }}</h5>
@@ -43,7 +43,7 @@
                             <div class="alert alert-danger bg-danger bg-opacity-10 text-body border-0 rounded-3 p-2 small mb-2">Perlu perbaikan: {{ $application->verification_note }}</div>
                         @endif
                         @if($application->status === 'verified')
-                            <div class="alert alert-info bg-info bg-opacity-10 text-body border-0 rounded-3 p-2 small mb-2">Pendaftaran terverifikasi. Hasil diumumkan {{ $application->admissionWave?->announcement_at ? 'pada '.$application->admissionWave->announcement_at->format('d/m/Y H:i') : 'sesuai jadwal panitia' }}.</div>
+                            <div class="alert alert-info bg-info bg-opacity-10 text-body border-0 rounded-3 p-2 small mb-2">Pendaftaran terverifikasi. Hasil diumumkan {{ $application->announcementAt() ? 'pada '.$application->announcementAt()->format('d/m/Y H:i') : 'sesuai jadwal panitia' }}.</div>
                         @endif
                         @if($application->status === 'passed' && $announced)
                             <div class="alert alert-success bg-success bg-opacity-10 text-body border-0 rounded-3 p-2 small mb-2"><strong>Lulus!</strong> Silakan lakukan daftar ulang untuk menyelesaikan pendaftaran.</div>

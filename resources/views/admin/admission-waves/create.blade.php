@@ -85,18 +85,19 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label for="announcement_at" class="form-label fw-semibold text-secondary">Waktu Pengumuman Hasil</label>
+                            <label for="announcement_at" class="form-label fw-semibold text-secondary">Waktu Pengumuman Hasil — Global (Semua Jalur)</label>
                             <input type="datetime-local" class="form-control @error('announcement_at') is-invalid @enderror" id="announcement_at" name="announcement_at" value="{{ old('announcement_at') }}">
                             @error('announcement_at')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <div class="form-text">Hasil Lulus/Tidak Lulus baru terlihat oleh wali setelah waktu ini. Kosongkan bila belum dijadwalkan.</div>
+                            <div class="form-text">Hasil Lulus/Tidak Lulus baru terlihat oleh wali setelah waktu ini, kecuali jalur yang memiliki waktu pengumumannya sendiri pada bagian Jalur yang Dibuka di bawah. Kosongkan bila belum dijadwalkan.</div>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold text-secondary">Jalur yang Dibuka</label>
                         @php($selectedTracks = old('tracks', isset($admissionWave) ? $admissionWave->admissionTracks->pluck('id')->all() : []))
+                        @php($trackAnnouncementTimes = isset($admissionWave) ? $admissionWave->admissionTracks->mapWithKeys(fn ($t) => [$t->id => $t->pivot->announcement_at ? \Illuminate\Support\Carbon::parse($t->pivot->announcement_at)->format('Y-m-d\TH:i') : ''])->all() : [])
                         <div id="track-groups">
                             @forelse($tracksByUnit as $unitId => $tracks)
                                 <div class="track-group border rounded-3 p-3 mb-2" data-unit="{{ $unitId }}">
@@ -104,6 +105,11 @@
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="tracks[]" value="{{ $track->id }}" id="track-{{ $track->id }}" {{ in_array($track->id, $selectedTracks) ? 'checked' : '' }}>
                                             <label class="form-check-label" for="track-{{ $track->id }}">{{ $track->name }}</label>
+                                            <div class="d-flex align-items-center gap-2 mt-1 mb-2 ms-4">
+                                                <label class="form-label small text-secondary mb-0" for="track-announcement-{{ $track->id }}">Pengumuman jalur ini:</label>
+                                                <input type="datetime-local" class="form-control form-control-sm w-auto" id="track-announcement-{{ $track->id }}" name="track_announcements[{{ $track->id }}]" value="{{ old('track_announcements.'.$track->id, $trackAnnouncementTimes[$track->id] ?? '') }}">
+                                                <span class="form-text mt-0">Kosongkan = ikut global.</span>
+                                            </div>
                                         </div>
                                     @endforeach
                                 </div>

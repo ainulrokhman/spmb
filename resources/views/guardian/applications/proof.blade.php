@@ -25,7 +25,7 @@
         <div class="text-center mb-4">
             <div class="text-muted small">Nomor Pendaftaran</div>
             <div class="display-6 fw-bold">{{ $application->registration_number }}</div>
-            @php($announced = $application->admissionWave !== null && $application->admissionWave->resultsAnnounced())
+            @php($announced = $application->resultsAnnounced())
             @php($resultHidden = in_array($application->status, ['passed', 'failed'], true) && ! $announced)
             <span class="badge bg-primary">{{ $resultHidden ? 'Menunggu Pengumuman' : $application->statusLabel() }}</span>
             @if($application->status === 'passed' && $announced)
