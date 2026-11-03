@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\FeeServiceInterface;
 use App\Models\Fee;
+use App\Models\FeeComponent;
 use App\Models\SchoolUnit;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,37 @@ class FeeService implements FeeServiceInterface
             foreach ($mappings as $feeComponentId => $mapping) {
                 $unit->fees()->updateOrCreate(
                     ['fee_component_id' => $feeComponentId],
+                    [
+                        'mode' => $mapping['mode'],
+                        'min_amount' => $mapping['mode'] === Fee::MODE_BEBAS ? ($mapping['min_amount'] ?? null) : null,
+                    ]
+                );
+            }
+        });
+    }
+
+    /**
+     * Sync one component's mapping across many units.
+     *
+     * @param  array<int, array{mode: string, min_amount: int|null}>  $perUnit
+     */
+    public function syncComponentFees(FeeComponent $component, array $perUnit): void
+    {
+        DB::transaction(function () use ($component, $perUnit) {
+            foreach ($perUnit as $unitId => $mapping) {
+                $fee = Fee::query()
+                    ->where('school_unit_id', $unitId)
+                    ->where('fee_component_id', $component->id)
+                    ->first();
+
+                if (($mapping['mode'] ?? 'unused') === 'unused') {
+                    $fee?->delete();
+
+                    continue;
+                }
+
+                Fee::updateOrCreate(
+                    ['school_unit_id' => $unitId, 'fee_component_id' => $component->id],
                     [
                         'mode' => $mapping['mode'],
                         'min_amount' => $mapping['mode'] === Fee::MODE_BEBAS ? ($mapping['min_amount'] ?? null) : null,

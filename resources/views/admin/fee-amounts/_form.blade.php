@@ -1,5 +1,6 @@
             <input type="hidden" name="return_school_unit_id" value="{{ request()->query('school_unit_id') }}">
             <input type="hidden" name="return_fee_component_id" value="{{ request()->query('fee_component_id') }}">
+            <input type="hidden" name="return_unit_id" value="{{ request()->query('return_unit_id') }}">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
                     <h5 class="mb-0 fw-bold text-body">Detail Nominal Biaya</h5>

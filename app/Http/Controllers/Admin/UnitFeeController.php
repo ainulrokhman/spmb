@@ -22,6 +22,33 @@ class UnitFeeController extends Controller
     }
 
     /**
+     * Overview of fee settings per unit ("Biaya per Unit" menu):
+     * how many components are active per unit and how many of
+     * them still miss their amounts.
+     */
+    public function index()
+    {
+        abort_unless(auth()->user()->can('school-unit-edit') || auth()->user()->can('unit-fee-manage'), 403);
+
+        $units = SchoolUnit::query()
+            ->with('program')
+            ->when(! auth()->user()->hasGlobalUnitAccess(), fn ($query) => $query->whereIn('id', auth()->user()->accessibleUnitIds()))
+            ->orderBy('name')
+            ->get()
+            ->map(function (SchoolUnit $unit) {
+                $mappings = $unit->fees()->withCount('amounts')->get();
+
+                return [
+                    'unit' => $unit,
+                    'active' => $mappings->count(),
+                    'warnings' => $mappings->filter(fn ($fee) => in_array($fee->mode, ['fixed', 'pilihan'], true) && $fee->amounts_count === 0)->count(),
+                ];
+            });
+
+        return view('admin.school-units.fees-overview', compact('units'));
+    }
+
+    /**
      * Show the fee mapping matrix for a school unit.
      */
     public function edit(SchoolUnit $schoolUnit)
@@ -30,9 +57,14 @@ class UnitFeeController extends Controller
         abort_unless(auth()->user()->hasUnitAccess($schoolUnit->id), 403);
 
         $components = FeeComponent::where('is_active', true)->orderBy('name')->get();
-        $mappings = $schoolUnit->fees()->withCount('amounts')->get()->keyBy('fee_component_id');
+        $mappings = $schoolUnit->fees()
+            ->with(['amounts' => fn ($query) => $query->orderBy('sort_order'), 'amounts.admissionTrack'])
+            ->withCount('amounts')
+            ->get()
+            ->keyBy('fee_component_id');
+        $tracks = $schoolUnit->admissionTracks()->where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.school-units.fees', compact('schoolUnit', 'components', 'mappings'));
+        return view('admin.school-units.fees', compact('schoolUnit', 'components', 'mappings', 'tracks'));
     }
 
     /**

@@ -43,6 +43,12 @@
                 </a>
             </form>
 
+            @canany(['school-unit-edit', 'unit-fee-manage'])
+            <a href="{{ route('admin.unit-fees.index') }}" class="btn btn-light border">
+                <i class="bi bi-building fs-5"></i> Biaya per Unit
+            </a>
+            @endcanany
+
             @can('fee-amount-create')
             <a href="{{ route('admin.fee-amounts.create') }}" class="btn btn-primary" id="create-amount-btn">
                 <i class="bi bi-cash-stack fs-5"></i> Tambah Nominal
