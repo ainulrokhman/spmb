@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\UnitFeeController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdmissionInfoController;
 use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
+use App\Http\Controllers\Admin\AttachmentController;
 use App\Http\Controllers\Admin\FormPaymentController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ReportController;
@@ -142,6 +143,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('form-payments/{application}/decide', [FormPaymentController::class, 'decide'])->name('form-payments.decide')->middleware('permission:form-payment-decide');
     Route::post('form-payments/{application}/grant', [FormPaymentController::class, 'grant'])->name('form-payments.grant')->middleware('permission:form-payment-decide');
     Route::post('form-payments/payments/{payment}/confirm', [FormPaymentController::class, 'confirm'])->name('form-payments.confirm')->middleware('permission:form-payment-decide');
+
+    // Private workflow attachments (payment proofs, relief documents)
+    Route::get('payments/{payment}/proof', [AttachmentController::class, 'paymentProof'])->name('payments.proof');
+    Route::get('applications/{application}/relief-file', [AttachmentController::class, 'formFeeRelief'])->name('applications.relief-file');
+    Route::get('invoices/{invoice}/relief-file', [AttachmentController::class, 'invoiceRelief'])->name('invoices.relief-file');
 
     // Application verification (Fase 3)
     Route::get('applications', [AdminApplicationController::class, 'index'])->name('applications.index')->middleware('permission:application-list');

@@ -31,7 +31,7 @@ interface InvoiceServiceInterface
      * guardian only states a reason; the committee decides the
      * form and size of the relief.
      */
-    public function requestDiscount(Invoice $invoice, string $reason): Invoice;
+    public function requestDiscount(Invoice $invoice, string $reason, ?\Illuminate\Http\UploadedFile $attachment = null): Invoice;
 
     /**
      * Decide a pending relief request (committee side). When

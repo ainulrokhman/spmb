@@ -9,6 +9,8 @@ use App\Models\Application;
 use App\Models\Invoice;
 use App\Models\InvoiceInstallment;
 use App\Models\Payment;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use App\Services\Payments\ManualChannel;
 use App\Services\Payments\MidtransChannel;
 use App\Services\Payments\PaymentChannelInterface;
@@ -170,13 +172,24 @@ class PaymentService
      * The guardian declares a manual payment as transferred/paid; a
      * committee member still has to confirm it.
      */
-    public function declareManualPaid(Payment $payment): Payment
+    public function declareManualPaid(Payment $payment, ?UploadedFile $proof = null): Payment
     {
         if ($payment->channel !== 'manual' || $payment->status !== 'pending') {
             throw new InvalidArgumentException('Pembayaran ini tidak dapat dinyatakan lunas.');
         }
 
-        $payment->update(['status' => 'awaiting_confirmation']);
+        $attributes = ['status' => 'awaiting_confirmation'];
+
+        if ($proof !== null) {
+            // A re-declaration replaces the previous proof file.
+            if ($payment->proof_path) {
+                Storage::disk('local')->delete($payment->proof_path);
+            }
+
+            $attributes['proof_path'] = $proof->store('bukti-bayar', 'local');
+        }
+
+        $payment->update($attributes);
 
         if ($payment->payable instanceof Application) {
             $payment->payable->update(['form_fee_status' => 'awaiting_confirmation']);

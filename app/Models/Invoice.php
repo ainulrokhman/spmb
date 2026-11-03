@@ -35,6 +35,7 @@ class Invoice extends Model
         'request_type',
         'request_value',
         'request_reason',
+        'request_file_path',
         'request_status',
         'decision_note',
         'decided_by',

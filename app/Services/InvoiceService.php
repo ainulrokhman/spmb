@@ -8,6 +8,8 @@ use App\Models\Application;
 use App\Models\Fee;
 use App\Models\Invoice;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -135,7 +137,7 @@ class InvoiceService implements InvoiceServiceInterface
      * guardian only states a reason; the committee decides the
      * form and size of the relief when deciding the request.
      */
-    public function requestDiscount(Invoice $invoice, string $reason): Invoice
+    public function requestDiscount(Invoice $invoice, string $reason, ?UploadedFile $attachment = null): Invoice
     {
         if ($invoice->status === 'paid') {
             throw new InvalidArgumentException('Tagihan sudah lunas.');
@@ -153,11 +155,18 @@ class InvoiceService implements InvoiceServiceInterface
             throw new InvalidArgumentException('Tagihan ini sudah memiliki rincian cicilan.');
         }
 
+        // The attachment belongs to this request: a fresh request
+        // replaces (or clears) the previous request's file.
+        if ($invoice->request_file_path) {
+            Storage::disk('local')->delete($invoice->request_file_path);
+        }
+
         $invoice->update([
             'request_kind' => null,
             'request_type' => null,
             'request_value' => null,
             'request_reason' => $reason,
+            'request_file_path' => $attachment?->store('lampiran-keringanan', 'local'),
             'request_status' => 'pending',
             'decision_note' => null,
         ]);

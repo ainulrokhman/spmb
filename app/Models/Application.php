@@ -117,6 +117,7 @@ class Application extends Model
         'form_fee_request_type',
         'form_fee_request_value',
         'form_fee_request_reason',
+        'form_fee_request_file_path',
         'form_fee_request_status',
         'form_fee_decision_note',
         'form_fee_decided_by',

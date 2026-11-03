@@ -212,7 +212,7 @@ class AnnouncementInvoiceTest extends TestCase
         $this->assertStringStartsWith('INV-', $payment->reference);
 
         $this->actingAs($this->guardian)
-            ->post(route('guardian.invoices.declare-paid', [$application, $payment]))
+            ->post(route('guardian.invoices.declare-paid', [$application, $payment]), ['proof' => \Illuminate\Http\UploadedFile::fake()->image('bukti.jpg')])
             ->assertRedirect();
 
         $this->assertSame('awaiting_confirmation', $invoice->fresh()->status);

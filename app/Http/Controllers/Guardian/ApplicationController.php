@@ -144,16 +144,19 @@ class ApplicationController extends Controller
      * The guardian declares a manual payment as paid; the committee
      * still confirms it on their side.
      */
-    public function declarePaid(Application $application, Payment $payment)
+    public function declarePaid(Request $request, Application $application, Payment $payment)
     {
         $this->ensureOwner($application);
 
         if ($payment->payable_type !== Application::class || (int) $payment->payable_id !== $application->id) {
             abort(404);
         }
+        $request->validate([
+            'proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+        ]);
 
         try {
-            $this->payments->declareManualPaid($payment);
+            $this->payments->declareManualPaid($payment, $request->file('proof'));
         } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -172,10 +175,11 @@ class ApplicationController extends Controller
 
         $data = $request->validate([
             'reason' => ['required', 'string', 'max:500'],
+            'attachment' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ]);
 
         try {
-            $this->applications->requestFeeRelief($application, $data['reason']);
+            $this->applications->requestFeeRelief($application, $data['reason'], $request->file('attachment'));
         } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         }

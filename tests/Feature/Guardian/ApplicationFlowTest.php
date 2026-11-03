@@ -141,7 +141,7 @@ class ApplicationFlowTest extends TestCase
         $this->assertSame(50000, $payment->amount);
 
         $this->actingAs($this->guardian)
-            ->post(route('guardian.applications.declare-paid', [$application, $payment]));
+            ->post(route('guardian.applications.declare-paid', [$application, $payment]), ['proof' => \Illuminate\Http\UploadedFile::fake()->image('bukti.jpg')]);
 
         $this->assertSame('awaiting_confirmation', $payment->fresh()->status);
         $this->assertSame('awaiting_form_fee', $application->fresh()->status);

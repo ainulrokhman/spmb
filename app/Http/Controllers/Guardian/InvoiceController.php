@@ -120,7 +120,7 @@ class InvoiceController extends Controller
      * The guardian declares a manual invoice payment as paid; the
      * committee still confirms it on their side.
      */
-    public function declarePaid(Application $application, Payment $payment)
+    public function declarePaid(Request $request, Application $application, Payment $payment)
     {
         $this->ensureOwner($application);
 
@@ -128,9 +128,12 @@ class InvoiceController extends Controller
             || (int) $payment->payable_id !== $application->invoice?->id) {
             abort(404);
         }
+        $request->validate([
+            'proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+        ]);
 
         try {
-            $this->payments->declareManualPaid($payment);
+            $this->payments->declareManualPaid($payment, $request->file('proof'));
         } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -151,10 +154,11 @@ class InvoiceController extends Controller
 
         $data = $request->validate([
             'reason' => ['required', 'string', 'max:500'],
+            'attachment' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ]);
 
         try {
-            $this->invoices->requestDiscount($invoice, $data['reason']);
+            $this->invoices->requestDiscount($invoice, $data['reason'], $request->file('attachment'));
         } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -218,7 +222,7 @@ class InvoiceController extends Controller
      * The guardian declares a manual installment payment as paid;
      * the committee still confirms it on their side.
      */
-    public function declareInstallmentPaid(Application $application, Payment $payment)
+    public function declareInstallmentPaid(Request $request, Application $application, Payment $payment)
     {
         $this->ensureOwner($application);
 
@@ -226,9 +230,12 @@ class InvoiceController extends Controller
             || (int) $payment->payable?->invoice_id !== (int) $application->invoice?->id) {
             abort(404);
         }
+        $request->validate([
+            'proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+        ]);
 
         try {
-            $this->payments->declareManualPaid($payment);
+            $this->payments->declareManualPaid($payment, $request->file('proof'));
         } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         }
