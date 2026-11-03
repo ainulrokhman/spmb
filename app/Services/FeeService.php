@@ -9,32 +9,96 @@ use App\Models\FeeComponent;
 use App\Models\SchoolUnit;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 class FeeService implements FeeServiceInterface
 {
     /**
-     * Sync a unit's fee mappings (components not present are removed).
+     * Save ONE component card of a unit's fee page (see the
+     * interface for the contract). Runs in one transaction so
+     * a rejected amount set never leaves a half-saved card.
      *
-     * @param  array<int, array{mode: string, min_amount: int|null, is_active: bool}>  $mappings  keyed by fee component id
+     * @param  array{mode: string, min_amount: int|null, is_active: bool}  $mapping
+     * @param  list<array{id: int|null, amount: int, admission_track_id: int|null, gender: string|null, child_status_id: int|null, sort_order: int}>  $amounts
      */
-    public function syncUnitFees(SchoolUnit $unit, array $mappings): void
+    public function syncUnitFeeCard(SchoolUnit $unit, FeeComponent $component, array $mapping, ?array $amounts): ?Fee
     {
-        DB::transaction(function () use ($unit, $mappings) {
-            $unit->fees()
-                ->whereNotIn('fee_component_id', array_keys($mappings))
-                ->delete();
+        return DB::transaction(function () use ($unit, $component, $mapping, $amounts) {
+            $fee = $unit->fees()->where('fee_component_id', $component->id)->first();
 
-            foreach ($mappings as $feeComponentId => $mapping) {
-                $unit->fees()->updateOrCreate(
-                    ['fee_component_id' => $feeComponentId],
-                    [
-                        'mode' => $mapping['mode'],
-                        'min_amount' => $mapping['mode'] === Fee::MODE_BEBAS ? ($mapping['min_amount'] ?? null) : null,
-                        'is_active' => $mapping['is_active'] ?? true,
-                    ]
-                );
+            if ($mapping['mode'] === 'unused') {
+                $fee?->delete();
+
+                return null;
             }
+
+            $fee ??= new Fee([
+                'school_unit_id' => $unit->id,
+                'fee_component_id' => $component->id,
+            ]);
+            $fee->fill([
+                'mode' => $mapping['mode'],
+                'min_amount' => $mapping['mode'] === Fee::MODE_BEBAS ? $mapping['min_amount'] : null,
+                'is_active' => $mapping['is_active'],
+            ])->save();
+
+            if ($amounts !== null && in_array($mapping['mode'], [Fee::MODE_FIXED, Fee::MODE_PILIHAN], true)) {
+                $this->syncCardAmounts($fee, $amounts);
+            }
+
+            return $fee->load('amounts');
         });
+    }
+
+    /**
+     * Replace a mapping's amount rows with the submitted set:
+     * rows carrying an id of this mapping are updated, the
+     * rest are created, and rows missing from the submission
+     * are deleted. Fixed mappings may not repeat a scope
+     * combination; pilihan mappings may (each row is a tier).
+     *
+     * @param  list<array{id: int|null, amount: int, admission_track_id: int|null, gender: string|null, child_status_id: int|null, sort_order: int}>  $amounts
+     */
+    private function syncCardAmounts(Fee $fee, array $amounts): void
+    {
+        if ($fee->mode === Fee::MODE_FIXED) {
+            $seen = [];
+
+            foreach ($amounts as $row) {
+                $key = ($row['admission_track_id'] ?? '').'|'.($row['gender'] ?? '').'|'.($row['child_status_id'] ?? '');
+
+                if (isset($seen[$key])) {
+                    throw new InvalidArgumentException('Kombinasi jalur, jender, dan status anak yang sama tidak boleh berulang untuk mode Tetap.');
+                }
+
+                $seen[$key] = true;
+            }
+        }
+
+        $keptIds = [];
+
+        foreach ($amounts as $row) {
+            $data = [
+                'amount' => $row['amount'],
+                'admission_track_id' => $row['admission_track_id'],
+                'gender' => $row['gender'],
+                'child_status_id' => $row['child_status_id'],
+                'sort_order' => $row['sort_order'],
+            ];
+
+            $existing = ! empty($row['id'])
+                ? $fee->amounts()->where('id', $row['id'])->first()
+                : null;
+
+            if ($existing !== null) {
+                $existing->update($data);
+                $keptIds[] = $existing->id;
+            } else {
+                $keptIds[] = $fee->amounts()->create($data)->id;
+            }
+        }
+
+        $fee->amounts()->whereNotIn('id', $keptIds)->delete();
     }
 
     /**

@@ -150,7 +150,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Fee mappings per unit
     Route::get('school-units/{school_unit}/fees', [UnitFeeController::class, 'edit'])->name('school-units.fees.edit');
-    Route::put('school-units/{school_unit}/fees', [UnitFeeController::class, 'update'])->name('school-units.fees.update');
+    Route::post('school-units/{school_unit}/fees/{fee_component}', [UnitFeeController::class, 'updateCard'])->name('school-units.fees.card');
 
     // Per-unit document requirements (matrix), managed from the unit list
     Route::get('school-units/{school_unit}/document-requirements', [DocumentRequirementController::class, 'edit'])->name('school-units.document-requirements.edit');

@@ -140,7 +140,7 @@ class FeeTwoWayManagementTest extends TestCase
             ->get(route('admin.school-units.fees.edit', $unit))
             ->assertOk()
             ->assertSee('Rp 600.000')
-            ->assertSee('Nominal &amp; Tingkat', false);
+            ->assertSee('Tambah Baris', false);
 
         $this->actingAs($this->admin)
             ->delete(route('admin.fee-amounts.destroy', $amount), ['return_unit_id' => $unit->id])

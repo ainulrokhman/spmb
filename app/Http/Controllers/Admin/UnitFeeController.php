@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Contracts\FeeServiceInterface;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Fee\SyncUnitFeesRequest;
+use App\Http\Requests\Fee\SyncUnitFeeCardRequest;
 use App\Models\ChildStatus;
 use App\Models\Fee;
 use App\Models\FeeComponent;
 use App\Models\SchoolUnit;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 
 class UnitFeeController extends Controller
 {
@@ -114,16 +117,32 @@ class UnitFeeController extends Controller
     }
 
     /**
-     * Sync the fee mappings of a school unit.
+     * Save one component card of the unit's fee page via AJAX:
+     * the mapping (mode / minimum / active switch) together
+     * with its amount rows. Other cards are never touched.
      */
-    public function update(SyncUnitFeesRequest $request, SchoolUnit $schoolUnit)
+    public function updateCard(SyncUnitFeeCardRequest $request, SchoolUnit $schoolUnit, FeeComponent $feeComponent): JsonResponse
     {
         abort_unless(auth()->user()->can('school-unit-edit') || auth()->user()->can('unit-fee-manage'), 403);
         abort_unless(auth()->user()->hasUnitAccess($schoolUnit->id), 403);
 
-        $this->feeService->syncUnitFees($schoolUnit, $request->mappings());
+        try {
+            $fee = $this->feeService->syncUnitFeeCard(
+                $schoolUnit,
+                $feeComponent,
+                $request->mapping(),
+                $request->has('sync_amounts') ? $request->amountRows() : null,
+            );
+        } catch (InvalidArgumentException $exception) {
+            throw ValidationException::withMessages(['amounts' => $exception->getMessage()]);
+        }
 
-        return redirect()->route('admin.school-units.index')
-            ->with('success', 'Pemetaan biaya untuk "'.$schoolUnit->name.'" berhasil diperbarui.');
+        return response()->json([
+            'message' => $fee === null
+                ? 'Komponen "'.$feeComponent->name.'" tidak lagi dipakai di unit ini.'
+                : 'Kartu "'.$feeComponent->name.'" berhasil disimpan.',
+            'active' => $fee?->is_active ?? false,
+            'amounts_count' => $fee?->amounts->count() ?? 0,
+        ]);
     }
 }
