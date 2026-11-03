@@ -13,6 +13,10 @@
     <div class="card-body px-4 py-3">
         <form method="POST" action="{{ route('admin.applications.announce') }}" class="d-flex flex-column flex-lg-row align-items-lg-end gap-3">
             @csrf
+            <input type="hidden" name="return_school_unit_id" id="return-unit" value="{{ request()->query('school_unit_id') }}">
+            <input type="hidden" name="return_admission_wave_id" id="return-wave" value="{{ request()->query('admission_wave_id') }}">
+            <input type="hidden" name="return_admission_track_id" id="return-track" value="{{ request()->query('admission_track_id') }}">
+            <input type="hidden" name="return_status" id="return-status" value="{{ request()->query('status') }}">
             <div>
                 <div class="fw-bold">Pengumuman Massal</div>
                 <div class="text-muted small">Berlaku untuk semua pendaftar <strong>Terverifikasi</strong> sesuai filter. Hasil terlihat oleh wali setelah waktu pengumuman gelombang.</div>
@@ -55,25 +59,25 @@
             <select id="unit-filter" aria-label="Filter unit" class="form-select" style="width: 190px;">
                 <option value="">Semua Unit</option>
                 @foreach($units as $unit)
-                    <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                    <option value="{{ $unit->id }}" {{ (string) request()->query('school_unit_id') === (string) $unit->id ? 'selected' : '' }}>{{ $unit->name }}</option>
                 @endforeach
             </select>
             <select id="wave-filter" aria-label="Filter gelombang" class="form-select" style="width: 170px;">
                 <option value="">Semua Gelombang</option>
                 @foreach($waves as $wave)
-                    <option value="{{ $wave->id }}">{{ $wave->name }} ({{ $wave->academicYear?->name }})</option>
+                    <option value="{{ $wave->id }}" {{ (string) request()->query('admission_wave_id') === (string) $wave->id ? 'selected' : '' }}>{{ $wave->name }} ({{ $wave->academicYear?->name }})</option>
                 @endforeach
             </select>
             <select id="track-filter" aria-label="Filter jalur" class="form-select" style="width: 160px;">
                 <option value="">Semua Jalur</option>
                 @foreach($tracks as $track)
-                    <option value="{{ $track->id }}">{{ $track->name }}</option>
+                    <option value="{{ $track->id }}" {{ (string) request()->query('admission_track_id') === (string) $track->id ? 'selected' : '' }}>{{ $track->name }}</option>
                 @endforeach
             </select>
             <select id="status-filter" aria-label="Filter status" class="form-select" style="width: 180px;">
                 <option value="">Semua Status</option>
                 @foreach($statuses as $key => $label)
-                    <option value="{{ $key }}">{{ $label }}</option>
+                    <option value="{{ $key }}" {{ request()->query('status') === $key ? 'selected' : '' }}>{{ $label }}</option>
                 @endforeach
             </select>
 
@@ -157,7 +161,33 @@
             }
         });
 
+        // Keep the active filters in the page URL and in the
+        // bulk-announce form, so returning here (from a detail
+        // page or after announcing) restores the same view.
+        function syncFilterUrl() {
+            const params = new URLSearchParams();
+            const pairs = [
+                ['school_unit_id', $('#unit-filter').val()],
+                ['admission_wave_id', $('#wave-filter').val()],
+                ['admission_track_id', $('#track-filter').val()],
+                ['status', $('#status-filter').val()]
+            ];
+            pairs.forEach(([key, value]) => {
+                if (value) params.set(key, value);
+            });
+            const query = params.toString();
+            const url = "{{ route('admin.applications.index') }}" + (query ? '?' + query : '');
+            window.history.replaceState(null, '', url);
+            $('#return-unit').val($('#unit-filter').val() || '');
+            $('#return-wave').val($('#wave-filter').val() || '');
+            $('#return-track').val($('#track-filter').val() || '');
+            $('#return-status').val($('#status-filter').val() || '');
+        }
+
+        syncFilterUrl();
+
         $('#unit-filter, #wave-filter, #track-filter, #status-filter').on('change', function() {
+            syncFilterUrl();
             table.ajax.reload();
         });
 

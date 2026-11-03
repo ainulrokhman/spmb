@@ -93,7 +93,26 @@ class ApplicationDataTable
     private function actionsColumn(): \Closure
     {
         return function ($application) {
+            // Carry the active list filters into the detail page
+            // URL so its "back to list" link restores them.
+            $filters = [];
+
+            foreach (['school_unit_id', 'admission_wave_id', 'admission_track_id'] as $key) {
+                $value = request()->query($key);
+
+                if (is_numeric($value) && (int) $value > 0) {
+                    $filters[$key] = (int) $value;
+                }
+            }
+
+            $status = request()->query('status');
+
+            if (is_string($status) && array_key_exists($status, Application::STATUSES)) {
+                $filters['status'] = $status;
+            }
+
             $showUrl = route('admin.applications.show', $application);
+            $showUrl = $filters === [] ? $showUrl : $showUrl.'?'.http_build_query($filters);
 
             return '<div class="d-flex align-items-center justify-content-end gap-1">'
                 .'<a href="'.$showUrl.'" class="btn btn-sm btn-outline-primary border-0" title="Lihat & Verifikasi"><i class="bi bi-clipboard-check fs-5"></i></a>'
