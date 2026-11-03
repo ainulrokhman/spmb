@@ -60,27 +60,34 @@
                     </li>
 
                     <!-- Notifications Dropdown -->
+                    @php
+                        $unreadNotifications = auth()->user()?->unreadNotifications()->latest()->take(5)->get() ?? collect();
+                        $unreadNotificationCount = auth()->user()?->unreadNotifications()->count() ?? 0;
+                    @endphp
                     <li class="nav-item dropdown me-3">
                         <a class="nav-link px-2 position-relative" data-bs-toggle="dropdown" href="#">
                             <i class="bi bi-bell fs-5"></i>
-                            <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 0.65rem;">
-                                3
-                            </span>
+                            @if($unreadNotificationCount > 0)
+                                <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 0.65rem;">
+                                    {{ $unreadNotificationCount > 99 ? '99+' : $unreadNotificationCount }}
+                                </span>
+                            @endif
                         </a>
                         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end shadow border-0">
-                            <span class="dropdown-item dropdown-header fw-bold">3 Notifikasi</span>
+                            <span class="dropdown-item dropdown-header fw-bold">{{ $unreadNotificationCount }} Notifikasi Belum Dibaca</span>
                             <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item">
-                                <i class="bi bi-envelope me-2 text-primary"></i> 1 pesan baru
-                                <span class="float-end text-muted text-sm">3 mnt</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item">
-                                <i class="bi bi-people me-2 text-success"></i> 2 pendaftaran pengguna
-                                <span class="float-end text-muted text-sm">12 jam</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item dropdown-footer text-center">Lihat Semua Notifikasi</a>
+                            @forelse($unreadNotifications as $notification)
+                                <a href="{{ route('admin.notifications.show', $notification) }}" class="dropdown-item text-wrap">
+                                    <i class="{{ $notification->data['icon'] ?? 'bi bi-bell' }} me-2 text-primary"></i> {{ $notification->data['title'] ?? 'Notifikasi' }}
+                                    <span class="float-end text-muted text-sm ms-2">{{ $notification->created_at?->format('d/m H:i') }}</span>
+                                    <span class="d-block text-muted small text-wrap">{{ $notification->data['message'] ?? '' }}</span>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                            @empty
+                                <span class="dropdown-item text-muted">Tidak ada notifikasi baru</span>
+                                <div class="dropdown-divider"></div>
+                            @endforelse
+                            <a href="{{ route('admin.notifications.index') }}" class="dropdown-item dropdown-footer text-center">Lihat Semua Notifikasi</a>
                         </div>
                     </li>
 

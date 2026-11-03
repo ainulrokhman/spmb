@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\FeeServiceInterface;
+use App\Contracts\OfficerNotificationServiceInterface;
 use App\Contracts\InvoiceServiceInterface;
 use App\Models\Application;
 use App\Models\Fee;
@@ -17,6 +18,7 @@ class InvoiceService implements InvoiceServiceInterface
 {
     public function __construct(
         private readonly FeeServiceInterface $fees,
+        private readonly OfficerNotificationServiceInterface $officerNotifications,
     ) {}
 
     /**
@@ -173,6 +175,8 @@ class InvoiceService implements InvoiceServiceInterface
             'decision_note' => null,
         ]);
 
+        $this->officerNotifications->notifyInvoiceReliefRequested($invoice);
+
         return $invoice;
     }
 
@@ -198,6 +202,8 @@ class InvoiceService implements InvoiceServiceInterface
             if ($invoice->payableAmount() === 0) {
                 $invoice->save();
 
+                $this->officerNotifications->markInvoiceReliefHandled($invoice);
+
                 return $this->markPaid($invoice);
             }
 
@@ -205,6 +211,8 @@ class InvoiceService implements InvoiceServiceInterface
         }
 
         $invoice->save();
+
+        $this->officerNotifications->markInvoiceReliefHandled($invoice);
 
         return $invoice;
     }

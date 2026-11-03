@@ -16,6 +16,7 @@ use App\Contracts\ProgramServiceInterface;
 use App\Contracts\ApplicationServiceInterface;
 use App\Contracts\InvoiceServiceInterface;
 use App\Contracts\InstallmentServiceInterface;
+use App\Contracts\OfficerNotificationServiceInterface;
 use App\Contracts\ReportServiceInterface;
 use App\Contracts\FeeServiceInterface;
 use App\Contracts\FormFieldServiceInterface;
@@ -39,6 +40,7 @@ use App\Services\ProgramService;
 use App\Services\ApplicationService;
 use App\Services\InvoiceService;
 use App\Services\InstallmentService;
+use App\Services\OfficerNotificationService;
 use App\Services\ReportService;
 use App\Services\FeeService;
 use App\Services\FormFieldService;
@@ -80,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ApplicationServiceInterface::class, ApplicationService::class);
         $this->app->bind(InvoiceServiceInterface::class, InvoiceService::class);
         $this->app->bind(InstallmentServiceInterface::class, InstallmentService::class);
+        $this->app->bind(OfficerNotificationServiceInterface::class, OfficerNotificationService::class);
         $this->app->bind(ReportServiceInterface::class, ReportService::class);
         $this->app->bind(FeeAmountServiceInterface::class, FeeAmountService::class);
     }
