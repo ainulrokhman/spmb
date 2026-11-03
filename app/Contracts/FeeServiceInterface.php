@@ -10,21 +10,33 @@ use Illuminate\Support\Collection;
 interface FeeServiceInterface
 {
     /**
-     * Sync a unit's fee mappings (components not present are removed).
-     *
-     * @param array<int, array{mode: string, min_amount: int|null}> $mappings keyed by fee component id
-     */
-    public function syncUnitFees(SchoolUnit $unit, array $mappings): void;
-
-    /**
-     * Sync one component's mapping across many units (the mirror
-     * of syncUnitFees): each entry is a unit id mapped to a mode
-     * and optional minimum; mode 'unused' removes that unit's
-     * mapping for the component. Other components are untouched.
+     * Sync one component's mapping across many units (used by
+     * the per-component "Atur per Unit" page): each entry is a
+     * unit id mapped to a mode and optional minimum; mode
+     * 'unused' removes that unit's mapping for the component.
+     * Other components are untouched.
      *
      * @param  array<int, array{mode: string, min_amount: int|null}>  $perUnit
      */
     public function syncComponentFees(FeeComponent $component, array $perUnit): void;
+
+    /**
+     * Save ONE component card of a unit's fee page: the mapping
+     * (mode / minimum / active switch) together with its amount
+     * rows (a null amount set leaves the rows untouched — the
+     * card form always sends its rows explicitly). Mode
+     * 'unused' removes only this component's mapping;
+     * other components are never touched. Amount rows are
+     * synced for the fixed and pilihan modes (rows carrying an
+     * id are updated, new rows created, missing rows deleted);
+     * for bebas the stored amounts are kept untouched. Returns
+     * the saved mapping (with amounts loaded), or null when the
+     * mapping was removed.
+     *
+     * @param  array{mode: string, min_amount: int|null, is_active: bool}  $mapping
+     * @param  list<array{id: int|null, amount: int, admission_track_id: int|null, gender: string|null, child_status_id: int|null, sort_order: int}>  $amounts
+     */
+    public function syncUnitFeeCard(SchoolUnit $unit, FeeComponent $component, array $mapping, ?array $amounts): ?Fee;
 
     /**
      * Resolve the amounts that apply to a track/gender combination,

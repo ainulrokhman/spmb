@@ -76,13 +76,8 @@ class FeeActivationTest extends TestCase
         $this->assertSame([$spi->id, $sop->id], collect($this->draftComponentIds($unit))->sort()->values()->all());
 
         $this->actingAs($this->admin())
-            ->put(route('admin.school-units.fees.update', $unit), [
-                'mappings' => [
-                    $spi->id => ['mode' => 'fixed', 'is_active' => '0'],
-                    $sop->id => ['mode' => 'fixed', 'is_active' => '1'],
-                ],
-            ])
-            ->assertRedirect(route('admin.school-units.index'));
+            ->postJson(route('admin.school-units.fees.card', [$unit, $spi]), ['mode' => 'fixed', 'is_active' => '0'])
+            ->assertOk();
 
         $this->assertDatabaseHas('fees', [
             'school_unit_id' => $unit->id,
@@ -95,12 +90,8 @@ class FeeActivationTest extends TestCase
 
         // Switching it back on restores it to the draft.
         $this->actingAs($this->admin())
-            ->put(route('admin.school-units.fees.update', $unit), [
-                'mappings' => [
-                    $spi->id => ['mode' => 'fixed', 'is_active' => '1'],
-                    $sop->id => ['mode' => 'fixed', 'is_active' => '1'],
-                ],
-            ]);
+            ->postJson(route('admin.school-units.fees.card', [$unit, $spi]), ['mode' => 'fixed', 'is_active' => '1'])
+            ->assertOk();
 
         $this->assertSame([$spi->id, $sop->id], collect($this->draftComponentIds($unit))->sort()->values()->all());
     }
