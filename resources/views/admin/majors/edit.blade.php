@@ -14,6 +14,7 @@
         <form action="{{ route('admin.majors.update', $major->id) }}" method="POST">
             @csrf
                     @method('PUT')
+            <input type="hidden" name="return_school_unit_id" value="{{ request()->query('school_unit_id') }}">
 
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">

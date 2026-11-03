@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\FormFieldServiceInterface;
 use App\DataTables\FormFieldDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Http\Controllers\Admin\Concerns\ReturnsToFilteredIndex;
 use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FormField\StoreFormFieldRequest;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Gate;
 
 class FormFieldController extends Controller
 {
-    use HandlesServiceExceptions, ScopesUnits;
+    use HandlesServiceExceptions, ReturnsToFilteredIndex, ScopesUnits;
 
     protected FormFieldServiceInterface $formFieldService;
 
@@ -69,7 +70,7 @@ class FormFieldController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.form-fields.index')
+        return redirect()->to($this->filteredIndexUrl('admin.form-fields.index', ['school_unit_id']))
             ->with('success', 'Bidang formulir berhasil dibuat.');
     }
 
@@ -98,7 +99,7 @@ class FormFieldController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.form-fields.index')
+        return redirect()->to($this->filteredIndexUrl('admin.form-fields.index', ['school_unit_id']))
             ->with('success', 'Bidang formulir "'.$formField->label.'" berhasil diperbarui.');
     }
 
@@ -114,7 +115,7 @@ class FormFieldController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.form-fields.index')
+        return redirect()->to($this->filteredIndexUrl('admin.form-fields.index', ['school_unit_id']))
             ->with('success', 'Form field berhasil dihapus.');
     }
 

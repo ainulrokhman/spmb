@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\AdmissionWaveServiceInterface;
 use App\DataTables\AdmissionWaveDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Http\Controllers\Admin\Concerns\ReturnsToFilteredIndex;
 use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdmissionWave\StoreAdmissionWaveRequest;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Gate;
 
 class AdmissionWaveController extends Controller
 {
-    use HandlesServiceExceptions, ScopesUnits;
+    use HandlesServiceExceptions, ReturnsToFilteredIndex, ScopesUnits;
 
     protected AdmissionWaveServiceInterface $admissionWaveService;
 
@@ -69,7 +70,7 @@ class AdmissionWaveController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.admission-waves.index')
+        return redirect()->to($this->filteredIndexUrl('admin.admission-waves.index', ['school_unit_id']))
             ->with('success', 'Gelombang berhasil dibuat.');
     }
 
@@ -101,7 +102,7 @@ class AdmissionWaveController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.admission-waves.index')
+        return redirect()->to($this->filteredIndexUrl('admin.admission-waves.index', ['school_unit_id']))
             ->with('success', 'Gelombang "'.$admissionWave->name.'" berhasil diperbarui.');
     }
 
@@ -117,7 +118,7 @@ class AdmissionWaveController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.admission-waves.index')
+        return redirect()->to($this->filteredIndexUrl('admin.admission-waves.index', ['school_unit_id']))
             ->with('success', 'Gelombang berhasil dihapus.');
     }
 

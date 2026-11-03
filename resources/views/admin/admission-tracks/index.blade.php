@@ -20,7 +20,7 @@
             <select id="unit-filter" class="form-select" style="width: 220px;">
                 <option value="">All Units</option>
                 @foreach($units as $unit)
-                    <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                    <option value="{{ $unit->id }}" {{ (string) request()->query('school_unit_id') === (string) $unit->id ? 'selected' : '' }}>{{ $unit->name }}</option>
                 @endforeach
             </select>
 
@@ -37,7 +37,7 @@
             </form>
 
             @can('admission-track-create')
-            <a href="{{ route('admin.admission-tracks.create') }}" class="btn btn-primary">
+            <a href="{{ route('admin.admission-tracks.create') }}" class="btn btn-primary" id="create-btn">
                 <i class="bi bi bi-signpost-plus fs-5"></i> Tambah Jalur Pendaftaran
             </a>
             @endcan
@@ -133,7 +133,21 @@
             table.search('').draw();
         });
 
+        // Keep the unit filter in the page URL (and in the
+        // create button's target) so it survives the round trip
+        // to a form and back.
+        function syncFilterUrl() {
+            const unitId = $('#unit-filter').val();
+            const base = "{{ route('admin.admission-tracks.index') }}";
+            window.history.replaceState(null, '', unitId ? base + '?school_unit_id=' + unitId : base);
+            const createBase = "{{ route('admin.admission-tracks.create') }}";
+            $('#create-btn').attr('href', unitId ? createBase + '?school_unit_id=' + unitId : createBase);
+        }
+
+        syncFilterUrl();
+
         $('#unit-filter').on('change', function() {
+            syncFilterUrl();
             table.ajax.reload();
         });
 

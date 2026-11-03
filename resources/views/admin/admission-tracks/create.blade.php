@@ -13,6 +13,7 @@
     <div class="col-12 col-md-8 col-lg-6 mx-auto">
         <form action="{{ route('admin.admission-tracks.store') }}" method="POST">
             @csrf
+            <input type="hidden" name="return_school_unit_id" value="{{ request()->query('school_unit_id') }}">
 
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
@@ -25,7 +26,7 @@
                         <select class="form-select @error('school_unit_id') is-invalid @enderror" id="school_unit_id" name="school_unit_id" required>
                             <option value="">Pilih unit...</option>
 @foreach($units as $unit)
-                                <option value="{{ $unit->id }}" {{ (string) old('school_unit_id', '') === (string) $unit->id ? 'selected' : '' }}>{{ $unit->name }} ({{ $unit->level }} &middot; {{ $unit->program?->name }})</option>
+                                <option value="{{ $unit->id }}" {{ (string) old('school_unit_id', request()->query('school_unit_id')) === (string) $unit->id ? 'selected' : '' }}>{{ $unit->name }} ({{ $unit->level }} &middot; {{ $unit->program?->name }})</option>
                             @endforeach
                         </select>
                         @error('school_unit_id')

@@ -13,6 +13,7 @@
     <div class="col-12 col-md-8 col-lg-6 mx-auto">
         <form action="{{ route('admin.form-fields.store') }}" method="POST">
             @csrf
+            <input type="hidden" name="return_school_unit_id" value="{{ request()->query('school_unit_id') }}">
             @include('admin.form-fields._form', ['submitLabel' => 'Tambah Bidang Formulir'])
         </form>
     </div>
