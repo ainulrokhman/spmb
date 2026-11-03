@@ -129,6 +129,17 @@ class SelectionPointsTest extends TestCase
         $external = $this->application($unit, ['answers' => ['asal' => 'external']]);
         $originRow = collect($this->selection()->calculate($external)['auto'])->firstWhere('kind', 'origin_unit');
         $this->assertSame(0, $originRow['points']);
+
+        // The structured storage shape ({unit_id, school_name})
+        // written by the guardian form resolves the same way.
+        $structured = $this->application($unit, ['answers' => ['asal' => ['unit_id' => $origin->id, 'school_name' => null]]]);
+        $originRow = collect($this->selection()->calculate($structured)['auto'])->firstWhere('kind', 'origin_unit');
+        $this->assertSame(12, $originRow['points']);
+
+        $structuredExternal = $this->application($unit, ['answers' => ['asal' => ['unit_id' => null, 'school_name' => 'SD Luar Biasa']]]);
+        $originRow = collect($this->selection()->calculate($structuredExternal)['auto'])->firstWhere('kind', 'origin_unit');
+        $this->assertSame(0, $originRow['points']);
+        $this->assertStringContainsString('SD Luar Biasa', $originRow['detail']);
     }
 
     public function test_sibling_points_with_cap_and_cross_check_hint(): void

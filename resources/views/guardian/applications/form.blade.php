@@ -134,6 +134,20 @@
             }
         });
     });
+
+    // School-choice fields: the outside-school name input is
+    // only relevant (and required) for the external option.
+    document.querySelectorAll('[data-school-unit-select]').forEach(function (select) {
+        var wrapper = select.parentElement.querySelector('[data-school-unit-external-name]');
+        if (! wrapper) {
+            return;
+        }
+        var syncExternalName = function () {
+            wrapper.style.display = select.value === 'external' ? '' : 'none';
+        };
+        select.addEventListener('change', syncExternalName);
+        syncExternalName();
+    });
 </script>
 @endpush
 @endsection

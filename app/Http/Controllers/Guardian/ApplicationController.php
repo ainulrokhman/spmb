@@ -263,19 +263,33 @@ class ApplicationController extends Controller
             }
         }
 
-        // Master-data backed fields: store a school_unit answer
-        // as the unit id (the external marker stays a string),
-        // and translate sibling rows from the form shape
-        // (school select) into the storage shape
-        // (unit_id / school_name), dropping nameless rows.
+        // Master-data backed fields: translate a school_unit
+        // answer from the form shape (unit select + companion
+        // outside-school name input) into the storage shape
+        // ({unit_id, school_name}), and sibling rows from the
+        // form shape (school select) into the same storage
+        // shape, dropping nameless rows.
+        $schoolNames = $data['school_unit_names'] ?? [];
         $typedFields = $application->schoolUnit->formFields()
             ->where('is_active', true)
             ->whereIn('type', ['school_unit', 'siblings'])
             ->get();
 
         foreach ($typedFields as $field) {
-            if ($field->type === 'school_unit' && is_numeric($answers[$field->key] ?? null)) {
-                $answers[$field->key] = (int) $answers[$field->key];
+            if ($field->type === 'school_unit') {
+                $rawSchool = $answers[$field->key] ?? null;
+
+                if ($rawSchool === \App\Models\FormField::EXTERNAL_SCHOOL) {
+                    $answers[$field->key] = [
+                        'unit_id' => null,
+                        'school_name' => trim((string) ($schoolNames[$field->key] ?? '')),
+                    ];
+                } elseif (is_numeric($rawSchool)) {
+                    $answers[$field->key] = [
+                        'unit_id' => (int) $rawSchool,
+                        'school_name' => null,
+                    ];
+                }
             }
 
             if ($field->type === 'siblings' && is_array($answers[$field->key] ?? null)) {
@@ -294,6 +308,7 @@ class ApplicationController extends Controller
         }
 
         $data['answers'] = $answers;
+        unset($data['school_unit_names']);
 
         try {
             $this->applications->saveForm($application, $data);

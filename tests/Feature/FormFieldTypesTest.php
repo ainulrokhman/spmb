@@ -150,6 +150,7 @@ class FormFieldTypesTest extends TestCase
             ->assertOk()
             ->assertSee('SD Asal')
             ->assertSee('Sekolah lain di luar yayasan')
+            ->assertSee('Nama sekolah luar')
             ->assertSee('Tambah Saudara');
 
         $this->actingAs($this->guardian)
@@ -164,7 +165,7 @@ class FormFieldTypesTest extends TestCase
             ->assertRedirect(route('guardian.applications.documents', $application));
 
         $answers = $application->fresh()->answers;
-        $this->assertSame($scenario['other']->id, $answers['asal_sekolah']);
+        $this->assertSame(['unit_id' => $scenario['other']->id, 'school_name' => null], $answers['asal_sekolah']);
         $this->assertSame([
             ['name' => 'Kakak Satu', 'unit_id' => $scenario['other']->id, 'school_name' => null],
             ['name' => 'Kakak Dua', 'unit_id' => null, 'school_name' => 'SD Luar Biasa'],
@@ -191,6 +192,38 @@ class FormFieldTypesTest extends TestCase
                 ],
             ]))
             ->assertSessionHasErrors('answers.saudara.0.school_name');
+    }
+
+    public function test_external_origin_school_requires_and_stores_its_name(): void
+    {
+        $scenario = $this->scenario();
+        $application = $this->startedApplication($scenario);
+
+        // External chosen without the school name -> rejected.
+        $this->actingAs($this->guardian)
+            ->post(route('guardian.applications.form.save', $application), $this->biodataPayload([
+                'asal_sekolah' => 'external',
+            ]))
+            ->assertSessionHasErrors('school_unit_names.asal_sekolah');
+        $this->assertSame('filling_form', $application->fresh()->status);
+
+        // With the name -> stored in the structured shape and
+        // shown to the committee on the application detail.
+        $this->actingAs($this->guardian)
+            ->post(route('guardian.applications.form.save', $application), $this->biodataPayload([
+                'asal_sekolah' => 'external',
+            ]) + ['school_unit_names' => ['asal_sekolah' => 'SD Luar Biasa']])
+            ->assertRedirect(route('guardian.applications.documents', $application));
+
+        $this->assertSame(
+            ['unit_id' => null, 'school_name' => 'SD Luar Biasa'],
+            $application->fresh()->answers['asal_sekolah']
+        );
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.applications.show', $application))
+            ->assertOk()
+            ->assertSee('SD Luar Biasa');
     }
 
     public function test_required_siblings_field_needs_at_least_one_row(): void
@@ -234,6 +267,9 @@ class FormFieldTypesTest extends TestCase
         $field = FormField::factory()->make(['type' => 'school_unit']);
 
         $this->assertSame('Sekolah lain di luar yayasan', $field->answerDisplay('external'));
+        $this->assertSame('Sekolah lain di luar yayasan: SD Luar Biasa', $field->answerDisplay(['unit_id' => null, 'school_name' => 'SD Luar Biasa']));
+        $unit = $this->unit('SD Uji');
+        $this->assertSame('SD Uji', $field->answerDisplay(['unit_id' => $unit->id, 'school_name' => null]));
         $this->assertSame('Unit tidak ditemukan', $field->answerDisplay(424242));
         $this->assertSame('—', $field->answerDisplay(null));
     }
