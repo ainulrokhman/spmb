@@ -313,8 +313,32 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
     identitas wali hanya bila anak memilikinya (Bab 3).
 11. **Alur pendaftaran** — berurutan dan tidak dapat dilompati:
     Register → Bayar Formulir → Isi Formulir → Input Berkas (Bab 3).
+12. **Keringanan** (redesain, menggantikan mekanisme awal pada
+    keputusan 9) — pengajuan wali (biaya formulir maupun tagihan)
+    hanya berisi **alasan**; panitia menentukan bentuk keringanan
+    (pembebasan, persen, atau nominal) beserta nilainya **saat
+    memutuskan**, dan panitia juga dapat **memberi keringanan
+    langsung tanpa pengajuan** (PR #22).
+13. **Cicilan** — hanya untuk **tagihan daftar ulang** (biaya
+    formulir tetap sekali bayar); diajukan wali dengan alasan,
+    **dirincikan petugas**: total seluruh termin wajib sama persis
+    dengan sisa tagihan, termin dibayar utuh per termin, dan
+    termin yang sudah lunas terkunci (PR #22).
+14. **Pengumuman hasil** — waktunya dapat diatur **per jalur**
+    pendaftaran; bila jalur tidak memiliki waktu sendiri, berlaku
+    waktu **global** pada gelombangnya (PR #27).
+15. **Notifikasi petugas** — pengajuan keringanan (formulir &
+    tagihan), pengajuan cicilan, **dan pembayaran manual yang
+    menunggu konfirmasi** diberitahukan kepada petugas yang
+    berwenang sesuai unit tugasnya; kanal **di dalam aplikasi**
+    (lonceng + daftar notifikasi). Notifikasi WhatsApp/email tetap
+    di luar cakupan (Bab 10). Keputusan 3 November 2026; diwujudkan
+    pada Fase 7 Peta Perbaikan Lanjutan.
 
 ## 9. Peta Fase Implementasi
+
+Seluruh fase pada tabel ini telah selesai diimplementasikan dan
+ter-merge ke branch `done` (terakhir diverifikasi 3 November 2026).
 
 | Fase | Isi |
 | --- | --- |
@@ -327,12 +351,26 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
 | 3 | Verifikasi berkas oleh panitia sesuai unit tugasnya |
 | 4 | Pengumuman, daftar ulang & tagihan, pembayaran Midtrans |
 | 5 | Dashboard SPMB & laporan/export |
+| 6 | Peran Panitia resmi + pembatasan akses per unit di seluruh master data dan halaman operasional |
 | Menyusul | Seleksi (poin/manual) — dirancang tersendiri |
+
+### 9.1 Peta Perbaikan Lanjutan (UX & fitur tambahan)
+
+| Fase | Isi | Status |
+| --- | --- | --- |
+| — | Pengumuman hasil per jalur + global (PR #27) | Selesai |
+| 1 | Filter lestari: Nominal Biaya (PR #28) | Selesai |
+| 2 | Pengaturan biaya dua arah: Atur per Unit per komponen, nominal langsung di halaman Biaya per unit, menu Biaya per Unit (PR #30) | Selesai |
+| 3 | Filter lestari halaman operasional: Verifikasi Pendaftaran & Tagihan; Pembayaran Formulir dan Laporan terverifikasi sudah lestari (PR #31) | Selesai |
+| 4 | Filter lestari master data: Gelombang, Jalur, Jurusan, Bidang Formulir, dan halaman lain yang terbukti berfilter | Direncanakan |
+| 5 | Upload berkas: bukti transfer **wajib** untuk pembayaran manual (formulir, tagihan, cicilan) dan lampiran **opsional** untuk pengajuan keringanan; berkas tersimpan privat, dilihat panitia lewat rute berizin; unggah ulang menggantikan berkas lama | Direncanakan |
+| 6 | Cicilan dirinci **per komponen** (matriks termin × komponen: SPI/SOP/DU/INFAQ per termin; jumlah per komponen wajib pas) + **tambah termin** setelah rincian dibuat; rincian rencana lama diisi otomatis saat migrasi | Direncanakan |
+| 7 | Notifikasi petugas terkait pengajuan keringanan & cicilan **dan** pembayaran manual menunggu konfirmasi, di dalam aplikasi (Bab 8 keputusan 15) | Direncanakan |
 
 ## 10. Di Luar Cakupan v1
 
-- Notifikasi WhatsApp/email otomatis (pengingat status & pembayaran).
+- Notifikasi WhatsApp/email otomatis (pengingat status & pembayaran). Notifikasi petugas **di dalam aplikasi** tidak termasuk pengecualian ini — lihat Fase 7 pada Bab 9.1.
 - Login wali dengan OTP (v1: nomor HP + kata sandi).
-- Cicilan tagihan (v1: satu tagihan dibayar lunas via Midtrans).
+- Cicilan biaya formulir (cicilan tagihan daftar ulang sudah tersedia — Bab 8 keputusan 13).
 - Multi-yayasan (satu instalasi untuk banyak yayasan).
 - Aplikasi mobile.
