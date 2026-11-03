@@ -229,7 +229,9 @@ class ApplicationController extends Controller
         $guardian = old('guardian', $application->guardian_data) ?? ($previous !== null ? $strip($previous->guardian_data) : ($relation === 'wali' ? ['name' => $user->name, 'phone' => $user->phone] : []));
         $hasGuardianDefault = $previous !== null ? (bool) $previous->has_guardian : (bool) $application->has_guardian;
 
-        return view('guardian.applications.form', compact('application', 'fields', 'father', 'mother', 'guardian', 'hasGuardianDefault'));
+        $childStatuses = \App\Models\ChildStatus::where('is_active', true)->orderBy('id')->get();
+
+        return view('guardian.applications.form', compact('application', 'fields', 'father', 'mother', 'guardian', 'hasGuardianDefault', 'childStatuses'));
     }
 
     /**

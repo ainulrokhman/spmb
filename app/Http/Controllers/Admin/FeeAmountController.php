@@ -12,6 +12,7 @@ use App\Http\Requests\FeeAmount\StoreFeeAmountRequest;
 use App\Http\Requests\FeeAmount\UpdateFeeAmountRequest;
 use App\Models\AdmissionTrack;
 use App\Models\Fee;
+use App\Models\ChildStatus;
 use App\Models\FeeAmount;
 use App\Models\FeeComponent;
 use App\Models\SchoolUnit;
@@ -183,6 +184,8 @@ class FeeAmountController extends Controller
             ->when(! auth()->user()->hasGlobalUnitAccess(), fn ($query) => $query->whereIn('school_unit_id', auth()->user()->accessibleUnitIds()))
             ->orderBy('name')->get();
 
-        return compact('fees', 'tracks');
+        $statuses = ChildStatus::where('is_active', true)->orderBy('id')->get();
+
+        return compact('fees', 'tracks', 'statuses');
     }
 }

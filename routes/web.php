@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdmissionInfoController;
 use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use App\Http\Controllers\Admin\AttachmentController;
+use App\Http\Controllers\Admin\ChildStatusController;
 use App\Http\Controllers\Admin\FormPaymentController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ReportController;
@@ -120,6 +121,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Registration form preview per unit
     Route::get('school-units/{school_unit}/form-preview', [FormFieldController::class, 'preview'])->name('school-units.form-preview');
 
+    Route::resource('child-statuses', ChildStatusController::class)->middleware('permission:child-status-list');
     Route::resource('fee-components', FeeComponentController::class)->middleware('permission:fee-component-list');
 
     // One component's fee mode across all units ("Atur per Unit")
@@ -154,6 +156,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('applications/{application}', [AdminApplicationController::class, 'show'])->name('applications.show')->middleware('permission:application-list');
     Route::post('applications/{application}/documents/{document}/verify', [AdminApplicationController::class, 'verifyDocument'])->name('applications.documents.verify')->middleware('permission:application-verify');
     Route::post('applications/{application}/decide', [AdminApplicationController::class, 'decide'])->name('applications.decide')->middleware('permission:application-verify');
+    Route::patch('applications/{application}/child-status', [AdminApplicationController::class, 'updateChildStatus'])->name('applications.child-status')->middleware('permission:application-verify');
     Route::post('applications/announce', [AdminApplicationController::class, 'announce'])->name('applications.announce')->middleware('permission:application-verify');
 
     // Re-registration invoices (Fase 4)

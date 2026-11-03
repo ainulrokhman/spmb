@@ -202,7 +202,7 @@
 
                         {{-- Submenu: Master Data --}}
                         @canany(['academic-year-list', 'program-list', 'school-unit-list', 'admission-track-list', 'major-list', 'admission-wave-list'])
-                        @php($masterOpen = request()->is('admin/academic-years*') || request()->is('admin/programs*') || request()->is('admin/school-units*') || request()->is('admin/admission-tracks*') || request()->is('admin/majors*') || request()->is('admin/admission-waves*'))
+                        @php($masterOpen = request()->is('admin/academic-years*') || request()->is('admin/programs*') || request()->is('admin/child-statuses*') || request()->is('admin/school-units*') || request()->is('admin/admission-tracks*') || request()->is('admin/majors*') || request()->is('admin/admission-waves*'))
                         <li class="nav-item {{ $masterOpen ? 'menu-open' : '' }}">
                             <a href="#" class="nav-link {{ $masterOpen ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-database me-2"></i>
@@ -225,6 +225,14 @@
                                         <p>Program</p>
                                     </a>
                                 </li>
+@can('child-status-list')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.child-statuses.index') }}" class="nav-link {{ request()->is('admin/child-statuses*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-collection me-2"></i>
+                                        <p>Status Anak</p>
+                                    </a>
+                                </li>
+                                @endcan
                                 @endcan
 
                                 @can('school-unit-list')

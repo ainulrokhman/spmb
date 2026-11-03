@@ -47,6 +47,29 @@
                     <div class="col-md-6">
                         <p class="mb-1"><span class="text-muted">Tempat, Tgl Lahir:</span> {{ $application->birth_place }}, {{ $application->birth_date?->format('d M Y') }}</p>
                         <p class="mb-1"><span class="text-muted">Jenis Kelamin:</span> {{ $application->gender === 'L' ? 'Laki-laki' : 'Perempuan' }}</p>
+                        <p class="mb-1"><span class="text-muted">Status Anak:</span> <span class="badge bg-info">{{ $application->childStatusLabel() }}</span>
+                            @can('application-verify')
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-1" onclick="document.getElementById('child-status-form').classList.toggle('d-none')">Ubah</button>
+                            @endcan
+                        </p>
+                        @can('application-verify')
+                            <form id="child-status-form" method="POST" action="{{ route('admin.applications.child-status', $application) }}" class="d-none mb-2">
+                                @csrf
+                                @method('PATCH')
+                                <div class="input-group input-group-sm">
+                                    <select name="child_status_id" class="form-select">
+                                        <option value="">Reguler (umum)</option>
+                                        @foreach(\App\Models\ChildStatus::where('is_active', true)->orderBy('id')->get() as $statusOption)
+                                            @if($statusOption->name !== 'Reguler')
+                                                <option value="{{ $statusOption->id }}" {{ $application->child_status_id === $statusOption->id ? 'selected' : '' }}>{{ $statusOption->name }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Simpan Status</button>
+                                </div>
+                                <div class="form-text">Status terverifikasi memengaruhi poin seleksi dan nominal biaya.</div>
+                            </form>
+                        @endcan
                         <p class="mb-1"><span class="text-muted">Biaya Formulir:</span>
                             @if($application->form_fee_amount === 0) Gratis
                             @else Rp {{ number_format($application->form_fee_amount, 0, ',', '.') }} — {{ $application->feeStatusLabel() }}

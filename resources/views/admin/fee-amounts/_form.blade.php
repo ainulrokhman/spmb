@@ -57,6 +57,20 @@
                         @enderror
                     </div>
 
+                    <div class="mb-3">
+                        <label for="child_status_id" class="form-label fw-semibold text-secondary">Status Anak</label>
+                        <select class="form-select @error('child_status_id') is-invalid @enderror" id="child_status_id" name="child_status_id">
+                            <option value="">Semua status</option>
+                            @foreach($statuses ?? [] as $status)
+                                <option value="{{ $status->id }}" {{ (string) old('child_status_id', $feeAmount->child_status_id ?? '') === (string) $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
+                            @endforeach
+                        </select>
+                        <div class="form-text text-muted small">Isi bila nominal ini khusus untuk satu status anak (mis. Yatim); nominal berstatus lebih diutamakan daripada nominal jalur/jender yang sama.</div>
+                        @error('child_status_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div class="row">
                         <div class="col-md-8 mb-3">
                             <label for="amount" class="form-label fw-semibold text-secondary">Nominal (Rp)</label>

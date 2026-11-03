@@ -48,9 +48,9 @@ class InvoiceService implements InvoiceServiceInterface
             ];
 
             if ($fee->mode === Fee::MODE_FIXED) {
-                $line['fixed_amount'] = $this->fees->resolveFixedAmount($fee, $application->admission_track_id, $application->gender) ?? 0;
+                $line['fixed_amount'] = $this->fees->resolveFixedAmount($fee, $application->admission_track_id, $application->gender, $application->effectiveChildStatusId()) ?? 0;
             } elseif ($fee->mode === Fee::MODE_PILIHAN) {
-                $line['options'] = $this->fees->resolveAmounts($fee, $application->admission_track_id, $application->gender)
+                $line['options'] = $this->fees->resolveAmounts($fee, $application->admission_track_id, $application->gender, $application->effectiveChildStatusId())
                     ->pluck('amount')
                     ->map(fn ($amount) => (int) $amount)
                     ->unique()

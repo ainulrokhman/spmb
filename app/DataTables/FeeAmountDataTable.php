@@ -15,8 +15,8 @@ class FeeAmountDataTable
      */
     public function make()
     {
-        $feeAmounts = FeeAmount::with(['fee.schoolUnit', 'fee.feeComponent', 'admissionTrack'])
-            ->select(['id', 'fee_id', 'admission_track_id', 'gender', 'amount', 'sort_order'])
+        $feeAmounts = FeeAmount::with(['fee.schoolUnit', 'fee.feeComponent', 'admissionTrack', 'childStatus'])
+            ->select(['id', 'fee_id', 'admission_track_id', 'child_status_id', 'gender', 'amount', 'sort_order'])
             ->when(request()->filled('school_unit_id'), function ($query) {
                 $query->whereHas('fee', fn ($feeQuery) => $feeQuery->where('school_unit_id', request()->integer('school_unit_id')));
             })
@@ -56,9 +56,11 @@ class FeeAmountDataTable
         return function ($feeAmount) {
             $track = $feeAmount->admissionTrack?->name ?? 'Semua Jalur';
             $gender = $feeAmount->gender ? (FeeAmount::GENDERS[$feeAmount->gender] ?? $feeAmount->gender) : 'Semua Jender';
+            $status = $feeAmount->childStatus?->name ?? 'Semua Status';
 
             return '<span class="text-body">'.e($track).'</span>'
-                .'<span class="text-muted small d-block">'.e($gender).'</span>';
+                .'<span class="text-muted small d-block">'.e($gender).'</span>'
+                .'<span class="text-muted small d-block">'.e($status).'</span>';
         };
     }
 

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ChildStatus;
 use App\Models\DocumentType;
 use App\Models\FeeComponent;
 use App\Models\Program;
@@ -43,6 +44,22 @@ class SpmbMasterSeeder extends Seeder
             Program::firstOrCreate(
                 ['name' => $program['name']],
                 array_merge($program, ['is_active' => true])
+            );
+        }
+
+        $childStatuses = [
+            ['name' => 'Reguler', 'description' => 'Status umum, tanpa perlakuan khusus.'],
+            ['name' => 'Yatim', 'description' => 'Anak yang ayahnya telah meninggal dunia.'],
+            ['name' => 'Yatim Piatu', 'description' => 'Anak yang kedua orang tuanya telah meninggal dunia.'],
+            ['name' => 'Anak Guru', 'description' => 'Anak dari guru pada unit di yayasan ini.'],
+            ['name' => 'Anak Karyawan', 'description' => 'Anak dari karyawan yayasan.'],
+            ['name' => 'Kurang Mampu', 'description' => 'Keluarga tidak mampu secara ekonomi.'],
+        ];
+
+        foreach ($childStatuses as $childStatus) {
+            ChildStatus::firstOrCreate(
+                ['name' => $childStatus['name']],
+                array_merge($childStatus, ['is_active' => true])
             );
         }
 
