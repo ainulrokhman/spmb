@@ -18,7 +18,8 @@ interface ReportServiceInterface
 
     /**
      * Per-unit recap for the report page: applicants per wave,
-     * track and status, plus the re-registration / invoice recap.
+     * track and status, the form-fee payment recap, plus the
+     * re-registration / invoice recap.
      *
      * @param  list<int>|null  $unitIds
      * @return list<array<string, mixed>>
@@ -38,4 +39,13 @@ interface ReportServiceInterface
      * @param  list<int>|null  $unitIds
      */
     public function invoicesForExport(?int $academicYearId, ?array $unitIds, ?int $waveId = null, ?string $status = null): Collection;
+
+    /**
+     * Applications matching the report filters with their
+     * settled form-fee payment loaded, for the form-payments
+     * CSV export.
+     *
+     * @param  list<int>|null  $unitIds
+     */
+    public function formPaymentsForExport(?int $academicYearId, ?array $unitIds, ?int $waveId = null): Collection;
 }

@@ -107,9 +107,26 @@ class ReportService implements ReportServiceInterface
                 })
                 ->get();
 
+            $formPayments = Payment::query()
+                ->where('status', 'paid')
+                ->where('payable_type', Application::class)
+                ->whereIn('payable_id', $applications->pluck('id'))
+                ->get();
+
             $recap[] = [
                 'unit' => $unit,
                 'total_applicants' => $applications->count(),
+                'form_fees' => [
+                    'paid_count' => $applications->where('form_fee_status', 'paid')->count(),
+                    'free_count' => $applications->where('form_fee_status', 'free')->count(),
+                    'waived_count' => $applications->where('form_fee_status', 'waived')->count(),
+                    'unpaid_count' => $applications->whereIn('form_fee_status', ['unpaid', 'awaiting_payment', 'awaiting_confirmation'])->count(),
+                    'discount_total' => (int) $applications->sum(fn (Application $application) => $application->discountAmount()),
+                    'received_total' => (int) $formPayments->sum('amount'),
+                    'by_channel' => $formPayments->groupBy('channel')
+                        ->map(fn ($group) => (int) $group->sum('amount'))
+                        ->all(),
+                ],
                 'by_wave' => $applications->groupBy(fn (Application $a) => $a->admissionWave?->name ?? '—')
                     ->map->count()->all(),
                 'by_track' => $applications->groupBy(fn (Application $a) => $a->admissionTrack?->name ?? '—')
@@ -139,7 +156,24 @@ class ReportService implements ReportServiceInterface
             ->when($waveId !== null, fn ($query) => $query->where('admission_wave_id', $waveId))
             ->when($trackId !== null, fn ($query) => $query->where('admission_track_id', $trackId))
             ->when($status !== null, fn ($query) => $query->where('status', $status))
-            ->with(['schoolUnit', 'admissionWave', 'admissionTrack', 'major', 'user'])
+            ->with(['schoolUnit', 'admissionWave', 'admissionTrack', 'major', 'user', 'invoice'])
+            ->orderBy('school_unit_id')
+            ->orderBy('registration_number')
+            ->get();
+    }
+
+    /**
+     * Applications matching the report filters with their
+     * settled form-fee payment loaded, for the form-payments
+     * CSV export.
+     *
+     * @param  list<int>|null  $unitIds
+     */
+    public function formPaymentsForExport(?int $academicYearId, ?array $unitIds, ?int $waveId = null): Collection
+    {
+        return $this->scopedApplications($unitIds, $academicYearId)
+            ->when($waveId !== null, fn ($query) => $query->where('admission_wave_id', $waveId))
+            ->with(['schoolUnit', 'admissionWave', 'admissionTrack', 'user', 'payments' => fn ($query) => $query->where('status', 'paid')->latest('paid_at')])
             ->orderBy('school_unit_id')
             ->orderBy('registration_number')
             ->get();
