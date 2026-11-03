@@ -35,8 +35,13 @@ class ApplicationDataTable
             ->addColumn('unit', $this->unitColumn())
             ->addColumn('fee', $this->feeColumn())
             ->addColumn('status_badge', $this->statusColumn())
+            ->editColumn('selection_total', function ($application) {
+                return $application->selection_total === null
+                    ? '<span class="text-muted">—</span>'
+                    : '<span class="fw-semibold">'.(int) $application->selection_total.'</span>';
+            })
             ->addColumn('actions', $this->actionsColumn())
-            ->rawColumns(['applicant', 'unit', 'fee', 'status_badge', 'actions'])
+            ->rawColumns(['applicant', 'unit', 'fee', 'status_badge', 'selection_total', 'actions'])
             ->make(true);
     }
 

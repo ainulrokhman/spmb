@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -36,6 +37,7 @@ class AdmissionWave extends Model
         'opens_at',
         'closes_at',
         'announcement_at',
+        'passing_score',
         'is_active',
     ];
 
@@ -71,6 +73,14 @@ class AdmissionWave extends Model
     /**
      * The admission tracks opened by this wave.
      */
+        /**
+     * Applications submitted into this wave.
+     */
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class);
+    }
+
     public function admissionTracks(): BelongsToMany
     {
         return $this->belongsToMany(AdmissionTrack::class, 'admission_wave_track')

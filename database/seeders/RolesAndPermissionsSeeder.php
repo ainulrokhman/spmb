@@ -103,6 +103,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'unit-fee-manage',
             'unit-requirement-manage',
+            'selection-manage',
 
             'manage-settings',
             'activity-log-list',
@@ -160,6 +161,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'unit-fee-manage',
             'unit-requirement-manage',
+            'selection-manage',
 
             'form-payment-list',
             'form-payment-decide',
@@ -255,6 +257,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'unit-fee-manage',
             'unit-requirement-manage',
+            'selection-manage',
 
             'manage-settings',
         ]);

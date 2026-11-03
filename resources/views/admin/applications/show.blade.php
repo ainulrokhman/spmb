@@ -127,6 +127,94 @@
             </div>
         @endif
 
+        @if($application->schoolUnit?->selection_enabled)
+            @php
+                $snapshot = $application->selection_scores;
+                $manualRules = $application->schoolUnit->selectionRules()->where('kind', 'manual')->where('is_active', true)->orderBy('sort_order')->get();
+                $scoreLocked = in_array($application->status, ['passed', 'failed', 're_registered'], true);
+            @endphp
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Poin Seleksi</h5>
+                    @can('selection-manage')
+                        @unless($scoreLocked)
+                            <form method="POST" action="{{ route('admin.applications.selection.recalculate', $application) }}">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Hitung Ulang</button>
+                            </form>
+                        @endunless
+                    @endcan
+                </div>
+                <div class="card-body px-4 pb-4">
+                    @if($snapshot === null)
+                        <p class="text-muted small mb-0">Poin belum dihitung. Poin dihitung otomatis saat pendaftar Terverifikasi{{ auth()->user()->can('selection-manage') && ! $scoreLocked ? ', atau gunakan tombol Hitung Ulang' : '' }}.</p>
+                    @else
+                        <table class="table table-sm align-middle mb-3">
+                            <tbody>
+                                @foreach($snapshot['auto'] ?? [] as $row)
+                                    <tr>
+                                        <td>{{ $row['name'] }}<div class="text-muted small">{{ $row['detail'] }}</div></td>
+                                        <td class="text-end fw-semibold" style="width: 90px">{{ $row['points'] }}</td>
+                                    </tr>
+                                @endforeach
+                                @foreach($manualRules as $manualRule)
+                                    @php $entry = $snapshot['manual'][$manualRule->id] ?? null; @endphp
+                                    <tr>
+                                        <td>
+                                            {{ $manualRule->name }} <span class="badge bg-secondary">Manual</span>
+                                            <div class="text-muted small">Maks {{ $manualRule->maxPoints() }} poin{{ $entry ? ' — diisi oleh '.$entry['by_name'].' pada '.$entry['at'] : '' }}</div>
+                                            @can('selection-manage')
+                                                @unless($scoreLocked)
+                                                    <form method="POST" action="{{ route('admin.applications.selection.manual', $application) }}" class="d-flex gap-2 mt-1">
+                                                        @csrf
+                                                        <input type="hidden" name="rule_id" value="{{ $manualRule->id }}">
+                                                        <input type="number" name="points" min="0" max="{{ $manualRule->maxPoints() }}" class="form-control form-control-sm" style="width: 110px" value="{{ $entry['points'] ?? '' }}" placeholder="0–{{ $manualRule->maxPoints() }}" required>
+                                                        <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
+                                                    </form>
+                                                @endunless
+                                            @endcan
+                                        </td>
+                                        <td class="text-end fw-semibold" style="width: 90px">{{ $entry['points'] ?? 0 }}</td>
+                                    </tr>
+                                @endforeach
+                                @if(! empty($snapshot['adjustment']))
+                                    <tr>
+                                        <td>Koreksi Manual<div class="text-muted small">{{ $snapshot['adjustment']['reason'] }} — oleh {{ $snapshot['adjustment']['by_name'] }} pada {{ $snapshot['adjustment']['at'] }}</div></td>
+                                        <td class="text-end fw-semibold" style="width: 90px">{{ $snapshot['adjustment']['value'] > 0 ? '+' : '' }}{{ $snapshot['adjustment']['value'] }}</td>
+                                    </tr>
+                                @endif
+                                <tr class="table-light">
+                                    <td class="fw-bold">Total Poin</td>
+                                    <td class="text-end fw-bold" style="width: 90px">{{ $snapshot['total'] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="text-muted small mb-3">Dihitung terakhir: {{ $snapshot['calculated_at'] ?? '—' }}. Menghitung ulang tidak menghapus poin manual dan koreksi.</div>
+                        @can('selection-manage')
+                            @if($scoreLocked)
+                                <div class="alert alert-secondary py-2 px-3 small mb-0">Poin terkunci karena hasil pendaftaran telah ditetapkan.</div>
+                            @else
+                                <form method="POST" action="{{ route('admin.applications.selection.adjustment', $application) }}" class="row g-2 align-items-end">
+                                    @csrf
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-semibold" for="adjustment-value">Koreksi (+/−)</label>
+                                        <input type="number" id="adjustment-value" name="value" class="form-control form-control-sm" value="{{ $snapshot['adjustment']['value'] ?? 0 }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-semibold" for="adjustment-reason">Alasan Koreksi</label>
+                                        <input type="text" id="adjustment-reason" name="reason" class="form-control form-control-sm" maxlength="500" value="{{ $snapshot['adjustment']['reason'] ?? '' }}" placeholder="Wajib diisi bila koreksi bukan 0">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary w-100">Simpan Koreksi</button>
+                                    </div>
+                                </form>
+                            @endif
+                        @endcan
+                    @endif
+                </div>
+            </div>
+        @endif
+
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-header bg-transparent border-0 pt-4 px-4">
                 <h5 class="mb-0 fw-bold">Berkas</h5>
