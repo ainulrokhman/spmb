@@ -51,6 +51,10 @@
                         @if($application->status === 'failed' && $announced)
                             <div class="alert alert-danger bg-danger bg-opacity-10 text-body border-0 rounded-3 p-2 small mb-2"><strong>Tidak Lulus.</strong> Terima kasih sudah mendaftar. Silakan coba pada gelombang atau unit lain bila tersedia.</div>
                         @endif
+                        @php($nextSchedule = $application->nextSchedule())
+                        @if($nextSchedule)
+                            <p class="small mb-2"><i class="bi bi-calendar-event text-primary"></i> Jadwal terdekat: <strong>{{ $nextSchedule['label'] }}</strong> — {{ $nextSchedule['at']->format('d M Y H:i') }}</p>
+                        @endif
                         <p class="small mb-3">
                             Biaya Formulir:
                             @if($application->form_fee_amount === 0)
@@ -73,6 +77,7 @@
                                 @endif
                             </a>
                         @endif
+                        <a href="{{ route('guardian.applications.detail', $application) }}" class="btn btn-outline-secondary btn-sm">Lihat Rincian</a>
                     </div>
                 </div>
             </div>
