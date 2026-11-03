@@ -1,197 +1,212 @@
-# Laravel 12 Admin Panel (RBAC & Yajra DataTables)
+# SPMB — Sistem Penerimaan Murid Baru
 
 [![Laravel Version](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-round&logo=laravel)](https://laravel.com)
 [![PHP Version](https://img.shields.io/badge/PHP-%3E%3D%208.2-777BB4?style=flat-round&logo=php)](https://php.net)
 [![AdminLTE](https://img.shields.io/badge/AdminLTE-4.0.0-blue?style=flat-round)](https://adminlte.io)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-round)](https://opensource.org/licenses/MIT)
 
-A professional, feature-rich admin template and starter kit built on **Laravel 12**, styled with **AdminLTE 4 (Bootstrap 5)**, featuring full Role-Based Access Control (RBAC) via **Spatie Laravel Permission**, and server-side paginated tables via **Yajra DataTables**.
+SPMB adalah sistem penerimaan murid baru untuk **satu yayasan dengan banyak
+unit sekolah** (PAUD sampai MA, termasuk SMK). Setiap unit — satu jenjang +
+satu program (Reguler/Boarding) — mengelola sendiri jalur pendaftaran,
+gelombang, jurusan, syarat berkas, formulir, biaya, dan panitianya; hanya
+Tahun Ajaran yang bersifat global untuk seluruh yayasan.
+
+Orang tua mendaftar memakai **akun Wali** (login nomor HP), dapat
+mendaftarkan banyak anak ke unit yang berbeda, dan mengikuti alur yang
+berurutan: **Daftar Akun → Bayar Formulir → Isi Formulir → Input Berkas →
+Verifikasi → Pengumuman → Daftar Ulang**.
+
+Rancangan lengkap, keputusan desain, dan peta implementasi ada di
+[docs/rancangan-fitur-spmb.md](docs/rancangan-fitur-spmb.md).
 
 ---
 
-## 🚀 Key Features
+## 🚀 Fitur Utama
 
-*   **Modern Admin Interface**: Beautiful layout built using **AdminLTE 4** with a fully responsive sidebar, header, dark/light theme options, and custom modern typography.
-*   **Robust RBAC System**: Full role and permission management using **Spatie Laravel Permission**.
-*   **High Performance Data Handling**: Server-side pagination, search, and filtering via **Yajra DataTables** loaded asynchronously using AJAX.
-*   **Secure Authentication**: Streamlined user login and logout flows out-of-the-box.
-*   **User Profile & Avatar Settings**: Independent profile management page allowing users to update their personal details, upload a profile picture, and change passwords securely.
-*   **Audit Activity Logging**: Comprehensive activity tracking utilizing **Spatie Laravel Activitylog** to monitor all creations, edits, and deletions of key models, complete with detailed side-by-side modal comparisons of changed properties.
-*   **Developer Friendly Scripting**: Custom automated project installation commands and concurrency-enabled multi-service local development runner.
-*   **Clean & Secure Codebase**: Strict security checks preventing self-deletion of logged-in accounts, safeguarding seed accounts, and validating all requests.
+*   **Master data per unit** — Unit Sekolah sebagai poros; jalur, jurusan,
+    gelombang (otomatis berdasarkan tanggal + penimpa manual), jenis berkas
+    & syarat per unit, bidang formulir dinamis per unit (termasuk tipe
+    Pilihan Unit Sekolah dan Saudara Kandung), dan Status Anak sebagai
+    master bersama yayasan.
+*   **Panitia per unit** — petugas hanya melihat dan mengelola unit
+    tugasnya; Super Admin dan Admin yayasan bersifat global.
+*   **Pendaftaran wali** — satu akun untuk banyak anak; hubungan per anak
+    (Ayah/Ibu/Wali) dengan formulir identitas orang tua; nomor pendaftaran
+    7 digit terbit saat pendaftaran dikirim.
+*   **Biaya fleksibel** — komponen biaya (SPI, SOP, DU, INFAQ, dst.) dengan
+    mode `fixed`/`pilihan`/`bebas`, nominal dibedakan per jalur, jenis
+    kelamin, dan status anak; komponen dapat dinonaktifkan per unit tanpa
+    kehilangan nominalnya.
+*   **Pembayaran multi-kanal berbentuk driver** — kanal **Manual** (wali
+    menyatakan bayar dengan bukti transfer, panitia mengonfirmasi) dan
+    **Midtrans** (Snap + webhook bertanda tangan terverifikasi); driver
+    **BSI** menyusul setelah akses API bank tersedia. Kanal baru dapat
+    ditambah tanpa mengubah alur.
+*   **Keringanan & cicilan** — wali mengajukan dengan alasan, panitia yang
+    menentukan bentuk keringanan (pembebasan/persen/nominal) atau memberi
+    langsung; cicilan tagihan daftar ulang dirinci panitia **per
+    komponen** (matriks termin × komponen).
+*   **Verifikasi & seleksi poin** — verifikasi per berkas oleh panitia;
+    seleksi poin opsional per unit (aturan otomatis dari umur, jawaban
+    formulir, asal sekolah, saudara kandung, dan status anak + kriteria
+    manual + koreksi beralasan), dengan batas poin dan penetapan massal
+    **Tetapkan dari Poin**. Wali tidak melihat poin.
+*   **Pengumuman per jalur** — waktu pengumuman dapat diatur per jalur
+    dengan waktu global gelombang sebagai cadangan; hasil tidak terlihat
+    wali sebelum waktunya.
+*   **Transparansi untuk wali** — halaman Rincian Pendaftaran (semua data
+    yang sudah diinput) dan Jadwal Penting, jadwal terdekat di dasbor.
+*   **Notifikasi di dalam aplikasi** — petugas menerima pemberitahuan
+    pengajuan & pembayaran yang menunggu keputusan; wali menerima
+    pemberitahuan keputusan, hasil verifikasi, status pembayaran, dan
+    **pengingat jatuh tempo termin** (3 hari sebelum dan pada hari H).
+*   **Laporan** — ringkasan SPMB per unit, laporan pembayaran formulir,
+    Daftar Siswa semua status, dan export CSV.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Teknologi
 
 *   **Backend**: Laravel 12 (PHP 8.2+)
 *   **Frontend**: Blade + Bootstrap 5 + Bootstrap Icons + AdminLTE 4
-*   **JS Libraries**: jQuery 3.7+, Datatables.net BS5
+*   **Tabel**: Yajra DataTables (server-side)
+*   **Hak akses**: Spatie Laravel Permission (RBAC)
 *   **Asset Bundler**: Vite
-*   **RBAC Package**: `spatie/laravel-permission`
-*   **DataTables Package**: `yajra/laravel-datatables-oracle`
-*   **Activity Logging Package**: `spatie/laravel-activitylog`
 
 ---
 
-## 📋 Prerequisites
+## 📋 Prasyarat
 
-Before setting up the repository, make sure you have the following installed on your machine:
-
-*   **PHP** >= 8.2 (with required extensions: `pdo`, `mbstring`, `openssl`, `xml`, etc.)
+*   **PHP** >= 8.2 (ekstensi standar Laravel: `pdo`, `mbstring`, `openssl`, `xml`, dll.)
 *   **Composer**
-*   **Node.js** (LTS version recommended) & **NPM**
-*   **Database** (MySQL, SQLite, or PostgreSQL)
+*   **Node.js** (LTS) & **NPM**
+*   **Database**: MySQL (produksi & test) atau SQLite (pengembangan lokal)
 
 ---
 
-## ⚙️ Installation & Setup
+## ⚙️ Instalasi
 
-Follow these steps to set up the project locally:
-
-### 1. Clone the Repository
 ```bash
-git clone https://github.com/ainulrokhman/laravel-admin.git
-cd laravel-admin
-```
+# 1. Clone repository
+git clone https://github.com/ainulrokhman/spmb.git
+cd spmb
 
-### 2. Fast-Track Installation (Recommended)
-This repository includes a custom Composer script that automates the setup process (installs composer/npm dependencies, creates `.env`, generates app keys, runs migrations, and builds assets).
-```bash
-composer run setup
-```
-
-*Or perform the steps manually:*
-```bash
-# Install PHP dependencies
+# 2. Install dependensi PHP dan frontend
 composer install
-
-# Create environment configuration file
-cp .env.example .env
-
-# Generate application key
-php artisan key:generate
-
-# Install NPM dependencies
-npm install
-
-# Build static assets
-npm run build
-```
-
-### 3. Configure Database
-Update the database connection details in your `.env` file:
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=laravel_admin
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-### 4. Database Migrations & Seeding
-Run migrations and seed default roles, permissions, and demo users to the database:
-```bash
-php artisan migrate
-php artisan db:seed --class=RolesAndPermissionsSeeder
-```
-
-### 5. Running the Application
-Start the development server. The repository includes a helper script that starts the Artisan local server, Laravel queue listener, Pail logging output, and Vite hot reload server concurrently:
-```bash
-composer run dev
-```
-
----
-
-## 🔑 Default Credentials
-
-The database seeder configures three roles and demo users with the default password `password`:
-
-| User Role | Email | Password | Allowed Permissions |
-| :--- | :--- | :--- | :--- |
-| **Super Admin** | `superadmin@example.com` | `password` | *All privileges (bypasses checks)* |
-| **Admin** | `admin@example.com` | `password` | User CRUD, Role CRUD, view permissions, view dashboard |
-| **Regular User** | `user@example.com` | `password` | View dashboard only |
-
-> [!WARNING]
-> **Demo accounts — never use them in production.** These seeded accounts, including the quick-login buttons on the login page, exist for local development and demos only, and their credentials are public in this README. Do **not** run the seeder on a production server. If you already did, change these passwords immediately or delete the demo accounts.
-
----
-
-## 🛡️ Architecture & Guidelines
-
-To maintain code security, authorization uniformity, and project style consistency, please follow these rules during development:
-
-### 1. Permission Naming Convention
-*   CRUD permissions follow the `<resource>-list`, `<resource>-create`, `<resource>-edit`, `<resource>-delete`, `<resource>-show` pattern.
-*   Custom action permissions use `view-<name>` or `manage-<action>`.
-*   Ensure all new permissions are registered in `$permissions` within [RolesAndPermissionsSeeder.php](database/seeders/RolesAndPermissionsSeeder.php) via `firstOrCreate`.
-
-### 2. Strict Access Checks
-*   **Controller Level**: Authorize methods at the top using `Gate::authorize()`:
-    ```php
-    public function index()
-    {
-        Gate::authorize('user-list');
-        // ...
-    }
-    ```
-*   **Routes Level**: Protect routes using Spatie permission middleware:
-    ```php
-    Route::resource('users', UserController::class)->middleware('permission:user-list');
-    ```
-*   **Blade templates**: Hide unauthorized actions and navigation links inside checks:
-    ```html
-    @can('user-create')
-        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">Add User</a>
-    @endcan
-    ```
-
-### 3. Server-Side DataTables Implementation
-All main data lists should load dynamically and asynchronously using Ajax Yajra DataTables:
-*   Declare empty HTML tables with specific element IDs.
-*   In the controller, detect AJAX requests (`$request->ajax()`), load relationships eagerly to prevent N+1 queries, construct DataTables using `datatables()->of($query)`, declare dynamic action columns, and return the response.
-
-### 4. Security Rules
-*   **Self-Deletion Safeguard**: Users must not be allowed to delete their own accounts:
-    ```php
-    if (auth()->id() === $user->id) {
-        return back()->with('error', 'You cannot delete your own account.');
-    }
-    ```
-*   **Super Admin Protection**: The email or record of `superadmin@example.com` must be protected from deletion or modifications.
-*   **Hashing**: Always hash user passwords during creation or updates using `Hash::make()`.
- 
- ### 5. Audit Logging & Custom Models
- *   For core database models (e.g. `User`, `Role`, `Permission`) requiring change-tracking, implement the `Spatie\Activitylog\Traits\LogsActivity` trait and define the `getActivitylogOptions()` method.
- *   To track third-party vendor models like Spatie's `Role` and `Permission`, extend Spatie's base models under `App\Models\Role` and `App\Models\Permission` and point to them in `config/permission.php`.
- *   Access to Activity Logs is restricted using the `activity-log-list` permission.
-
----
-
-## 🧪 Testing
-
-The test suite runs against its own MySQL database, as configured in `phpunit.xml` (database `laravel-admin-testing`, user `root`, password `root`). Create that database first, then run:
-
-```bash
-# Install PHP dependencies
-composer install
-
-# Build the frontend assets (required: tests that render views
-# fail without the Vite manifest)
 npm ci
+
+# 3. Konfigurasi environment
+cp .env.example .env
+php artisan key:generate
+```
+
+Edit `.env` sesuai lingkungan Anda — terutama koneksi database, serta
+variabel pada bagian **Konfigurasi Penting** di bawah.
+
+```bash
+# 4. Migrasi + data awal (role, izin, master SPMB, akun Super Admin awal)
+php artisan migrate --seed
+
+# 5. Tautan penyimpanan publik (wajib untuk berkas & bukti transfer)
+php artisan storage:link
+
+# 6. Build aset frontend
 npm run build
 
-# Run the full test suite
+# 7. Jalankan aplikasi
+php artisan serve
+```
+
+Aplikasi berjalan di `http://localhost:8000`. Halaman info pendaftaran
+publik tersedia di `/pendaftaran`, area wali di `/wali`, dan panel admin
+di `/admin` (login staf).
+
+---
+
+## 🔧 Konfigurasi Penting
+
+### Akun Super Admin awal
+
+Akun awal dibuat oleh `InitialAdminSeeder` saat `db:seed`, dari variabel:
+
+```dotenv
+SUPER_ADMIN_NAME="Super Admin"
+SUPER_ADMIN_EMAIL=superadmin@example.com
+SUPER_ADMIN_PASSWORD=
+```
+
+`SUPER_ADMIN_PASSWORD` **wajib diisi** — bila kosong, akun awal tidak
+dibuat dan seeder hanya menampilkan peringatan. Ganti kata sandi ini di
+lingkungan produksi.
+
+### Kanal pembayaran Midtrans
+
+Isi dari dashboard Midtrans (sandbox atau production):
+
+```dotenv
+MIDTRANS_SERVER_KEY=
+MIDTRANS_CLIENT_KEY=
+MIDTRANS_PRODUCTION=false
+```
+
+Kanal Manual tidak membutuhkan kunci — instruksi pembayaran untuk wali
+diatur dari menu **Pengaturan** di panel admin. Kanal dapat
+diaktifkan/dinonaktifkan dari Pengaturan juga.
+
+### Penjadwal (scheduler)
+
+Pengingat jatuh tempo termin dan pembersihan notifikasi lama berjalan
+lewat penjadwal Laravel. Di server produksi, daftarkan cron berikut
+(sekali saja):
+
+```cron
+* * * * * cd /path/ke/spmb && php artisan schedule:run >> /dev/null 2>&1
+```
+
+---
+
+## 👥 Data Demo (lokal saja)
+
+Untuk mencoba alur lengkap tanpa mengisi data dari nol:
+
+```bash
+php artisan db:seed --class=DemoSeeder
+```
+
+Semua akun demo memakai kata sandi `password`:
+
+| Akun | Keterangan |
+| --- | --- |
+| `superadmin@example.com` | Super Admin |
+| `admin@example.com` | Admin yayasan |
+| `panitia.smp@example.com` | Panitia unit SMP |
+| `panitia.smk@example.com` | Panitia unit SMK |
+| HP `081200000001` s.d. `081200000003` | Wali (login dengan nomor HP) |
+
+Data demo membuat beberapa pendaftaran contoh pada berbagai tahap alur.
+**Jangan jalankan seeder ini di produksi.**
+
+---
+
+## 🧪 Test
+
+Suite test memakai database MySQL tersendiri sesuai `phpunit.xml`
+(database `spmb-testing`, user `root`, kata sandi `root`). Buat database
+tersebut terlebih dahulu, lalu:
+
+```bash
+composer install
+npm ci
+npm run build   # wajib: test yang merender halaman butuh manifest Vite
 php artisan test
 ```
 
-The same suite also runs automatically on GitHub Actions for every push and pull request to `master`.
+Suite yang sama berjalan otomatis lewat GitHub Actions pada setiap push
+dan pull request ke branch `done`.
 
 ---
 
-## 📄 License
+## 📄 Lisensi
 
-This project is open-sourced software licensed under the [MIT license](LICENSE).
+Proyek ini adalah perangkat lunak sumber terbuka berlisensi
+[MIT license](LICENSE).
