@@ -193,6 +193,15 @@
 
                         @can('application-list')
                         <li class="nav-item">
+                            <a href="{{ route('admin.students.index') }}" class="nav-link {{ request()->is('admin/students*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-people me-2"></i>
+                                <p>Daftar Siswa</p>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('application-list')
+                        <li class="nav-item">
                             <a href="{{ route('admin.reports.index') }}" class="nav-link {{ request()->is('admin/reports*') ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-bar-chart me-2"></i>
                                 <p>Laporan SPMB</p>

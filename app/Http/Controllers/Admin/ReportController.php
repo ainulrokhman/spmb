@@ -98,6 +98,50 @@ class ReportController extends Controller
     }
 
     /**
+     * CSV export of form-fee payments matching the filters:
+     * one row per application, with its settled payment's
+     * channel, reference and date when it has one.
+     */
+    public function exportFormPayments(Request $request): StreamedResponse
+    {
+        $unitIds = $this->accessibleUnitIds($request);
+        $yearId = $request->query('academic_year_id') ? (int) $request->query('academic_year_id') : null;
+
+        $applications = $this->reports->formPaymentsForExport(
+            $yearId,
+            $request->query('school_unit_id') ? [(int) $request->query('school_unit_id')] : $unitIds,
+            $request->query('admission_wave_id') ? (int) $request->query('admission_wave_id') : null,
+        );
+
+        return response()->streamDownload(function () use ($applications) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Nomor Pendaftaran', 'Nama Anak', 'Unit', 'Gelombang', 'Jalur', 'Nama Wali', 'No HP Wali', 'Biaya Formulir', 'Diskon', 'Dibayar', 'Status Biaya Formulir', 'Kanal', 'Referensi', 'Tanggal Bayar']);
+
+            foreach ($applications as $application) {
+                $payment = $application->payments->first();
+                fputcsv($out, [
+                    $application->registration_number,
+                    $application->child_name,
+                    $application->schoolUnit?->name,
+                    $application->admissionWave?->name,
+                    $application->admissionTrack?->name,
+                    $application->user?->name,
+                    $application->user?->phone,
+                    $application->form_fee_amount,
+                    $application->discountAmount(),
+                    $application->payableAmount(),
+                    $application->feeStatusLabel(),
+                    $payment?->channelLabel(),
+                    $payment?->reference,
+                    $payment?->paid_at?->format('Y-m-d H:i'),
+                ]);
+            }
+
+            fclose($out);
+        }, 'pembayaran-formulir-spmb.csv', ['Content-Type' => 'text/csv']);
+    }
+
+    /**
      * CSV export of re-registration invoices matching the filters.
      */
     public function exportInvoices(Request $request): StreamedResponse

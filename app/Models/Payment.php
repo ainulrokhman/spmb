@@ -25,6 +25,17 @@ class Payment extends Model
         'failed' => 'Gagal',
     ];
 
+    /**
+     * Payment channel keys and their display labels.
+     *
+     * @var array<string, string>
+     */
+    public const CHANNELS = [
+        'manual' => 'Manual',
+        'midtrans' => 'Midtrans',
+        'bsi' => 'BSI',
+    ];
+
     protected $fillable = [
         'channel',
         'amount',
@@ -52,5 +63,10 @@ class Payment extends Model
     public function statusLabel(): string
     {
         return self::STATUSES[$this->status] ?? $this->status;
+    }
+
+    public function channelLabel(): string
+    {
+        return self::CHANNELS[$this->channel] ?? $this->channel;
     }
 }

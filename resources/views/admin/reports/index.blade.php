@@ -40,6 +40,7 @@
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Terapkan</button>
                 <a href="{{ route('admin.reports.export.applications', request()->query()) }}" class="btn btn-outline-success"><i class="bi bi-filetype-csv"></i> Export Pendaftar</a>
+                <a href="{{ route('admin.reports.export.form-payments', request()->query()) }}" class="btn btn-outline-success"><i class="bi bi-filetype-csv"></i> Export Formulir</a>
                 @can('invoice-list')
                     <a href="{{ route('admin.reports.export.invoices', request()->query()) }}" class="btn btn-outline-success"><i class="bi bi-filetype-csv"></i> Export Tagihan</a>
                 @endcan
@@ -96,6 +97,36 @@
                     @endif
                 </div>
             </div>
+
+            <hr>
+            <h6 class="fw-bold">Pembayaran Formulir</h6>
+            <div class="row g-3 text-center">
+                <div class="col-6 col-md-3">
+                    <div class="border rounded-3 p-3">
+                        <div class="fs-4 fw-bold">{{ $row['form_fees']['paid_count'] }}</div>
+                        <div class="text-muted small">Lunas — diterima Rp {{ number_format($row['form_fees']['received_total'], 0, ',', '.') }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="border rounded-3 p-3">
+                        <div class="fs-4 fw-bold">{{ $row['form_fees']['free_count'] + $row['form_fees']['waived_count'] }}</div>
+                        <div class="text-muted small">Gratis ({{ $row['form_fees']['free_count'] }}) &middot; Dibebaskan ({{ $row['form_fees']['waived_count'] }})</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="border rounded-3 p-3">
+                        <div class="fs-4 fw-bold">{{ $row['form_fees']['unpaid_count'] }}</div>
+                        <div class="text-muted small">Belum Bayar / Menunggu Konfirmasi</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="border rounded-3 p-3">
+                        <div class="fs-5 fw-bold">Rp {{ number_format($row['form_fees']['discount_total'], 0, ',', '.') }}</div>
+                        <div class="text-muted small">Total Diskon Formulir</div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-muted small mt-2 mb-0">Penerimaan per kanal: Manual <strong>Rp {{ number_format($row['form_fees']['by_channel']['manual'] ?? 0, 0, ',', '.') }}</strong> &middot; Midtrans <strong>Rp {{ number_format($row['form_fees']['by_channel']['midtrans'] ?? 0, 0, ',', '.') }}</strong></p>
 
             <hr>
             <h6 class="fw-bold">Daftar Ulang &amp; Tagihan</h6>
