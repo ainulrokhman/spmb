@@ -32,6 +32,7 @@ class SyncComponentUnitsRequest extends FormRequest
             'units' => ['nullable', 'array'],
             'units.*.mode' => ['required', Rule::in(array_merge(['unused'], Fee::MODES))],
             'units.*.min_amount' => ['nullable', 'integer', 'min:0'],
+            'units.*.is_active' => ['nullable', 'boolean'],
         ];
     }
 
@@ -39,7 +40,7 @@ class SyncComponentUnitsRequest extends FormRequest
      * The normalized per-unit mappings, limited to units that
      * actually exist.
      *
-     * @return array<int, array{mode: string, min_amount: int|null}>
+     * @return array<int, array{mode: string, min_amount: int|null, is_active: bool}>
      */
     public function units(): array
     {
@@ -52,6 +53,7 @@ class SyncComponentUnitsRequest extends FormRequest
                 'min_amount' => isset($mapping['min_amount']) && $mapping['min_amount'] !== ''
                     ? (int) $mapping['min_amount']
                     : null,
+                'is_active' => filter_var($mapping['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
             ])
             ->all();
     }

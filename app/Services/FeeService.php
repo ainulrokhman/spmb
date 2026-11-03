@@ -15,7 +15,7 @@ class FeeService implements FeeServiceInterface
     /**
      * Sync a unit's fee mappings (components not present are removed).
      *
-     * @param  array<int, array{mode: string, min_amount: int|null}>  $mappings  keyed by fee component id
+     * @param  array<int, array{mode: string, min_amount: int|null, is_active: bool}>  $mappings  keyed by fee component id
      */
     public function syncUnitFees(SchoolUnit $unit, array $mappings): void
     {
@@ -30,6 +30,7 @@ class FeeService implements FeeServiceInterface
                     [
                         'mode' => $mapping['mode'],
                         'min_amount' => $mapping['mode'] === Fee::MODE_BEBAS ? ($mapping['min_amount'] ?? null) : null,
+                        'is_active' => $mapping['is_active'] ?? true,
                     ]
                 );
             }
@@ -39,7 +40,7 @@ class FeeService implements FeeServiceInterface
     /**
      * Sync one component's mapping across many units.
      *
-     * @param  array<int, array{mode: string, min_amount: int|null}>  $perUnit
+     * @param  array<int, array{mode: string, min_amount: int|null, is_active: bool}>  $perUnit
      */
     public function syncComponentFees(FeeComponent $component, array $perUnit): void
     {
@@ -61,6 +62,7 @@ class FeeService implements FeeServiceInterface
                     [
                         'mode' => $mapping['mode'],
                         'min_amount' => $mapping['mode'] === Fee::MODE_BEBAS ? ($mapping['min_amount'] ?? null) : null,
+                        'is_active' => $mapping['is_active'] ?? true,
                     ]
                 );
             }

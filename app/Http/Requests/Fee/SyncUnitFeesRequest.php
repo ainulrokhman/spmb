@@ -26,6 +26,7 @@ class SyncUnitFeesRequest extends FormRequest
             'mappings' => ['nullable', 'array'],
             'mappings.*.mode' => ['required', Rule::in([...Fee::MODES, 'unused'])],
             'mappings.*.min_amount' => ['nullable', 'integer', 'min:0'],
+            'mappings.*.is_active' => ['nullable', 'boolean'],
         ];
     }
 
@@ -33,7 +34,7 @@ class SyncUnitFeesRequest extends FormRequest
      * The fee mappings keyed by component id, limited to components
      * that actually exist.
      *
-     * @return array<int, array{mode: string, min_amount: int|null}>
+     * @return array<int, array{mode: string, min_amount: int|null, is_active: bool}>
      */
     public function mappings(): array
     {
@@ -47,6 +48,7 @@ class SyncUnitFeesRequest extends FormRequest
                 'min_amount' => isset($mapping['min_amount']) && $mapping['min_amount'] !== ''
                     ? (int) $mapping['min_amount']
                     : null,
+                'is_active' => filter_var($mapping['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
             ])
             ->all();
     }

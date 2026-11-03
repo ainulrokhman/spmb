@@ -45,8 +45,18 @@
                                 @if($needsAmounts)
                                     <span class="badge bg-warning text-dark ms-1"><i class="bi bi-exclamation-triangle"></i> Belum ada nominal</span>
                                 @endif
+                                @if($mapping && ! $mapping->is_active)
+                                    <span class="badge bg-secondary ms-1">Nonaktif</span>
+                                @endif
                             </div>
                             <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <div class="form-check form-switch mb-0">
+                                    <input type="hidden" name="units[{{ $unit->id }}][is_active]" value="0">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="aktif-unit-{{ $unit->id }}"
+                                           name="units[{{ $unit->id }}][is_active]" value="1"
+                                           {{ old('units.'.$unit->id.'.is_active', $mapping?->is_active ?? true) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="aktif-unit-{{ $unit->id }}">Aktif</label>
+                                </div>
                                 <input type="number" min="0" step="1"
                                        name="units[{{ $unit->id }}][min_amount]"
                                        value="{{ old('units.'.$unit->id.'.min_amount', $mapping?->min_amount) }}"
