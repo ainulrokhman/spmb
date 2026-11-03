@@ -21,7 +21,8 @@ class InvoiceService implements InvoiceServiceInterface
 
     /**
      * The resolved draft lines for an application's re-registration
-     * invoice: per fee of the unit, its mode and — for fixed fees —
+     * invoice: per active fee of the unit (a disabled mapping is
+     * never billed), its mode and — for fixed fees —
      * the resolved amount, for pilihan fees the choosable tiers, and
      * for bebas fees the minimum.
      *
@@ -32,6 +33,7 @@ class InvoiceService implements InvoiceServiceInterface
         $fees = Fee::query()
             ->with('feeComponent')
             ->where('school_unit_id', $application->school_unit_id)
+            ->where('is_active', true)
             ->get()
             ->sortBy(fn (Fee $fee) => $fee->feeComponent?->code)
             ->values();

@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\FeeServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Fee\SyncUnitFeesRequest;
+use App\Models\ChildStatus;
+use App\Models\Fee;
 use App\Models\FeeComponent;
 use App\Models\SchoolUnit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class UnitFeeController extends Controller
@@ -36,12 +39,13 @@ class UnitFeeController extends Controller
             ->orderBy('name')
             ->get()
             ->map(function (SchoolUnit $unit) {
-                $mappings = $unit->fees()->withCount('amounts')->get();
+                $activeMappings = $unit->fees()->withCount('amounts')->get()
+                    ->where('is_active', true);
 
                 return [
                     'unit' => $unit,
-                    'active' => $mappings->count(),
-                    'warnings' => $mappings->filter(fn ($fee) => in_array($fee->mode, ['fixed', 'pilihan'], true) && $fee->amounts_count === 0)->count(),
+                    'active' => $activeMappings->count(),
+                    'warnings' => $activeMappings->filter(fn ($fee) => in_array($fee->mode, ['fixed', 'pilihan'], true) && $fee->amounts_count === 0)->count(),
                 ];
             });
 
@@ -49,22 +53,64 @@ class UnitFeeController extends Controller
     }
 
     /**
-     * Show the fee mapping matrix for a school unit.
+     * Show the fee mapping matrix for a school unit, together
+     * with a sample-invoice preview: what one student with the
+     * chosen track/gender/status combination would be billed
+     * by the active mappings.
      */
-    public function edit(SchoolUnit $schoolUnit)
+    public function edit(Request $request, SchoolUnit $schoolUnit)
     {
         abort_unless(auth()->user()->can('school-unit-edit') || auth()->user()->can('unit-fee-manage'), 403);
         abort_unless(auth()->user()->hasUnitAccess($schoolUnit->id), 403);
 
         $components = FeeComponent::where('is_active', true)->orderBy('name')->get();
         $mappings = $schoolUnit->fees()
-            ->with(['amounts' => fn ($query) => $query->orderBy('sort_order'), 'amounts.admissionTrack'])
+            ->with(['feeComponent', 'amounts' => fn ($query) => $query->orderBy('sort_order'), 'amounts.admissionTrack', 'amounts.childStatus'])
             ->withCount('amounts')
             ->get()
             ->keyBy('fee_component_id');
         $tracks = $schoolUnit->admissionTracks()->where('is_active', true)->orderBy('name')->get();
+        $childStatuses = ChildStatus::where('is_active', true)->orderBy('id')->get();
 
-        return view('admin.school-units.fees', compact('schoolUnit', 'components', 'mappings', 'tracks'));
+        $previewTrackId = $request->query('preview_track_id') !== null && $request->query('preview_track_id') !== ''
+            ? (int) $request->query('preview_track_id')
+            : null;
+        $previewGender = $request->query('preview_gender', 'L');
+        $previewStatusParam = $request->query('preview_child_status_id');
+        $previewStatusId = ($previewStatusParam === null || $previewStatusParam === '')
+            ? ChildStatus::where('name', 'Reguler')->where('is_active', true)->value('id')
+            : (int) $previewStatusParam;
+
+        $previewLines = [];
+        $previewFixedTotal = 0;
+
+        foreach ($mappings as $mapping) {
+            if (! $mapping->is_active) {
+                continue;
+            }
+
+            $line = ['mapping' => $mapping, 'amount' => null, 'options' => []];
+
+            if ($mapping->mode === Fee::MODE_FIXED) {
+                $line['amount'] = $this->feeService->resolveFixedAmount($mapping, $previewTrackId, $previewGender, $previewStatusId);
+                $previewFixedTotal += $line['amount'] ?? 0;
+            } elseif ($mapping->mode === Fee::MODE_PILIHAN) {
+                $line['options'] = $this->feeService->resolveAmounts($mapping, $previewTrackId, $previewGender, $previewStatusId)
+                    ->pluck('amount')
+                    ->map(fn ($amount) => (int) $amount)
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->all();
+            }
+
+            $previewLines[] = $line;
+        }
+
+        return view('admin.school-units.fees', compact(
+            'schoolUnit', 'components', 'mappings', 'tracks', 'childStatuses',
+            'previewLines', 'previewFixedTotal', 'previewTrackId', 'previewGender', 'previewStatusId'
+        ));
     }
 
     /**

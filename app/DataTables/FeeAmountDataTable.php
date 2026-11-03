@@ -38,13 +38,14 @@ class FeeAmountDataTable
     }
 
     /**
-     * Build the `mapping` column renderer (unit with component subtext).
+     * Build the `mapping` column renderer (component name first,
+     * with the unit and mode as subtext).
      */
     private function mappingColumn(): \Closure
     {
         return function ($feeAmount) {
-            return '<span class="fw-semibold text-body">'.e($feeAmount->fee?->schoolUnit?->name ?? '-').'</span>'
-                .'<span class="text-muted small d-block">'.e($feeAmount->fee?->feeComponent?->name ?? '').' &middot; '.e($feeAmount->fee?->mode ?? '').'</span>';
+            return '<span class="fw-semibold text-body">'.e($feeAmount->fee?->feeComponent?->name ?? '-').'</span>'
+                .'<span class="text-muted small d-block">'.e($feeAmount->fee?->schoolUnit?->name ?? '').' &middot; '.e($feeAmount->fee?->mode ?? '').'</span>';
         };
     }
 

@@ -41,6 +41,7 @@ class Fee extends Model
         'fee_component_id',
         'mode',
         'min_amount',
+        'is_active',
     ];
 
     /**
@@ -50,6 +51,7 @@ class Fee extends Model
      */
     protected $casts = [
         'min_amount' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     /**
