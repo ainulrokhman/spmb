@@ -52,6 +52,14 @@ class InvoiceInstallment extends Model
         return $this->belongsTo(Invoice::class);
     }
 
+    /**
+     * The per-component breakdown of this term.
+     */
+    public function items(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InvoiceInstallmentItem::class);
+    }
+
     public function payments(): MorphMany
     {
         return $this->morphMany(Payment::class, 'payable');

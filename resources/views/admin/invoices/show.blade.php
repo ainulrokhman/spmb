@@ -231,21 +231,59 @@
                 <h5 class="mb-0 fw-bold text-body">Cicilan</h5>
             </div>
             <div class="card-body px-4 pb-4">
+                @php($shares = $invoice->componentPayableShares())
                 @if($invoice->installment_request_status === 'pending')
                     <p class="small text-muted">Alasan wali: {{ $invoice->installment_request_reason }}</p>
                     <form method="POST" action="{{ route('admin.invoices.decide-installment', $invoice) }}">
                         @csrf
                         <div class="mb-2">
-                            <label class="form-label fw-semibold text-secondary">Rincian Termin</label>
-                            <div class="form-text mb-2">Total rincian harus sama dengan sisa tagihan: <strong>Rp {{ number_format($invoice->payableAmount(), 0, ',', '.') }}</strong>. Rincian hanya Anda yang menentukan.</div>
-                            <div id="termin-rows">
-                                <div class="d-flex gap-2 mb-2 termin-row">
-                                    <input type="number" name="installments[0][amount]" class="form-control" min="1" placeholder="Nominal termin" required>
-                                    <input type="date" name="installments[0][due_date]" class="form-control" required>
-                                    <button type="button" class="btn btn-outline-danger remove-termin" title="Hapus termin">&times;</button>
-                                </div>
+                            <label class="form-label fw-semibold text-secondary">Rincian Termin per Komponen</label>
+                            <div class="form-text mb-2">Isi berapa bagian dari setiap komponen yang dibayar pada tiap termin. Total setiap kolom harus sama persis dengan yang harus dibayar untuk komponen itu (diskon tagihan sudah dibagi proporsional ke komponen). Total keseluruhan: <strong>Rp {{ number_format($invoice->payableAmount(), 0, ',', '.') }}</strong>.</div>
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle" data-matrix>
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="text-secondary fw-semibold">Jatuh Tempo</th>
+                                            @foreach($invoice->items as $item)
+                                                <th class="text-secondary fw-semibold">{{ $item->component_name }}<span class="d-block fw-normal small">harus Rp {{ number_format($shares[$item->id] ?? 0, 0, ',', '.') }}</span></th>
+                                            @endforeach
+                                            <th class="text-secondary fw-semibold">Total Termin</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="termin-rows">
+                                        <tr class="termin-row">
+                                            <td><input type="date" name="installments[0][due_date]" class="form-control form-control-sm" required></td>
+                                            @foreach($invoice->items as $item)
+                                                <td><input type="number" name="installments[0][items][{{ $item->id }}]" class="form-control form-control-sm matrix-cell" data-item="{{ $item->id }}" min="0" value="0"></td>
+                                            @endforeach
+                                            <td class="fw-semibold row-total">Rp 0</td>
+                                            <td><button type="button" class="btn btn-outline-danger btn-sm remove-termin" title="Hapus termin">&times;</button></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td class="fw-semibold">Total per Komponen</td>
+                                            @foreach($invoice->items as $item)
+                                                <td class="fw-semibold col-total" data-item="{{ $item->id }}" data-target="{{ $shares[$item->id] ?? 0 }}">Rp 0</td>
+                                            @endforeach
+                                            <td class="fw-bold grand-total">Rp 0</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
                             <button type="button" id="add-termin" class="btn btn-sm btn-outline-secondary">+ Tambah Termin</button>
+                            <template id="termin-template">
+                                <tr class="termin-row">
+                                    <td><input type="date" name="installments[__INDEX__][due_date]" class="form-control form-control-sm" required></td>
+                                    @foreach($invoice->items as $item)
+                                        <td><input type="number" name="installments[__INDEX__][items][{{ $item->id }}]" class="form-control form-control-sm matrix-cell" data-item="{{ $item->id }}" min="0" value="0"></td>
+                                    @endforeach
+                                    <td class="fw-semibold row-total">Rp 0</td>
+                                    <td><button type="button" class="btn btn-outline-danger btn-sm remove-termin" title="Hapus termin">&times;</button></td>
+                                </tr>
+                            </template>
                         </div>
                         <div class="mb-3">
                             <label for="installment_note" class="form-label fw-semibold text-secondary">Catatan Keputusan</label>
@@ -257,43 +295,76 @@
                         </div>
                     </form>
                 @elseif($invoice->installments->isNotEmpty())
-                    <p class="small text-muted">{{ $invoice->installments->where('status', 'paid')->count() }} dari {{ $invoice->installments->count() }} termin lunas.@if($invoice->installmentDecider) Disetujui oleh {{ $invoice->installmentDecider->name }}.@endif Termin yang belum lunas masih dapat diubah; totalnya harus tetap Rp {{ number_format($invoice->payableAmount(), 0, ',', '.') }}.</p>
+                    <p class="small text-muted">{{ $invoice->installments->where('status', 'paid')->count() }} dari {{ $invoice->installments->count() }} termin lunas.@if($invoice->installmentDecider) Disetujui oleh {{ $invoice->installmentDecider->name }}.@endif Termin yang belum lunas dapat diubah dan termin baru dapat ditambah dalam satu kali simpan; termin lunas atau yang sedang menunggu pembayaran/konfirmasi terkunci. Total setiap kolom komponen harus tetap sama dengan yang harus dibayar untuk komponen itu. Urutan termin dihitung ulang mengikuti tanggal jatuh tempo.</p>
                     <form method="POST" action="{{ route('admin.invoices.revise-installments', $invoice) }}">
                         @csrf
-                        <table class="table table-sm align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="text-secondary fw-semibold">Termin</th>
-                                    <th class="text-secondary fw-semibold">Nominal</th>
-                                    <th class="text-secondary fw-semibold">Jatuh Tempo</th>
-                                    <th class="text-secondary fw-semibold">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($invoice->installments as $installment)
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle" data-matrix>
+                                <thead class="table-light">
                                     <tr>
-                                        <td>{{ $installment->sequence }}</td>
-                                        <td>
-                                            @if($installment->status === 'paid')
-                                                <span class="small">Rp {{ number_format($installment->amount, 0, ',', '.') }}</span>
-                                            @else
-                                                <input type="number" name="rows[{{ $installment->id }}][amount]" class="form-control form-control-sm" min="1" value="{{ $installment->amount }}" required>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($installment->status === 'paid')
-                                                <span class="small">{{ $installment->due_date?->format('d/m/Y') }}</span>
-                                            @else
-                                                <input type="date" name="rows[{{ $installment->id }}][due_date]" class="form-control form-control-sm" value="{{ $installment->due_date?->format('Y-m-d') }}" required>
-                                            @endif
-                                        </td>
-                                        <td><span class="badge {{ $installment->status === 'paid' ? 'bg-success' : 'bg-warning text-dark' }}">{{ $installment->statusLabel() }}</span></td>
+                                        <th class="text-secondary fw-semibold">Termin</th>
+                                        <th class="text-secondary fw-semibold">Jatuh Tempo</th>
+                                        @foreach($invoice->items as $item)
+                                            <th class="text-secondary fw-semibold">{{ $item->component_name }}<span class="d-block fw-normal small">harus Rp {{ number_format($shares[$item->id] ?? 0, 0, ',', '.') }}</span></th>
+                                        @endforeach
+                                        <th class="text-secondary fw-semibold">Total</th>
+                                        <th class="text-secondary fw-semibold">Status</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach($invoice->installments as $installment)
+                                        @php($locked = $installment->status !== 'unpaid')
+                                        @php($byItem = $installment->items->keyBy('invoice_item_id'))
+                                        <tr>
+                                            <td>{{ $installment->sequence }}</td>
+                                            <td>
+                                                @if($locked)
+                                                    <span class="small">{{ $installment->due_date?->format('d/m/Y') }}</span>
+                                                @else
+                                                    <input type="date" name="rows[{{ $installment->id }}][due_date]" class="form-control form-control-sm" value="{{ $installment->due_date?->format('Y-m-d') }}" required>
+                                                @endif
+                                            </td>
+                                            @foreach($invoice->items as $item)
+                                                <td>
+                                                    @if($locked)
+                                                        <span class="small matrix-static" data-item="{{ $item->id }}" data-value="{{ $byItem->get($item->id)?->amount ?? 0 }}">Rp {{ number_format($byItem->get($item->id)?->amount ?? 0, 0, ',', '.') }}</span>
+                                                    @else
+                                                        <input type="number" name="rows[{{ $installment->id }}][items][{{ $item->id }}]" class="form-control form-control-sm matrix-cell" data-item="{{ $item->id }}" min="0" value="{{ $byItem->get($item->id)?->amount ?? 0 }}">
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                            <td class="fw-semibold row-total">Rp {{ number_format($installment->amount, 0, ',', '.') }}</td>
+                                            <td><span class="badge {{ $installment->status === 'paid' ? 'bg-success' : 'bg-warning text-dark' }}">{{ $installment->statusLabel() }}</span>@if($locked && $installment->status !== 'paid')<span class="d-block text-muted small">Terkunci</span>@endif</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tbody id="new-termin-rows"></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" class="fw-semibold">Total per Komponen</td>
+                                        @foreach($invoice->items as $item)
+                                            <td class="fw-semibold col-total" data-item="{{ $item->id }}" data-target="{{ $shares[$item->id] ?? 0 }}">Rp 0</td>
+                                        @endforeach
+                                        <td class="fw-bold grand-total">Rp 0</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                         @if($invoice->status !== 'paid')
+                            <button type="button" id="add-revision-termin" class="btn btn-sm btn-outline-secondary">+ Tambah Termin</button>
                             <button type="submit" class="btn btn-primary btn-sm">Simpan Rincian</button>
+                            <template id="new-termin-template">
+                                <tr class="termin-row">
+                                    <td><span class="text-muted small">Baru</span></td>
+                                    <td><input type="date" name="new_terms[__INDEX__][due_date]" class="form-control form-control-sm" required></td>
+                                    @foreach($invoice->items as $item)
+                                        <td><input type="number" name="new_terms[__INDEX__][items][{{ $item->id }}]" class="form-control form-control-sm matrix-cell" data-item="{{ $item->id }}" min="0" value="0"></td>
+                                    @endforeach
+                                    <td class="fw-semibold row-total">Rp 0</td>
+                                    <td><button type="button" class="btn btn-outline-danger btn-sm remove-new-termin" title="Hapus termin">&times;</button></td>
+                                </tr>
+                            </template>
                         @endif
                     </form>
                 @elseif($invoice->installment_request_status === 'rejected')
@@ -312,26 +383,102 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        function formatRp(value) {
+            return 'Rp ' + value.toLocaleString('id-ID');
+        }
+
+        // Live per-row and per-component totals for a matrix
+        // table; a component column turns red until its total
+        // matches the amount that must be paid for it.
+        function recalc(table) {
+            const totals = {};
+            let grand = 0;
+
+            table.querySelectorAll('tbody tr').forEach(function (row) {
+                let rowTotal = 0;
+
+                row.querySelectorAll('.matrix-cell').forEach(function (input) {
+                    const value = parseInt(input.value || '0', 10) || 0;
+                    rowTotal += value;
+                    totals[input.dataset.item] = (totals[input.dataset.item] || 0) + value;
+                });
+                row.querySelectorAll('.matrix-static').forEach(function (cell) {
+                    const value = parseInt(cell.dataset.value || '0', 10) || 0;
+                    rowTotal += value;
+                    totals[cell.dataset.item] = (totals[cell.dataset.item] || 0) + value;
+                });
+
+                const rowTotalCell = row.querySelector('.row-total');
+                if (rowTotalCell) {
+                    rowTotalCell.textContent = formatRp(rowTotal);
+                }
+                grand += rowTotal;
+            });
+
+            table.querySelectorAll('.col-total').forEach(function (cell) {
+                const sum = totals[cell.dataset.item] || 0;
+                const target = parseInt(cell.dataset.target || '0', 10);
+                cell.textContent = formatRp(sum);
+                cell.classList.toggle('text-danger', sum !== target);
+                cell.classList.toggle('text-success', sum === target);
+            });
+
+            const grandCell = table.querySelector('.grand-total');
+            if (grandCell) {
+                grandCell.textContent = formatRp(grand);
+            }
+        }
+
+        document.querySelectorAll('[data-matrix]').forEach(function (table) {
+            table.addEventListener('input', function () {
+                recalc(table);
+            });
+            recalc(table);
+        });
+
+        function cloneTemplateRow(template, index) {
+            const holder = document.createElement('tbody');
+            holder.innerHTML = template.innerHTML.split('__INDEX__').join(index);
+            return holder.firstElementChild;
+        }
+
+        // Approval form: add/remove term rows.
         const rows = document.getElementById('termin-rows');
         const addBtn = document.getElementById('add-termin');
-        if (!rows || !addBtn) {
-            return;
+        const template = document.getElementById('termin-template');
+        if (rows && addBtn && template) {
+            let nextIndex = rows.children.length;
+            addBtn.addEventListener('click', function () {
+                rows.appendChild(cloneTemplateRow(template, nextIndex++));
+                recalc(rows.closest('[data-matrix]'));
+            });
+            rows.addEventListener('click', function (event) {
+                const button = event.target.closest('.remove-termin');
+                if (button && rows.children.length > 1) {
+                    button.closest('.termin-row').remove();
+                    recalc(rows.closest('[data-matrix]'));
+                }
+            });
         }
-        let nextIndex = rows.children.length;
-        addBtn.addEventListener('click', function () {
-            const div = document.createElement('div');
-            div.className = 'd-flex gap-2 mb-2 termin-row';
-            div.innerHTML = '<input type="number" name="installments[' + nextIndex + '][amount]" class="form-control" min="1" placeholder="Nominal termin" required>' +
-                '<input type="date" name="installments[' + nextIndex + '][due_date]" class="form-control" required>' +
-                '<button type="button" class="btn btn-outline-danger remove-termin" title="Hapus termin">&times;</button>';
-            rows.appendChild(div);
-            nextIndex++;
-        });
-        rows.addEventListener('click', function (event) {
-            if (event.target.classList.contains('remove-termin') && rows.children.length > 1) {
-                event.target.closest('.termin-row').remove();
-            }
-        });
+
+        // Revision form: add/remove NEW term rows.
+        const newRows = document.getElementById('new-termin-rows');
+        const addNewBtn = document.getElementById('add-revision-termin');
+        const newTemplate = document.getElementById('new-termin-template');
+        if (newRows && addNewBtn && newTemplate) {
+            let nextNewIndex = 0;
+            addNewBtn.addEventListener('click', function () {
+                newRows.appendChild(cloneTemplateRow(newTemplate, nextNewIndex++));
+                recalc(newRows.closest('[data-matrix]'));
+            });
+            newRows.addEventListener('click', function (event) {
+                const button = event.target.closest('.remove-new-termin');
+                if (button) {
+                    button.closest('.termin-row').remove();
+                    recalc(newRows.closest('[data-matrix]'));
+                }
+            });
+        }
     });
 </script>
 @endpush

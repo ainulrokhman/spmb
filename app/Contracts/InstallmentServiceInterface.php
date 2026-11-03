@@ -17,22 +17,40 @@ interface InstallmentServiceInterface
 
     /**
      * Decide a pending installment request (committee side). When
-     * approving, the committee provides the term schedule: a list
-     * of ['amount' => int, 'due_date' => string] whose amounts
-     * must total the invoice's payable amount.
+     * approving, the committee provides the term schedule. Each
+     * term carries a 'due_date' and either an 'items' map
+     * (invoice item id => amount) detailing the term per
+     * component — the per-component totals must equal each
+     * component's payable share — or a bare 'amount', which is
+     * then allocated over the components greedily.
      *
-     * @param  list<array{amount: int, due_date: string}>|null  $schedule
+     * @param  list<array<string, mixed>>|null  $schedule
      */
     public function decideInstallmentRequest(Invoice $invoice, bool $approve, ?array $schedule, User $decider, ?string $note): Invoice;
 
     /**
-     * Revise the unpaid terms of an existing plan (committee
-     * side). Paid terms are locked; the unpaid amounts must keep
-     * totalling the invoice's remaining payable amount.
+     * Revise an existing plan (committee side) and optionally
+     * add new terms in the same save. Settled terms and terms
+     * with a payment in flight are locked; every still-unpaid
+     * term must be present in $rows. Rows and new terms follow
+     * the same shape as the approval schedule (per-component
+     * 'items' maps, or bare amounts that are re-allocated
+     * greedily). After the save, terms are re-sequenced by
+     * due date.
      *
-     * @param  array<int, array{amount: int, due_date: string}>  $rows  keyed by installment id
+     * @param  array<int, array<string, mixed>>  $rows  keyed by installment id
+     * @param  list<array<string, mixed>>  $newTerms
      */
-    public function reviseSchedule(Invoice $invoice, array $rows): Invoice;
+    public function reviseSchedule(Invoice $invoice, array $rows, array $newTerms = []): Invoice;
+
+    /**
+     * Fill the per-component breakdown of every term that does
+     * not have one yet, greedily in sequence order against the
+     * components' remaining payable shares. Used for plans
+     * created from amount-only schedules and to backfill plans
+     * that predate the breakdown.
+     */
+    public function allocateTermItems(Invoice $invoice): void;
 
     /**
      * Settle one term after its payment is confirmed; when every

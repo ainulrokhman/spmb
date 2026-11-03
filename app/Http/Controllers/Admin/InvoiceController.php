@@ -56,7 +56,7 @@ class InvoiceController extends Controller
     {
         $this->ensureUnitAccess($request, $invoice);
 
-        $invoice->load(['items', 'application.user', 'application.schoolUnit', 'application.admissionWave', 'application.admissionTrack', 'payments', 'decider', 'installments.payments', 'installmentDecider']);
+        $invoice->load(['items', 'application.user', 'application.schoolUnit', 'application.admissionWave', 'application.admissionTrack', 'payments', 'decider', 'installments.payments', 'installments.items.invoiceItem', 'installmentDecider']);
 
         return view('admin.invoices.show', compact('invoice'));
     }
@@ -133,15 +133,17 @@ class InvoiceController extends Controller
             'decision' => ['required', 'in:approve,reject'],
             'note' => ['nullable', 'string', 'max:500'],
             'installments' => ['nullable', 'array'],
-            'installments.*.amount' => ['required_with:installments', 'integer', 'min:1'],
+            'installments.*.amount' => ['nullable', 'integer', 'min:1'],
             'installments.*.due_date' => ['required_with:installments', 'date'],
+            'installments.*.items' => ['nullable', 'array'],
+            'installments.*.items.*' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $schedule = null;
 
         if (($data['decision'] ?? null) === 'approve' && ! empty($data['installments'])) {
             $schedule = array_values(array_map(
-                fn (array $term) => ['amount' => (int) $term['amount'], 'due_date' => (string) $term['due_date']],
+                fn (array $term) => $this->normalizeTermInput($term),
                 $data['installments'],
             ));
         }
@@ -162,31 +164,67 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Revise the unpaid terms of an existing installment plan.
+     * Revise the unpaid terms of an existing installment plan
+     * and optionally add new terms in the same save. Terms are
+     * submitted as per-component breakdowns (rows / new_terms).
      */
     public function reviseInstallments(Request $request, Invoice $invoice)
     {
         $this->ensureUnitAccess($request, $invoice);
 
         $data = $request->validate([
-            'rows' => ['required', 'array'],
-            'rows.*.amount' => ['required', 'integer', 'min:1'],
-            'rows.*.due_date' => ['required', 'date'],
+            'rows' => ['nullable', 'array'],
+            'rows.*.amount' => ['nullable', 'integer', 'min:1'],
+            'rows.*.due_date' => ['nullable', 'date'],
+            'rows.*.items' => ['nullable', 'array'],
+            'rows.*.items.*' => ['nullable', 'integer', 'min:0'],
+            'new_terms' => ['nullable', 'array'],
+            'new_terms.*.amount' => ['nullable', 'integer', 'min:1'],
+            'new_terms.*.due_date' => ['nullable', 'date'],
+            'new_terms.*.items' => ['nullable', 'array'],
+            'new_terms.*.items.*' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $rows = [];
 
-        foreach ($data['rows'] as $id => $row) {
-            $rows[(int) $id] = ['amount' => (int) $row['amount'], 'due_date' => (string) $row['due_date']];
+        foreach (($data['rows'] ?? []) as $id => $row) {
+            $rows[(int) $id] = $this->normalizeTermInput($row);
         }
 
+        $newTerms = array_values(array_map(
+            fn (array $term) => $this->normalizeTermInput($term),
+            $data['new_terms'] ?? [],
+        ));
+
         try {
-            $this->installments->reviseSchedule($invoice, $rows);
+            $this->installments->reviseSchedule($invoice, $rows, $newTerms);
         } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         }
 
         return back()->with('success', 'Rincian cicilan diperbarui.');
+    }
+
+    /**
+     * Normalize one submitted term: its per-component 'items'
+     * map when present, otherwise the bare amount.
+     *
+     * @param  array<string, mixed>  $term
+     * @return array<string, mixed>
+     */
+    private function normalizeTermInput(array $term): array
+    {
+        $normalized = ['due_date' => (string) ($term['due_date'] ?? '')];
+
+        if (isset($term['items']) && is_array($term['items'])) {
+            $normalized['items'] = collect($term['items'])
+                ->map(fn ($amount) => (int) $amount)
+                ->all();
+        } else {
+            $normalized['amount'] = (int) ($term['amount'] ?? 0);
+        }
+
+        return $normalized;
     }
 
     /**

@@ -140,6 +140,54 @@ class Invoice extends Model
     }
 
     /**
+     * What must be paid for each invoice item once the
+     * invoice-level discount is spread over the items pro
+     * rata: floor shares plus the remaining rupiah handed to
+     * the largest fractional remainders (ties broken by item
+     * id), so the shares always total payableAmount()
+     * exactly. Installment breakdowns are validated against
+     * these shares.
+     *
+     * @return array<int, int> keyed by invoice item id
+     */
+    public function componentPayableShares(): array
+    {
+        $items = $this->items()->orderBy('id')->get();
+        $total = (int) $items->sum('amount');
+        $payable = $this->payableAmount();
+
+        if ($items->isEmpty() || $total <= 0 || $payable >= $total) {
+            return $items->mapWithKeys(fn (InvoiceItem $item) => [$item->id => (int) $item->amount])->all();
+        }
+
+        $shares = [];
+        $remainders = [];
+        $assigned = 0;
+
+        foreach ($items as $item) {
+            $raw = (int) $item->amount * $payable;
+            $shares[$item->id] = intdiv($raw, $total);
+            $remainders[$item->id] = $raw % $total;
+            $assigned += $shares[$item->id];
+        }
+
+        $leftover = $payable - $assigned;
+        $candidates = $items->all();
+        usort($candidates, fn ($a, $b) => [$remainders[$b->id], $a->id] <=> [$remainders[$a->id], $b->id]);
+
+        foreach ($candidates as $item) {
+            if ($leftover <= 0) {
+                break;
+            }
+
+            $shares[$item->id]++;
+            $leftover--;
+        }
+
+        return $shares;
+    }
+
+    /**
      * The amount the guardian still has to pay.
      */
     public function payableAmount(): int

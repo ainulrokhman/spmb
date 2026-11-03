@@ -184,7 +184,11 @@
                                 @foreach($invoice->installments as $installment)
                                     <tr>
                                         <td>Termin {{ $installment->sequence }}</td>
-                                        <td class="text-end">Rp {{ number_format($installment->amount, 0, ',', '.') }}</td>
+                                        <td class="text-end">Rp {{ number_format($installment->amount, 0, ',', '.') }}
+                                            @if($installment->items->isNotEmpty())
+                                                <span class="text-muted small d-block">{{ $installment->items->map(fn ($row) => ($row->invoiceItem?->component_name ?? 'Komponen').': Rp '.number_format($row->amount, 0, ',', '.'))->implode(' &middot; ') }}</span>
+                                            @endif
+                                        </td>
                                         <td>{{ $installment->due_date?->format('d/m/Y') }}</td>
                                         <td class="text-end"><span class="badge {{ $installment->status === 'paid' ? 'bg-success' : 'bg-warning text-dark' }}">{{ $installment->statusLabel() }}</span></td>
                                     </tr>
