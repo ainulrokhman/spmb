@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\MajorServiceInterface;
 use App\DataTables\MajorDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Http\Controllers\Admin\Concerns\ReturnsToFilteredIndex;
 use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Major\StoreMajorRequest;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Gate;
 
 class MajorController extends Controller
 {
-    use HandlesServiceExceptions, ScopesUnits;
+    use HandlesServiceExceptions, ReturnsToFilteredIndex, ScopesUnits;
 
     protected MajorServiceInterface $majorService;
 
@@ -67,7 +68,7 @@ class MajorController extends Controller
 
         $major = $this->majorService->createMajor($request->validated());
 
-        return redirect()->route('admin.majors.index')
+        return redirect()->to($this->filteredIndexUrl('admin.majors.index', ['school_unit_id']))
             ->with('success', 'Jurusan "'.$major->name.'" berhasil dibuat.');
     }
 
@@ -96,7 +97,7 @@ class MajorController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.majors.index')
+        return redirect()->to($this->filteredIndexUrl('admin.majors.index', ['school_unit_id']))
             ->with('success', 'Jurusan "'.$major->name.'" berhasil diperbarui.');
     }
 
@@ -112,7 +113,7 @@ class MajorController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.majors.index')
+        return redirect()->to($this->filteredIndexUrl('admin.majors.index', ['school_unit_id']))
             ->with('success', 'Jurusan berhasil dihapus.');
     }
 }

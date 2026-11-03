@@ -19,7 +19,7 @@
             <select id="unit-filter" aria-label="Filter berdasarkan unit sekolah" class="form-select" style="width: 220px;">
                 <option value="">Semua Unit</option>
                 @foreach($units as $unit)
-                    <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                    <option value="{{ $unit->id }}" {{ (string) request()->query('school_unit_id') === (string) $unit->id ? 'selected' : '' }}>{{ $unit->name }}</option>
                 @endforeach
             </select>
 
@@ -41,7 +41,7 @@
             </form>
 
             @can('form-field-create')
-            <a href="{{ route('admin.form-fields.create') }}" class="btn btn-primary">
+            <a href="{{ route('admin.form-fields.create') }}" class="btn btn-primary" id="create-btn">
                 <i class="bi bi-ui-checks fs-5"></i> Tambah Bidang Formulir
             </a>
             @endcan
@@ -148,7 +148,25 @@
         const previewBase = "{{ route('admin.school-units.form-preview', ['school_unit' => '__UNIT__']) }}";
         const $previewButton = $('#preview-button');
 
+        // Keep the unit filter in the page URL (and in the
+        // create button's target) so it survives the round trip
+        // to a form and back.
+        function syncFilterUrl() {
+            const unitId = $('#unit-filter').val();
+            const base = "{{ route('admin.form-fields.index') }}";
+            window.history.replaceState(null, '', unitId ? base + '?school_unit_id=' + unitId : base);
+            const createBase = "{{ route('admin.form-fields.create') }}";
+            $('#create-btn').attr('href', unitId ? createBase + '?school_unit_id=' + unitId : createBase);
+        }
+
+        syncFilterUrl();
+        if ($('#unit-filter').val()) {
+            $previewButton.attr('href', previewBase.replace('__UNIT__', $('#unit-filter').val()));
+            $previewButton.removeClass('d-none').addClass('d-inline-flex');
+        }
+
         $('#unit-filter').on('change', function() {
+            syncFilterUrl();
             table.ajax.reload();
             if (this.value) {
                 $previewButton.attr('href', previewBase.replace('__UNIT__', this.value));

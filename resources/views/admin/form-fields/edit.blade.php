@@ -14,6 +14,7 @@
         <form action="{{ route('admin.form-fields.update', $formField->id) }}" method="POST">
             @csrf
             @method('PUT')
+            <input type="hidden" name="return_school_unit_id" value="{{ request()->query('school_unit_id') }}">
             @include('admin.form-fields._form', ['submitLabel' => 'Simpan Perubahan'])
         </form>
     </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\AdmissionTrackServiceInterface;
 use App\DataTables\AdmissionTrackDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Http\Controllers\Admin\Concerns\ReturnsToFilteredIndex;
 use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdmissionTrack\StoreAdmissionTrackRequest;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Gate;
 
 class AdmissionTrackController extends Controller
 {
-    use HandlesServiceExceptions, ScopesUnits;
+    use HandlesServiceExceptions, ReturnsToFilteredIndex, ScopesUnits;
 
     protected AdmissionTrackServiceInterface $admissionTrackService;
 
@@ -67,7 +68,7 @@ class AdmissionTrackController extends Controller
 
         $admissionTrack = $this->admissionTrackService->createAdmissionTrack($request->validated());
 
-        return redirect()->route('admin.admission-tracks.index')
+        return redirect()->to($this->filteredIndexUrl('admin.admission-tracks.index', ['school_unit_id']))
             ->with('success', 'Jalur pendaftaran "'.$admissionTrack->name.'" berhasil dibuat.');
     }
 
@@ -96,7 +97,7 @@ class AdmissionTrackController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.admission-tracks.index')
+        return redirect()->to($this->filteredIndexUrl('admin.admission-tracks.index', ['school_unit_id']))
             ->with('success', 'Jalur pendaftaran "'.$admissionTrack->name.'" berhasil diperbarui.');
     }
 
@@ -112,7 +113,7 @@ class AdmissionTrackController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.admission-tracks.index')
+        return redirect()->to($this->filteredIndexUrl('admin.admission-tracks.index', ['school_unit_id']))
             ->with('success', 'Jalur pendaftaran berhasil dihapus.');
     }
 }

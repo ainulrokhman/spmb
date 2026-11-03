@@ -64,12 +64,14 @@ class AdmissionTrackDataTable
     {
         return function ($admissionTrack) {
             $html = '<div class="d-flex justify-content-end gap-2">';
+            $filterQuery = request()->integer('school_unit_id') > 0 ? '?school_unit_id='.request()->integer('school_unit_id') : '';
             if (auth()->user()->can('admission-track-edit')) {
-                $html .= '<a href="'.route('admin.admission-tracks.edit', $admissionTrack->id).'" class="btn btn-sm btn-light border" title="Ubah Admission Track"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.admission-tracks.edit', $admissionTrack->id).$filterQuery.'" class="btn btn-sm btn-light border" title="Ubah Admission Track"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('admission-track-delete')) {
                 $html .= '<form action="'.route('admin.admission-tracks.destroy', $admissionTrack->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus jalur pendaftaran ini?\')">';
                 $html .= csrf_field().method_field('DELETE');
+                $html .= '<input type="hidden" name="return_school_unit_id" value="'.request()->integer('school_unit_id').'">';
                 $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Hapus Admission Track"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';
             }
