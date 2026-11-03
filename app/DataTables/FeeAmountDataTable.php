@@ -78,12 +78,23 @@ class FeeAmountDataTable
     private function actionsColumn(): \Closure
     {
         return function ($feeAmount) {
+            // Carry the active list filters along, so saving or
+            // deleting returns to the same filtered list.
+            $returnQuery = collect(['school_unit_id', 'fee_component_id'])
+                ->filter(fn ($key) => request()->filled($key))
+                ->mapWithKeys(fn ($key) => [$key => request()->integer($key)])
+                ->all();
+            $returnSuffix = $returnQuery === [] ? '' : '?'.http_build_query($returnQuery);
+
             $html = '<div class="d-flex justify-content-end gap-2">';
             if (auth()->user()->can('fee-amount-edit')) {
-                $html .= '<a href="'.route('admin.fee-amounts.edit', $feeAmount->id).'" class="btn btn-sm btn-light border" title="Ubah Fee Amount"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
+                $html .= '<a href="'.route('admin.fee-amounts.edit', $feeAmount->id).$returnSuffix.'" class="btn btn-sm btn-light border" title="Ubah Fee Amount"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
             if (auth()->user()->can('fee-amount-delete')) {
                 $html .= '<form action="'.route('admin.fee-amounts.destroy', $feeAmount->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Anda yakin ingin menghapus nominal biaya ini?\')">';
+                foreach ($returnQuery as $key => $value) {
+                    $html .= '<input type="hidden" name="return_'.$key.'" value="'.$value.'">';
+                }
                 $html .= csrf_field().method_field('DELETE');
                 $html .= '<button type="submit" class="btn btn-sm btn-light border" title="Hapus Fee Amount"><i class="bi bi-trash text-danger"></i></button>';
                 $html .= '</form>';

@@ -1,3 +1,5 @@
+            <input type="hidden" name="return_school_unit_id" value="{{ request()->query('school_unit_id') }}">
+            <input type="hidden" name="return_fee_component_id" value="{{ request()->query('fee_component_id') }}">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
                     <h5 class="mb-0 fw-bold text-body">Detail Nominal Biaya</h5>
@@ -16,7 +18,7 @@
                         <select class="form-select @error('fee_id') is-invalid @enderror" id="fee_id" name="fee_id" required>
                             <option value="">Pilih pemetaan...</option>
                             @foreach($fees as $fee)
-                                <option value="{{ $fee->id }}" data-unit-id="{{ $fee->school_unit_id }}" {{ (string) old('fee_id', $feeAmount->fee_id ?? '') === (string) $fee->id ? 'selected' : '' }}>{{ $fee->schoolUnit?->name }} — {{ $fee->feeComponent?->name }} ({{ $fee->mode }})</option>
+                                <option value="{{ $fee->id }}" data-unit-id="{{ $fee->school_unit_id }}" {{ (string) old('fee_id', $feeAmount->fee_id ?? ($preselectedFeeId ?? '')) === (string) $fee->id ? 'selected' : '' }}>{{ $fee->schoolUnit?->name }} — {{ $fee->feeComponent?->name }} ({{ $fee->mode }})</option>
                             @endforeach
                         </select>
                         @error('fee_id')

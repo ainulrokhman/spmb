@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\FeeAmountServiceInterface;
 use App\DataTables\FeeAmountDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Http\Controllers\Admin\Concerns\ReturnsToFilteredIndex;
 use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FeeAmount\StoreFeeAmountRequest;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Gate;
 
 class FeeAmountController extends Controller
 {
-    use HandlesServiceExceptions, ScopesUnits;
+    use HandlesServiceExceptions, ReturnsToFilteredIndex, ScopesUnits;
 
     protected FeeAmountServiceInterface $feeAmountService;
 
@@ -53,11 +54,23 @@ class FeeAmountController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         Gate::authorize('fee-amount-create');
 
-        return view('admin.fee-amounts.create', $this->formData());
+        // Arriving from a filtered list (unit + component) pre-selects
+        // the matching fee mapping, so the user does not pick it again.
+        $data = $this->formData();
+        $data['preselectedFeeId'] = null;
+
+        if ($request->filled('school_unit_id') && $request->filled('fee_component_id')) {
+            $data['preselectedFeeId'] = collect($data['fees'])->first(
+                fn (Fee $fee) => (int) $fee->school_unit_id === $request->integer('school_unit_id')
+                    && (int) $fee->fee_component_id === $request->integer('fee_component_id')
+            )?->id;
+        }
+
+        return view('admin.fee-amounts.create', $data);
     }
 
     /**
@@ -71,7 +84,7 @@ class FeeAmountController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.fee-amounts.index')
+        return redirect()->to($this->filteredIndexUrl('admin.fee-amounts.index', ['school_unit_id', 'fee_component_id']))
             ->with('success', 'Nominal biaya berhasil dibuat.');
     }
 
@@ -101,7 +114,7 @@ class FeeAmountController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.fee-amounts.index')
+        return redirect()->to($this->filteredIndexUrl('admin.fee-amounts.index', ['school_unit_id', 'fee_component_id']))
             ->with('success', 'Nominal biaya berhasil diperbarui.');
     }
 
@@ -117,7 +130,7 @@ class FeeAmountController extends Controller
             return $errorRedirect;
         }
 
-        return redirect()->route('admin.fee-amounts.index')
+        return redirect()->to($this->filteredIndexUrl('admin.fee-amounts.index', ['school_unit_id', 'fee_component_id']))
             ->with('success', 'Nominal biaya berhasil dihapus.');
     }
 
