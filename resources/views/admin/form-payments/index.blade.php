@@ -21,172 +21,214 @@
     </div>
 @endif
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-transparent border-0 pt-4 px-4">
-        <h5 class="mb-0 fw-bold text-body">Pengajuan Pembebasan &amp; Diskon</h5>
-        <p class="text-muted small mb-0">Pengajuan wali pada tahap pembayaran formulir yang menunggu keputusan Anda</p>
-    </div>
-    <div class="card-body px-4 pb-4">
-        @if($pendingRequests->isEmpty())
-            <p class="text-muted small mb-0">Tidak ada pengajuan yang menunggu keputusan.</p>
-        @else
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="text-secondary fw-semibold">Wali / Anak</th>
-                            <th class="text-secondary fw-semibold">Unit</th>
-                            <th class="text-secondary fw-semibold">Pengajuan</th>
-                            <th class="text-secondary fw-semibold">Alasan</th>
-                            <th class="text-secondary fw-semibold" style="width: 380px;">Keputusan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($pendingRequests as $application)
-                            <tr>
-                                <td>
-                                    <div class="fw-semibold">{{ $application->user?->name }}</div>
-                                    <div class="text-muted small">{{ $application->user?->phone }} &middot; {{ $application->child_name ?? '—' }}</div>
-                                </td>
-                                <td>{{ $application->schoolUnit?->name }}<div class="text-muted small">Biaya: Rp {{ number_format($application->form_fee_amount, 0, ',', '.') }}</div></td>
-                                <td>
-                                    @if($application->form_fee_request_kind === 'waiver')
-                                        <span class="badge bg-warning text-dark">Pembebasan penuh</span>
-                                    @elseif($application->form_fee_request_kind === 'discount')
-                                        <span class="badge bg-info">Diskon {{ $application->form_fee_request_type === 'percent' ? $application->form_fee_request_value.'%' : 'Rp '.number_format($application->form_fee_request_value, 0, ',', '.') }}</span>
-                                    @else
-                                        <span class="badge bg-info">Keringanan</span>
-                                    @endif
-                                </td>
-                                <td class="small">{{ $application->form_fee_request_reason }}
-                                    @if($application->form_fee_request_file_path)
-                                        <div><a href="{{ route('admin.applications.relief-file', $application) }}" target="_blank" rel="noopener" class="btn btn-sm btn-light border mt-1"><i class="bi bi-paperclip"></i> Lihat Lampiran</a></div>
-                                    @endif
-                                </td>
-                                <td>
-                                    <form method="POST" action="{{ route('admin.form-payments.decide', $application) }}">
-                                        @csrf
-                                        <div class="d-flex gap-2 mb-2">
-                                            <select name="relief_type" class="form-select form-select-sm" style="width: 150px;">
-                                                <option value="waiver">Bebaskan penuh</option>
-                                                <option value="percent">Diskon %</option>
-                                                <option value="nominal">Diskon Rp</option>
-                                            </select>
-                                            <input type="number" name="relief_value" class="form-control form-control-sm" style="width: 120px;" min="1" placeholder="Nilai">
-                                        </div>
-                                        <div class="d-flex gap-2">
-                                            <input type="text" name="note" class="form-control form-control-sm" placeholder="Catatan keputusan (opsional)" maxlength="500">
-                                            <button type="submit" name="decision" value="approve" class="btn btn-success btn-sm">Setujui</button>
-                                            <button type="submit" name="decision" value="reject" class="btn btn-outline-danger btn-sm" onclick="return confirm('Tolak pengajuan ini?');">Tolak</button>
-                                        </div>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
-    </div>
-</div>
-
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-transparent border-0 pt-4 px-4">
-        <h5 class="mb-0 fw-bold text-body">Beri Keringanan Langsung</h5>
-        <p class="text-muted small mb-0">Pendaftaran yang masih menunggu pembayaran formulir dan belum memiliki pengajuan — keringanan dapat diberikan atas inisiatif panitia</p>
-    </div>
-    <div class="card-body px-4 pb-4">
-        @if($grantable->isEmpty())
-            <p class="text-muted small mb-0">Tidak ada pendaftaran yang menunggu pembayaran formulir.</p>
-        @else
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="text-secondary fw-semibold">Wali / Anak</th>
-                            <th class="text-secondary fw-semibold">Unit</th>
-                            <th class="text-secondary fw-semibold" style="width: 460px;">Keringanan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($grantable as $application)
-                            <tr>
-                                <td>
-                                    <div class="fw-semibold">{{ $application->user?->name }}</div>
-                                    <div class="text-muted small">{{ $application->user?->phone }} &middot; {{ $application->child_name ?? '—' }}</div>
-                                </td>
-                                <td>{{ $application->schoolUnit?->name }}<div class="text-muted small">Biaya: Rp {{ number_format($application->form_fee_amount, 0, ',', '.') }}</div></td>
-                                <td>
-                                    <form method="POST" action="{{ route('admin.form-payments.grant', $application) }}">
-                                        @csrf
-                                        <div class="d-flex gap-2 mb-2">
-                                            <select name="relief_type" class="form-select form-select-sm" style="width: 150px;" required>
-                                                <option value="waiver">Bebaskan penuh</option>
-                                                <option value="percent">Diskon %</option>
-                                                <option value="nominal">Diskon Rp</option>
-                                            </select>
-                                            <input type="number" name="relief_value" class="form-control form-control-sm" style="width: 120px;" min="1" placeholder="Nilai">
-                                        </div>
-                                        <div class="d-flex gap-2">
-                                            <input type="text" name="note" class="form-control form-control-sm" placeholder="Catatan (opsional)" maxlength="500">
-                                            <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Berikan keringanan ini?');">Beri Keringanan</button>
-                                        </div>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
-    </div>
-</div>
-
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-transparent border-0 pt-4 px-4">
-        <h5 class="mb-0 fw-bold text-body">Konfirmasi Pembayaran Manual</h5>
-        <p class="text-muted small mb-0">Pembayaran manual yang sudah dinyatakan dibayar oleh wali dan menunggu konfirmasi penerimaan</p>
+    <div class="card-header bg-transparent border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between pt-4 px-4 gap-3">
+        <div>
+            <h5 class="mb-0 fw-bold text-body">Pembayaran Formulir</h5>
+            <p class="text-muted small mb-0">Semua pendaftaran dalam semua kondisi biaya formulir. Pengajuan keringanan dan pembayaran yang menunggu konfirmasi tampil paling atas.</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <select id="unit-filter" aria-label="Filter unit" class="form-select" style="width: 180px;">
+                <option value="">Semua Unit</option>
+                @foreach($units as $unit)
+                    <option value="{{ $unit->id }}" {{ (string) request()->query('school_unit_id') === (string) $unit->id ? 'selected' : '' }}>{{ $unit->name }}</option>
+                @endforeach
+            </select>
+            <select id="wave-filter" aria-label="Filter gelombang" class="form-select" style="width: 170px;">
+                <option value="">Semua Gelombang</option>
+                @foreach($waves as $wave)
+                    <option value="{{ $wave->id }}" {{ (string) request()->query('admission_wave_id') === (string) $wave->id ? 'selected' : '' }}>{{ $wave->name }} ({{ $wave->academicYear?->name }})</option>
+                @endforeach
+            </select>
+            <select id="fee-status-filter" aria-label="Filter status biaya" class="form-select" style="width: 180px;">
+                <option value="">Semua Status Biaya</option>
+                @foreach($feeStatuses as $key => $label)
+                    <option value="{{ $key }}" {{ request()->query('form_fee_status') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+            <select id="channel-filter" aria-label="Filter kanal" class="form-select" style="width: 140px;">
+                <option value="">Semua Kanal</option>
+                @foreach($channels as $key => $label)
+                    <option value="{{ $key }}" {{ request()->query('channel') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+        </div>
     </div>
+
     <div class="card-body px-4 pb-4">
-        @if($awaitingConfirmations->isEmpty())
-            <p class="text-muted small mb-0">Tidak ada pembayaran manual yang menunggu konfirmasi.</p>
-        @else
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="text-secondary fw-semibold">Referensi</th>
-                            <th class="text-secondary fw-semibold">Wali / Anak</th>
-                            <th class="text-secondary fw-semibold">Unit</th>
-                            <th class="text-secondary fw-semibold">Nominal</th>
-                            <th class="text-secondary fw-semibold text-end" style="width: 160px;">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($awaitingConfirmations as $payment)
-                            <tr>
-                                <td class="small">{{ $payment->reference }}</td>
-                                <td>
-                                    <div class="fw-semibold">{{ $payment->payable?->user?->name }}</div>
-                                    <div class="text-muted small">{{ $payment->payable?->child_name ?? '—' }}</div>
-                                </td>
-                                <td>{{ $payment->payable?->schoolUnit?->name }}</td>
-                                <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
-                                <td class="text-end">
-                                    @if($payment->proof_path)
-                                        <a href="{{ route('admin.payments.proof', $payment) }}" target="_blank" rel="noopener" class="btn btn-light border btn-sm mb-1"><i class="bi bi-receipt"></i> Lihat Bukti</a>
-                                    @endif
-                                    <form method="POST" action="{{ route('admin.form-payments.confirm', $payment) }}" onsubmit="return confirm('Konfirmasi pembayaran ini sebagai lunas?');">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">Konfirmasi Lunas</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+        <div class="table-responsive">
+            <table id="form-payments-table" class="table table-hover align-middle w-100">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-secondary fw-semibold">Pendaftar</th>
+                        <th class="text-secondary fw-semibold">Unit / Gelombang / Jalur</th>
+                        <th class="text-secondary fw-semibold">Wali</th>
+                        <th class="text-secondary fw-semibold">Biaya</th>
+                        <th class="text-secondary fw-semibold">Diskon</th>
+                        <th class="text-secondary fw-semibold">Dibayar</th>
+                        <th class="text-secondary fw-semibold">Status Biaya</th>
+                        <th class="text-secondary fw-semibold">Pembayaran</th>
+                        <th class="text-secondary fw-semibold text-end">Aksi</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+{{-- Shared relief modal: filled by the row's Keringanan button (decide a pending request, or grant directly). --}}
+<div class="modal fade" id="relief-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" id="relief-form" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="relief-title">Keringanan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
-        @endif
+            <div class="modal-body">
+                <p class="small text-muted" id="relief-context"></p>
+                <div id="relief-attachment-wrap" class="mb-3 d-none">
+                    <a id="relief-attachment" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-light border"><i class="bi bi-paperclip"></i> Lihat Lampiran Pengajuan</a>
+                </div>
+                <div class="mb-3">
+                    <label for="relief-type" class="form-label fw-semibold text-secondary">Bentuk Keringanan</label>
+                    <select name="relief_type" id="relief-type" class="form-select">
+                        <option value="waiver">Bebaskan penuh</option>
+                        <option value="percent">Diskon %</option>
+                        <option value="nominal">Diskon Rp</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="relief-value" class="form-label fw-semibold text-secondary">Nilai Diskon</label>
+                    <input type="number" name="relief_value" id="relief-value" class="form-control" min="1" placeholder="Isi untuk diskon % atau Rp; kosongkan bila bebaskan penuh">
+                </div>
+                <div class="mb-1">
+                    <label for="relief-note" class="form-label fw-semibold text-secondary">Catatan Keputusan</label>
+                    <input type="text" name="note" id="relief-note" class="form-control" maxlength="500" placeholder="Opsional">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" name="decision" value="reject" id="relief-reject" class="btn btn-outline-danger" onclick="return confirm('Tolak pengajuan ini?');">Tolak</button>
+                <button type="submit" name="decision" value="approve" id="relief-approve" class="btn btn-success">Setujui</button>
+                <button type="submit" id="relief-grant" class="btn btn-primary">Beri Keringanan</button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const table = $('#form-payments-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('admin.form-payments.index') }}",
+                type: 'GET',
+                data: function(d) {
+                    d.school_unit_id = $('#unit-filter').val();
+                    d.admission_wave_id = $('#wave-filter').val();
+                    d.form_fee_status = $('#fee-status-filter').val();
+                    d.channel = $('#channel-filter').val();
+                }
+            },
+            columns: [
+                { data: 'applicant', name: 'child_name', orderable: false },
+                { data: 'unit', name: 'school_unit_id', orderable: false },
+                { data: 'guardian', name: 'user_id', orderable: false },
+                { data: 'fee', name: 'form_fee_amount', orderable: false },
+                { data: 'discount', name: 'discount', orderable: false },
+                { data: 'payable', name: 'payable', orderable: false },
+                { data: 'fee_status', name: 'form_fee_status', orderable: false },
+                { data: 'payment_info', name: 'payment_info', orderable: false },
+                { data: 'actions', name: 'actions', orderable: false, searchable: false, className: 'text-end' }
+            ],
+            order: [],
+            language: {
+                processing: "Memuat...",
+                search: "Cari:",
+                lengthMenu: "Tampilkan _MENU_ data",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                infoFiltered: "(disaring dari _MAX_ total data)",
+                zeroRecords: "Tidak ada data yang cocok ditemukan",
+                emptyTable: "Tidak ada data tersedia di tabel",
+                paginate: {
+                    first: "Pertama",
+                    previous: "Sebelumnya",
+                    next: "Berikutnya",
+                    last: "Terakhir"
+                }
+            }
+        });
+
+        // Keep the active filters in the page URL.
+        function syncFilterUrl() {
+            const params = new URLSearchParams();
+            const pairs = [
+                ['school_unit_id', $('#unit-filter').val()],
+                ['admission_wave_id', $('#wave-filter').val()],
+                ['form_fee_status', $('#fee-status-filter').val()],
+                ['channel', $('#channel-filter').val()]
+            ];
+            pairs.forEach(([key, value]) => {
+                if (value) params.set(key, value);
+            });
+            const query = params.toString();
+            window.history.replaceState(null, '', "{{ route('admin.form-payments.index') }}" + (query ? '?' + query : ''));
+        }
+
+        syncFilterUrl();
+
+        $('#unit-filter, #wave-filter, #fee-status-filter, #channel-filter').on('change', function() {
+            syncFilterUrl();
+            table.ajax.reload();
+        });
+
+        // Relief modal: one shared form, filled from the row
+        // button that opened it (decide vs. grant).
+        const reliefModalEl = document.getElementById('relief-modal');
+        const reliefForm = document.getElementById('relief-form');
+        document.addEventListener('click', function (event) {
+            const button = event.target.closest('.relief-action');
+            if (!button) {
+                return;
+            }
+
+            const isDecide = button.dataset.mode === 'decide';
+            reliefForm.action = button.dataset.url;
+            document.getElementById('relief-title').textContent = isDecide
+                ? 'Putuskan Pengajuan Keringanan'
+                : 'Beri Keringanan Langsung';
+            document.getElementById('relief-context').textContent = isDecide
+                ? 'Pengajuan keringanan biaya formulir untuk ' + button.dataset.child + '. Alasan wali: ' + (button.dataset.reason || '-')
+                : 'Berikan keringanan biaya formulir untuk ' + button.dataset.child + ' tanpa pengajuan dari wali.';
+
+            const attachmentWrap = document.getElementById('relief-attachment-wrap');
+            if (isDecide && button.dataset.attachment) {
+                document.getElementById('relief-attachment').href = button.dataset.attachment;
+                attachmentWrap.classList.remove('d-none');
+            } else {
+                attachmentWrap.classList.add('d-none');
+            }
+
+            // Only the buttons of the active mode may submit:
+            // hidden ones are disabled so Enter cannot fire them.
+            [['relief-reject', isDecide], ['relief-approve', isDecide], ['relief-grant', !isDecide]].forEach(([id, active]) => {
+                const el = document.getElementById(id);
+                el.classList.toggle('d-none', !active);
+                el.disabled = !active;
+            });
+
+            document.getElementById('relief-type').value = 'waiver';
+            document.getElementById('relief-value').value = '';
+            document.getElementById('relief-note').value = '';
+
+            new bootstrap.Modal(reliefModalEl).show();
+        });
+    });
+</script>
+@endpush
