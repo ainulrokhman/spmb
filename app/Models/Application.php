@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Carbon;
 
 class Application extends Model
 {
@@ -186,6 +187,43 @@ class Application extends Model
     public function admissionTrack(): BelongsTo
     {
         return $this->belongsTo(AdmissionTrack::class);
+    }
+
+    /**
+     * The effective announcement time for this application: the
+     * per-track time set on the wave–track pivot when filled,
+     * otherwise the wave's global announcement time. Null means
+     * the announcement is not scheduled yet.
+     */
+    public function announcementAt(): ?Carbon
+    {
+        $wave = $this->admissionWave;
+
+        if ($wave === null) {
+            return null;
+        }
+
+        $track = $wave->admissionTracks()
+            ->where('admission_tracks.id', $this->admission_track_id)
+            ->first();
+
+        $perTrack = $track?->pivot?->announcement_at;
+
+        return $perTrack !== null && $perTrack !== ''
+            ? Carbon::parse($perTrack)
+            : $wave->announcement_at;
+    }
+
+    /**
+     * Whether this application's result may already be shown to
+     * the guardian: an effective announcement time is set and
+     * has been reached.
+     */
+    public function resultsAnnounced(): bool
+    {
+        $announcementAt = $this->announcementAt();
+
+        return $announcementAt !== null && ! now()->lt($announcementAt);
     }
 
     public function major(): BelongsTo

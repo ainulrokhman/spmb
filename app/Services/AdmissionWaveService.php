@@ -18,7 +18,7 @@ class AdmissionWaveService implements AdmissionWaveServiceInterface
         return DB::transaction(function () use ($data) {
             $admissionWave = AdmissionWave::create($this->waveAttributes($data));
 
-            $this->syncTracks($admissionWave, $data['tracks'] ?? []);
+            $this->syncTracks($admissionWave, $data['tracks'] ?? [], $data['track_announcements'] ?? []);
 
             return $admissionWave;
         });
@@ -32,7 +32,7 @@ class AdmissionWaveService implements AdmissionWaveServiceInterface
         return DB::transaction(function () use ($admissionWave, $data) {
             $admissionWave->update($this->waveAttributes($data));
 
-            $this->syncTracks($admissionWave, $data['tracks'] ?? []);
+            $this->syncTracks($admissionWave, $data['tracks'] ?? [], $data['track_announcements'] ?? []);
 
             return $admissionWave;
         });
@@ -70,8 +70,11 @@ class AdmissionWaveService implements AdmissionWaveServiceInterface
      * anything else is rejected even if it passed the form request.
      *
      * @param  array<int, int>  $trackIds
+     * @param  array<int, string|null>  $trackAnnouncements  Per-track
+     *        announcement times keyed by track id; empty values
+     *        mean the track follows the wave's global time.
      */
-    private function syncTracks(AdmissionWave $admissionWave, array $trackIds): void
+    private function syncTracks(AdmissionWave $admissionWave, array $trackIds, array $trackAnnouncements = []): void
     {
         $trackIds = array_values(array_unique(array_map('intval', $trackIds)));
 
@@ -85,6 +88,14 @@ class AdmissionWaveService implements AdmissionWaveServiceInterface
             }
         }
 
-        $admissionWave->admissionTracks()->sync($trackIds);
+        $syncData = [];
+
+        foreach ($trackIds as $trackId) {
+            $syncData[$trackId] = [
+                'announcement_at' => ! empty($trackAnnouncements[$trackId]) ? $trackAnnouncements[$trackId] : null,
+            ];
+        }
+
+        $admissionWave->admissionTracks()->sync($syncData);
     }
 }

@@ -189,7 +189,7 @@
         <div class="card border-0 shadow-sm mt-4">
             <div class="card-header bg-transparent border-0 pt-4 px-4"><h5 class="mb-0 fw-bold">Pengumuman Hasil</h5></div>
             <div class="card-body px-4 pb-4">
-                <p class="text-muted small">Tetapkan hasil pendaftar ini. Hasil baru terlihat oleh wali setelah waktu pengumuman gelombang tiba{{ $application->admissionWave?->announcement_at ? ' ('.$application->admissionWave->announcement_at->format('d M Y H:i').')' : '' }}.</p>
+                <p class="text-muted small">Tetapkan hasil pendaftar ini. Hasil baru terlihat oleh wali setelah waktu pengumuman tiba — untuk jalur pendaftar ini: <strong>{{ $application->announcementAt() ? $application->announcementAt()->format('d M Y H:i') : 'belum dijadwalkan' }}</strong>{{ $application->announcementAt() && $application->admissionWave?->announcement_at && $application->announcementAt()->ne($application->admissionWave->announcement_at) ? ' (waktu khusus jalur '.$application->admissionTrack?->name.'; global gelombang '.$application->admissionWave->announcement_at->format('d M Y H:i').')' : '' }}.</p>
                 <form method="POST" action="{{ route('admin.applications.announce') }}">
                     @csrf
                     <input type="hidden" name="application_ids[]" value="{{ $application->id }}">

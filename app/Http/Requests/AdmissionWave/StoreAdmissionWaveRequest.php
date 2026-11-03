@@ -31,6 +31,8 @@ class StoreAdmissionWaveRequest extends FormRequest
             'announcement_at' => ['nullable', 'date'],
             'tracks' => ['nullable', 'array'],
             'tracks.*' => ['integer', $this->trackBelongsToUnitRule()],
+            'track_announcements' => ['nullable', 'array'],
+            'track_announcements.*' => ['nullable', 'date'],
             'is_active' => ['nullable', 'boolean'],
         ];
     }

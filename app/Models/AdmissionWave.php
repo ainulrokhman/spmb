@@ -73,7 +73,9 @@ class AdmissionWave extends Model
      */
     public function admissionTracks(): BelongsToMany
     {
-        return $this->belongsToMany(AdmissionTrack::class, 'admission_wave_track')->withTimestamps();
+        return $this->belongsToMany(AdmissionTrack::class, 'admission_wave_track')
+            ->withPivot('announcement_at')
+            ->withTimestamps();
     }
 
     /**

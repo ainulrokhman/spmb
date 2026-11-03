@@ -75,7 +75,7 @@ class InvoiceService implements InvoiceServiceInterface
             throw new InvalidArgumentException('Daftar ulang hanya untuk pendaftar yang dinyatakan lulus.');
         }
 
-        if (! $application->admissionWave->resultsAnnounced()) {
+        if (! $application->resultsAnnounced()) {
             throw new InvalidArgumentException('Hasil pendaftaran belum diumumkan.');
         }
 
