@@ -4,6 +4,8 @@ namespace App\Http\Requests\Guardian;
 
 use App\Models\Application;
 use App\Models\FormField;
+use App\Models\SchoolUnit;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,6 +20,42 @@ class SaveApplicationFormRequest extends FormRequest
 
         return $application instanceof Application
             && $application->user_id === $this->user()?->id;
+    }
+
+    /**
+     * Drop untouched sibling rows before validation, so a
+     * blank repeater row never fails the per-row rules; a row
+     * the guardian actually started (a name, an outside school
+     * name, or a chosen unit) is kept and fully validated.
+     */
+    protected function prepareForValidation(): void
+    {
+        $application = $this->route('application');
+        $answers = $this->input('answers');
+
+        if (! $application instanceof Application || ! is_array($answers)) {
+            return;
+        }
+
+        $siblingKeys = $application->schoolUnit->formFields()
+            ->where('type', 'siblings')
+            ->pluck('key');
+
+        foreach ($siblingKeys as $key) {
+            if (! is_array($answers[$key] ?? null)) {
+                continue;
+            }
+
+            $answers[$key] = collect($answers[$key])
+                ->filter(fn ($row) => is_array($row)
+                    && (trim((string) ($row['name'] ?? '')) !== ''
+                        || trim((string) ($row['school_name'] ?? '')) !== ''
+                        || (is_numeric($row['school'] ?? null))))
+                ->values()
+                ->all();
+        }
+
+        $this->merge(['answers' => $answers]);
     }
 
     /**
@@ -53,6 +91,12 @@ class SaveApplicationFormRequest extends FormRequest
 
             if ($field->type === 'checkbox') {
                 $rules['answers.'.$field->key.'.*'] = [Rule::in($field->options ?? [])];
+            }
+
+            if ($field->type === 'siblings') {
+                $rules['answers.'.$field->key.'.*.name'] = ['required', 'string', 'max:255'];
+                $rules['answers.'.$field->key.'.*.school'] = ['required', Rule::in($this->schoolOptionValues())];
+                $rules['answers.'.$field->key.'.*.school_name'] = ['nullable', 'string', 'max:255'];
             }
         }
 
@@ -132,6 +176,62 @@ class SaveApplicationFormRequest extends FormRequest
      *
      * @return list<mixed>
      */
+    /**
+     * Values a school choice may take: every active school
+     * unit of the foundation, or the external-school marker.
+     *
+     * @return list<int|string>
+     */
+    private function schoolOptionValues(): array
+    {
+        return array_merge(
+            SchoolUnit::where('is_active', true)->pluck('id')->all(),
+            [FormField::EXTERNAL_SCHOOL]
+        );
+    }
+
+    /**
+     * Cross-row checks the flat rules cannot express: a
+     * required siblings field needs at least one kept row,
+     * and a sibling at an outside school needs its name.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $application = $this->route('application');
+
+            if (! $application instanceof Application) {
+                return;
+            }
+
+            $fields = $application->schoolUnit->formFields()
+                ->where('is_active', true)
+                ->where('type', 'siblings')
+                ->get();
+
+            foreach ($fields as $field) {
+                $rows = $this->input('answers.'.$field->key, []);
+
+                if ($field->is_required && (! is_array($rows) || count($rows) === 0)) {
+                    $validator->errors()->add(
+                        'answers.'.$field->key,
+                        'Bidang '.$field->label.' wajib mencantumkan minimal satu saudara.'
+                    );
+                }
+
+                foreach ((array) $rows as $index => $row) {
+                    if (($row['school'] ?? null) === FormField::EXTERNAL_SCHOOL
+                        && trim((string) ($row['school_name'] ?? '')) === '') {
+                        $validator->errors()->add(
+                            'answers.'.$field->key.'.'.$index.'.school_name',
+                            'Nama sekolah di luar yayasan wajib diisi.'
+                        );
+                    }
+                }
+            }
+        });
+    }
+
     private function dynamicRules(FormField $field): array
     {
         $presence = $field->is_required ? 'required' : 'nullable';
@@ -142,6 +242,8 @@ class SaveApplicationFormRequest extends FormRequest
             'select', 'radio' => [$presence, Rule::in($field->options ?? [])],
             'checkbox' => [$presence, 'array'],
             'file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
+            'school_unit' => [$presence, Rule::in($this->schoolOptionValues())],
+            'siblings' => ['nullable', 'array', 'max:10'],
             default => [$presence, 'string', 'max:2000'],
         };
     }

@@ -263,6 +263,36 @@ class ApplicationController extends Controller
             }
         }
 
+        // Master-data backed fields: store a school_unit answer
+        // as the unit id (the external marker stays a string),
+        // and translate sibling rows from the form shape
+        // (school select) into the storage shape
+        // (unit_id / school_name), dropping nameless rows.
+        $typedFields = $application->schoolUnit->formFields()
+            ->where('is_active', true)
+            ->whereIn('type', ['school_unit', 'siblings'])
+            ->get();
+
+        foreach ($typedFields as $field) {
+            if ($field->type === 'school_unit' && is_numeric($answers[$field->key] ?? null)) {
+                $answers[$field->key] = (int) $answers[$field->key];
+            }
+
+            if ($field->type === 'siblings' && is_array($answers[$field->key] ?? null)) {
+                $answers[$field->key] = collect($answers[$field->key])
+                    ->map(fn ($row) => [
+                        'name' => trim((string) ($row['name'] ?? '')),
+                        'unit_id' => is_numeric($row['school'] ?? null) ? (int) $row['school'] : null,
+                        'school_name' => ($row['school'] ?? null) === \App\Models\FormField::EXTERNAL_SCHOOL
+                            ? trim((string) ($row['school_name'] ?? ''))
+                            : null,
+                    ])
+                    ->filter(fn ($row) => $row['name'] !== '')
+                    ->values()
+                    ->all();
+            }
+        }
+
         $data['answers'] = $answers;
 
         try {

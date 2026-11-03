@@ -110,4 +110,30 @@
         <button type="submit" class="btn btn-primary">Simpan &amp; Lanjut ke Berkas</button>
     </div>
 </form>
+
+@push('scripts')
+<script>
+    // Sibling repeater: add clones the template row with the
+    // next index; remove drops a row. Indices need not be
+    // sequential — the server re-indexes the kept rows.
+    document.querySelectorAll('[data-siblings]').forEach(function (box) {
+        var rows = box.querySelector('[data-siblings-rows]');
+        var template = box.querySelector('template');
+        var nextIndex = parseInt(box.getAttribute('data-next-index') || '1', 10);
+
+        box.querySelector('[data-siblings-add]').addEventListener('click', function () {
+            var holder = document.createElement('div');
+            holder.innerHTML = template.innerHTML.split('__INDEX__').join(nextIndex++);
+            rows.appendChild(holder.firstElementChild);
+        });
+
+        rows.addEventListener('click', function (event) {
+            var button = event.target.closest('[data-siblings-remove]');
+            if (button) {
+                button.closest('[data-sibling-row]').remove();
+            }
+        });
+    });
+</script>
+@endpush
 @endsection

@@ -46,7 +46,7 @@
                         <select class="form-select @error('type') is-invalid @enderror" id="type" name="type" required>
                             <option value="">Pilih tipe...</option>
                             @foreach(\App\Models\FormField::TYPES as $type)
-                                <option value="{{ $type }}" {{ old('type', $formField->type ?? '') === $type ? 'selected' : '' }}>{{ ['text' => 'Teks', 'textarea' => 'Teks Panjang', 'number' => 'Angka', 'date' => 'Tanggal', 'select' => 'Select (dropdown)', 'radio' => 'Radio', 'checkbox' => 'Checkbox', 'file' => 'Unggah File'][$type] ?? $type }}</option>
+                                <option value="{{ $type }}" {{ old('type', $formField->type ?? '') === $type ? 'selected' : '' }}>{{ \App\Models\FormField::TYPE_LABELS[$type] ?? $type }}</option>
                             @endforeach
                         </select>
                         @error('type')

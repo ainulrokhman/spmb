@@ -113,6 +113,8 @@
                                 <span class="text-muted">{{ $field->label }}:</span>
                                 @if($field->type === 'file' && is_string($value) && $value !== '')
                                     <a href="{{ asset('storage/'.$value) }}" target="_blank" rel="noopener">lihat berkas</a>
+                                @elseif(in_array($field->type, ['school_unit', 'siblings'], true))
+                                    {{ $field->answerDisplay($value) }}
                                 @elseif(is_array($value))
                                     {{ implode(', ', $value) }}
                                 @else

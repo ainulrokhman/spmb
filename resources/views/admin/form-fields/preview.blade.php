@@ -68,6 +68,28 @@
                                 @case('file')
                                     <input type="file" class="form-control" id="preview_{{ $field->key }}" disabled>
                                     @break
+                                @case('school_unit')
+                                    <select class="form-select" id="preview_{{ $field->key }}" disabled>
+                                        <option value="">Pilih...</option>
+                                        @foreach(\App\Models\SchoolUnit::where('is_active', true)->orderBy('name')->get() as $unitOption)
+                                            <option>{{ $unitOption->name }}</option>
+                                        @endforeach
+                                        <option>Sekolah lain di luar yayasan</option>
+                                    </select>
+                                    @break
+                                @case('siblings')
+                                    <div class="row g-2">
+                                        <div class="col-md-5"><input type="text" class="form-control" placeholder="Nama saudara" disabled></div>
+                                        <div class="col-md-4">
+                                            <select class="form-select" disabled>
+                                                <option>Pilih sekolah...</option>
+                                                <option>Sekolah lain di luar yayasan</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3"><input type="text" class="form-control" placeholder="Nama sekolah luar" disabled></div>
+                                    </div>
+                                    <div class="form-text text-muted small">Wali dapat menambah baris — satu per saudara.</div>
+                                    @break
                                 @default
                                     <input type="text" class="form-control" id="preview_{{ $field->key }}" disabled>
                             @endswitch

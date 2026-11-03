@@ -60,6 +60,56 @@
             <input type="number" class="form-control @error($key) is-invalid @enderror" id="field-{{ $field->key }}" name="{{ $name }}" value="{{ is_scalar($current) ? $current : '' }}">
             @break
 
+        @case('school_unit')
+            <select class="form-select @error($key) is-invalid @enderror" id="field-{{ $field->key }}" name="{{ $name }}">
+                <option value="">Pilih...</option>
+                @foreach(\App\Models\SchoolUnit::where('is_active', true)->orderBy('name')->get() as $unitOption)
+                    <option value="{{ $unitOption->id }}" {{ (string) $current === (string) $unitOption->id ? 'selected' : '' }}>{{ $unitOption->name }}</option>
+                @endforeach
+                <option value="external" {{ (string) $current === 'external' ? 'selected' : '' }}>Sekolah lain di luar yayasan</option>
+            </select>
+            @break
+
+        @case('siblings')
+            @php
+                $siblingRows = is_array($current) ? array_values($current) : [];
+                if ($siblingRows === []) {
+                    $siblingRows = [['name' => '', 'school' => '', 'school_name' => '']];
+                }
+                $siblingUnits = \App\Models\SchoolUnit::where('is_active', true)->orderBy('name')->get();
+                $renderSiblingRow = function ($row, $index) use ($name, $siblingUnits) {
+                    $school = $row['school'] ?? (! empty($row['unit_id']) ? (string) $row['unit_id'] : ((($row['school_name'] ?? '') !== '') ? 'external' : ''));
+                    $html = '<div class="row g-2 mb-2" data-sibling-row>'
+                        .'<div class="col-md-4"><input type="text" class="form-control" name="'.$name.'['.$index.'][name]" value="'.e($row['name'] ?? '').'" placeholder="Nama saudara"></div>'
+                        .'<div class="col-md-4"><select class="form-select" name="'.$name.'['.$index.'][school]"><option value="">Pilih sekolah...</option>';
+                    foreach ($siblingUnits as $unitOption) {
+                        $html .= '<option value="'.$unitOption->id.'"'.((string) $school === (string) $unitOption->id ? ' selected' : '').'>'.e($unitOption->name).'</option>';
+                    }
+                    $html .= '<option value="external"'.($school === 'external' ? ' selected' : '').'>Sekolah lain di luar yayasan</option></select></div>'
+                        .'<div class="col-md-3"><input type="text" class="form-control" name="'.$name.'['.$index.'][school_name]" value="'.e($row['school_name'] ?? '').'" placeholder="Nama sekolah luar (bila di luar yayasan)"></div>'
+                        .'<div class="col-md-1"><button type="button" class="btn btn-outline-danger w-100" data-siblings-remove title="Hapus baris">&times;</button></div>'
+                        .'</div>';
+
+                    return $html;
+                };
+            @endphp
+            <div data-siblings data-next-index="{{ count($siblingRows) }}">
+                <div data-siblings-rows>
+                    @foreach($siblingRows as $siblingIndex => $siblingRow)
+                        {!! $renderSiblingRow($siblingRow, $siblingIndex) !!}
+                    @endforeach
+                </div>
+                <template>{!! $renderSiblingRow(['name' => '', 'school' => '', 'school_name' => ''], '__INDEX__') !!}</template>
+                <button type="button" class="btn btn-outline-primary btn-sm" data-siblings-add>+ Tambah Saudara</button>
+                <div class="form-text">Satu baris per saudara kandung; kosongkan semua bila tidak ada saudara.</div>
+                @foreach($errors->keys() as $errorKey)
+                    @if(str_starts_with($errorKey, $key.'.'))
+                        <div class="text-danger small">{{ $errors->first($errorKey) }}</div>
+                    @endif
+                @endforeach
+            </div>
+            @break
+
         @default
             <input type="text" class="form-control @error($key) is-invalid @enderror" id="field-{{ $field->key }}" name="{{ $name }}" value="{{ is_scalar($current) ? $current : '' }}">
     @endswitch
