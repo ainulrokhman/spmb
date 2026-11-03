@@ -84,6 +84,10 @@ class FeeAmountController extends Controller
             return $errorRedirect;
         }
 
+        if ($unitUrl = $this->unitFeesReturnUrl(Fee::find($request->validated('fee_id')))) {
+            return redirect()->to($unitUrl)->with('success', 'Nominal biaya berhasil dibuat.');
+        }
+
         return redirect()->to($this->filteredIndexUrl('admin.fee-amounts.index', ['school_unit_id', 'fee_component_id']))
             ->with('success', 'Nominal biaya berhasil dibuat.');
     }
@@ -114,6 +118,10 @@ class FeeAmountController extends Controller
             return $errorRedirect;
         }
 
+        if ($unitUrl = $this->unitFeesReturnUrl($feeAmount->fee)) {
+            return redirect()->to($unitUrl)->with('success', 'Nominal biaya berhasil diperbarui.');
+        }
+
         return redirect()->to($this->filteredIndexUrl('admin.fee-amounts.index', ['school_unit_id', 'fee_component_id']))
             ->with('success', 'Nominal biaya berhasil diperbarui.');
     }
@@ -126,12 +134,39 @@ class FeeAmountController extends Controller
         Gate::authorize('fee-amount-delete');
         $this->ensureUnitAccess($feeAmount->fee->school_unit_id);
 
+        $fee = $feeAmount->fee;
+
         if ($errorRedirect = $this->runServiceAction(fn () => $this->feeAmountService->deleteFeeAmount($feeAmount), 'admin.fee-amounts.index')) {
             return $errorRedirect;
         }
 
+        if ($unitUrl = $this->unitFeesReturnUrl($fee)) {
+            return redirect()->to($unitUrl)->with('success', 'Nominal biaya berhasil dihapus.');
+        }
+
         return redirect()->to($this->filteredIndexUrl('admin.fee-amounts.index', ['school_unit_id', 'fee_component_id']))
             ->with('success', 'Nominal biaya berhasil dihapus.');
+    }
+
+    /**
+     * When the caller came from a unit's fee page (return_unit_id
+     * naming that same unit, which the user may access), the
+     * success redirect goes back to that page instead of the
+     * Nominal Biaya list.
+     */
+    private function unitFeesReturnUrl(?Fee $fee): ?string
+    {
+        $unitId = request()->input('return_unit_id');
+
+        if ($fee === null || ! is_numeric($unitId) || (int) $unitId !== (int) $fee->school_unit_id) {
+            return null;
+        }
+
+        if (! auth()->user()->hasUnitAccess((int) $unitId)) {
+            return null;
+        }
+
+        return route('admin.school-units.fees.edit', (int) $unitId);
     }
 
     /**

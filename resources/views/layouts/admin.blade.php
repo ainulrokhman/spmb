@@ -297,8 +297,8 @@
                         @endcanany
 
                         {{-- Submenu: Biaya --}}
-                        @canany(['fee-component-list', 'fee-amount-list'])
-                        @php($biayaOpen = request()->is('admin/fee-components*') || request()->is('admin/fee-amounts*'))
+                        @canany(['fee-component-list', 'fee-amount-list', 'unit-fee-manage', 'school-unit-edit'])
+                        @php($biayaOpen = request()->is('admin/fee-components*') || request()->is('admin/fee-amounts*') || request()->is('admin/unit-fees*'))
                         <li class="nav-item {{ $biayaOpen ? 'menu-open' : '' }}">
                             <a href="#" class="nav-link {{ $biayaOpen ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-cash-coin me-2"></i>
@@ -322,6 +322,15 @@
                                     </a>
                                 </li>
                                 @endcan
+
+                                @canany(['school-unit-edit', 'unit-fee-manage'])
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.unit-fees.index') }}" class="nav-link {{ request()->is('admin/unit-fees*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-building me-2"></i>
+                                        <p>Biaya per Unit</p>
+                                    </a>
+                                </li>
+                                @endcanany
                             </ul>
                         </li>
                         @endcanany

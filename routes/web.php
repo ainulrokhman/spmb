@@ -120,6 +120,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('school-units/{school_unit}/form-preview', [FormFieldController::class, 'preview'])->name('school-units.form-preview');
 
     Route::resource('fee-components', FeeComponentController::class)->middleware('permission:fee-component-list');
+
+    // One component's fee mode across all units ("Atur per Unit")
+    Route::get('fee-components/{fee_component}/units', [FeeComponentController::class, 'units'])->name('fee-components.units');
+    Route::put('fee-components/{fee_component}/units', [FeeComponentController::class, 'updateUnits'])->name('fee-components.units.update');
+
+    // Fee settings overview per unit
+    Route::get('unit-fees', [UnitFeeController::class, 'index'])->name('unit-fees.index');
     Route::resource('fee-amounts', FeeAmountController::class)->middleware('permission:fee-amount-list');
 
     // Fee mappings per unit
