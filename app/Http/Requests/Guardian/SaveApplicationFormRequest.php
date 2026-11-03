@@ -83,6 +83,13 @@ class SaveApplicationFormRequest extends FormRequest
         $rules['guardian.name'] = [$this->guardianRequired(), 'string', 'max:255'];
         $rules['guardian.relation_to_child'] = [$this->guardianRequired(), 'string', 'max:255'];
 
+        // Companion inputs of school_unit fields: the name of the
+        // outside school, keyed by the field's key. Its required-
+        // ness (only for the external option) is checked in
+        // withValidator().
+        $rules['school_unit_names'] = ['nullable', 'array'];
+        $rules['school_unit_names.*'] = ['nullable', 'string', 'max:255'];
+
         /** @var Application $application */
         $application = $this->route('application');
 
@@ -128,6 +135,10 @@ class SaveApplicationFormRequest extends FormRequest
 
         foreach ($application->schoolUnit->formFields()->where('is_active', true)->get() as $field) {
             $attributes['answers.'.$field->key] = $field->label;
+
+            if ($field->type === 'school_unit') {
+                $attributes['school_unit_names.'.$field->key] = 'nama sekolah luar untuk '.$field->label;
+            }
         }
 
         return $attributes;
@@ -202,6 +213,21 @@ class SaveApplicationFormRequest extends FormRequest
 
             if (! $application instanceof Application) {
                 return;
+            }
+
+            $schoolFields = $application->schoolUnit->formFields()
+                ->where('is_active', true)
+                ->where('type', 'school_unit')
+                ->get();
+
+            foreach ($schoolFields as $field) {
+                if ($this->input('answers.'.$field->key) === FormField::EXTERNAL_SCHOOL
+                    && trim((string) $this->input('school_unit_names.'.$field->key, '')) === '') {
+                    $validator->errors()->add(
+                        'school_unit_names.'.$field->key,
+                        'Nama sekolah di luar yayasan wajib diisi bila memilih sekolah lain di luar yayasan.'
+                    );
+                }
             }
 
             $fields = $application->schoolUnit->formFields()

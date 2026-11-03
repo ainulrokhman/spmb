@@ -115,6 +115,16 @@ class FormField extends Model
     public function answerDisplay(mixed $value): string
     {
         if ($this->type === 'school_unit') {
+            if (is_array($value)) {
+                if (! empty($value['unit_id'])) {
+                    return SchoolUnit::find((int) $value['unit_id'])?->name ?? 'Unit tidak ditemukan';
+                }
+
+                $name = trim((string) ($value['school_name'] ?? ''));
+
+                return $name !== '' ? self::EXTERNAL_SCHOOL_LABEL.': '.$name : self::EXTERNAL_SCHOOL_LABEL;
+            }
+
             if ($value === self::EXTERNAL_SCHOOL) {
                 return self::EXTERNAL_SCHOOL_LABEL;
             }

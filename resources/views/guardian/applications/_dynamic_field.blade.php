@@ -61,13 +61,37 @@
             @break
 
         @case('school_unit')
-            <select class="form-select @error($key) is-invalid @enderror" id="field-{{ $field->key }}" name="{{ $name }}">
+            @php
+                // The stored answer may be the structured shape
+                // ({unit_id, school_name}), a legacy bare unit id,
+                // or the legacy external marker; after a failed
+                // submit, old input holds the raw select value and
+                // the companion name input separately.
+                $selectedSchool = '';
+                $externalSchoolName = (string) old('school_unit_names.'.$field->key, '');
+                if (is_array($current)) {
+                    $selectedSchool = ! empty($current['unit_id']) ? (string) $current['unit_id'] : 'external';
+                    if ($externalSchoolName === '') {
+                        $externalSchoolName = (string) ($current['school_name'] ?? '');
+                    }
+                } elseif ($current !== null && $current !== '') {
+                    $selectedSchool = (string) $current;
+                }
+            @endphp
+            <select class="form-select @error($key) is-invalid @enderror" id="field-{{ $field->key }}" name="{{ $name }}" data-school-unit-select>
                 <option value="">Pilih...</option>
                 @foreach(\App\Models\SchoolUnit::where('is_active', true)->orderBy('name')->get() as $unitOption)
-                    <option value="{{ $unitOption->id }}" {{ (string) $current === (string) $unitOption->id ? 'selected' : '' }}>{{ $unitOption->name }}</option>
+                    <option value="{{ $unitOption->id }}" {{ $selectedSchool === (string) $unitOption->id ? 'selected' : '' }}>{{ $unitOption->name }}</option>
                 @endforeach
-                <option value="external" {{ (string) $current === 'external' ? 'selected' : '' }}>Sekolah lain di luar yayasan</option>
+                <option value="external" {{ $selectedSchool === 'external' ? 'selected' : '' }}>Sekolah lain di luar yayasan</option>
             </select>
+            <div class="mt-2" data-school-unit-external-name @if($selectedSchool !== 'external') style="display: none;" @endif>
+                <label class="form-label" for="field-{{ $field->key }}-external-name">Nama sekolah luar <span class="text-danger">*</span></label>
+                <input type="text" class="form-control @error('school_unit_names.'.$field->key) is-invalid @enderror" id="field-{{ $field->key }}-external-name" name="school_unit_names[{{ $field->key }}]" value="{{ $externalSchoolName }}" placeholder="Tulis nama sekolah di luar yayasan" maxlength="255">
+                @error('school_unit_names.'.$field->key)
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+            </div>
             @break
 
         @case('siblings')

@@ -313,7 +313,9 @@ class SelectionService implements SelectionServiceInterface
 
     /**
      * Points when the origin-school answer is one of the
-     * foundation's own units (stored as the unit id).
+     * foundation's own units. The answer is stored as
+     * {unit_id, school_name}; legacy answers stored as the
+     * bare unit id or the external marker keep resolving.
      */
     private function evaluateOrigin(SelectionRule $rule, Application $application): array
     {
@@ -324,11 +326,21 @@ class SelectionService implements SelectionServiceInterface
             return [0, 'Belum dijawab'];
         }
 
-        if (! is_numeric($answer)) {
-            return [0, 'Sekolah di luar yayasan'];
+        $unitId = null;
+        $schoolName = '';
+
+        if (is_array($answer)) {
+            $unitId = ! empty($answer['unit_id']) ? (int) $answer['unit_id'] : null;
+            $schoolName = trim((string) ($answer['school_name'] ?? ''));
+        } elseif (is_numeric($answer)) {
+            $unitId = (int) $answer;
         }
 
-        $unit = \App\Models\SchoolUnit::find((int) $answer);
+        if ($unitId === null) {
+            return [0, $schoolName !== '' ? 'Sekolah di luar yayasan: '.$schoolName : 'Sekolah di luar yayasan'];
+        }
+
+        $unit = \App\Models\SchoolUnit::find($unitId);
 
         if ($unit === null) {
             return [0, 'Sekolah di luar yayasan'];
