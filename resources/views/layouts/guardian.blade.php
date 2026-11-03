@@ -27,6 +27,31 @@
                             <li class="nav-item">
                                 <a href="{{ route('guardian.dashboard') }}" class="nav-link">Dasbor Saya</a>
                             </li>
+                            @php($guardianUnread = app(\App\Contracts\GuardianNotificationServiceInterface::class)->visibleUnread(auth()->user()))
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link position-relative" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifikasi">
+                                    <i class="bi bi-bell fs-5"></i>
+                                    @if($guardianUnread->isNotEmpty())
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $guardianUnread->count() }}</span>
+                                    @endif
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 320px; max-width: 92vw;">
+                                    <li><h6 class="dropdown-header">Notifikasi</h6></li>
+                                    @forelse($guardianUnread->take(5) as $notification)
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('guardian.notifications.show', $notification) }}">
+                                                <i class="{{ $notification->data['icon'] ?? 'bi bi-bell' }} text-primary me-1"></i>
+                                                <strong>{{ $notification->data['title'] ?? 'Notifikasi' }}</strong>
+                                                <span class="d-block small text-muted text-wrap">{{ $notification->data['message'] ?? '' }}</span>
+                                            </a>
+                                        </li>
+                                    @empty
+                                        <li><span class="dropdown-item-text text-muted small">Tidak ada notifikasi baru.</span></li>
+                                    @endforelse
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-center" href="{{ route('guardian.notifications.index') }}">Lihat semua notifikasi</a></li>
+                                </ul>
+                            </li>
                         @endif
                         <li class="nav-item">
                             <span class="nav-link text-muted">{{ auth()->user()->name }}</span>

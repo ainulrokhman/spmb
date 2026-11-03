@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\ApplicationServiceInterface;
+use App\Contracts\GuardianNotificationServiceInterface;
 use App\Contracts\OfficerNotificationServiceInterface;
 use App\Models\AdmissionTrack;
 use App\Models\AdmissionWave;
@@ -23,6 +24,7 @@ class ApplicationService implements ApplicationServiceInterface
 {
     public function __construct(
         private readonly OfficerNotificationServiceInterface $officerNotifications,
+        private readonly GuardianNotificationServiceInterface $guardianNotifications,
     ) {}
 
     /**
@@ -122,6 +124,7 @@ class ApplicationService implements ApplicationServiceInterface
         $application->save();
 
         $this->officerNotifications->markFormFeeReliefHandled($application);
+        $this->guardianNotifications->notifyFormReliefDecided($application, $approve);
 
         return $application;
     }
@@ -151,6 +154,8 @@ class ApplicationService implements ApplicationServiceInterface
         $this->applyFeeRelief($application, ...$this->validatedRelief($reliefType, $reliefValue));
 
         $application->save();
+
+        $this->guardianNotifications->notifyFormReliefDecided($application, true, directGrant: true);
 
         return $application;
     }
@@ -215,6 +220,8 @@ class ApplicationService implements ApplicationServiceInterface
         }
 
         $application->save();
+
+        $this->guardianNotifications->notifyFormFeePaid($application);
 
         return $application;
     }
@@ -549,6 +556,8 @@ class ApplicationService implements ApplicationServiceInterface
             'verified_at' => now(),
         ]);
 
+        $this->guardianNotifications->notifyVerificationDecided($application);
+
         return $application;
     }
 
@@ -568,6 +577,8 @@ class ApplicationService implements ApplicationServiceInterface
         }
 
         $application->update(['status' => $decision]);
+
+        $this->guardianNotifications->notifyResultDecided($application);
 
         return $application;
     }
