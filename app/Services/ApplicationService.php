@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\ApplicationServiceInterface;
+use App\Contracts\OfficerNotificationServiceInterface;
 use App\Models\AdmissionTrack;
 use App\Models\AdmissionWave;
 use App\Models\Application;
@@ -20,6 +21,10 @@ use InvalidArgumentException;
 
 class ApplicationService implements ApplicationServiceInterface
 {
+    public function __construct(
+        private readonly OfficerNotificationServiceInterface $officerNotifications,
+    ) {}
+
     /**
      * Start an application for a child: freezes the unit's form fee
      * and places the application at its first step.
@@ -89,6 +94,8 @@ class ApplicationService implements ApplicationServiceInterface
             'form_fee_decision_note' => null,
         ]);
 
+        $this->officerNotifications->notifyFormFeeReliefRequested($application);
+
         return $application;
     }
 
@@ -113,6 +120,8 @@ class ApplicationService implements ApplicationServiceInterface
         }
 
         $application->save();
+
+        $this->officerNotifications->markFormFeeReliefHandled($application);
 
         return $application;
     }

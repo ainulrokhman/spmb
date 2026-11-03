@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\ApplicationServiceInterface;
 use App\Contracts\InstallmentServiceInterface;
+use App\Contracts\OfficerNotificationServiceInterface;
 use App\Contracts\InvoiceServiceInterface;
 use App\Models\Application;
 use App\Models\Invoice;
@@ -30,6 +31,7 @@ class PaymentService
         private readonly ApplicationServiceInterface $applications,
         private readonly InvoiceServiceInterface $invoices,
         private readonly InstallmentServiceInterface $installments,
+        private readonly OfficerNotificationServiceInterface $officerNotifications,
     ) {}
 
     /**
@@ -199,6 +201,8 @@ class PaymentService
             $payment->payable->update(['status' => 'awaiting_confirmation']);
         }
 
+        $this->officerNotifications->notifyManualPaymentDeclared($payment);
+
         return $payment;
     }
 
@@ -222,6 +226,8 @@ class PaymentService
         } elseif ($payment->payable instanceof InvoiceInstallment) {
             $this->installments->settleInstallment($payment->payable);
         }
+
+        $this->officerNotifications->markManualPaymentHandled($payment);
 
         return $payment;
     }

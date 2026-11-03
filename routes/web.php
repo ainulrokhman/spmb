@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\SelectionRuleController;
 use App\Http\Controllers\Admin\FormPaymentController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\AuthController;
@@ -190,6 +191,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('reports/export/formulir', [ReportController::class, 'exportFormPayments'])->name('reports.export.form-payments')->middleware('permission:application-list');
     Route::get('students', [StudentController::class, 'index'])->name('students.index')->middleware('permission:application-list');
     Route::get('students/export', [StudentController::class, 'export'])->name('students.export')->middleware('permission:application-list');
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::get('notifications/{notification}', [NotificationController::class, 'show'])->name('notifications.show');
     Route::get('applications/{application}/cetak', [AdminApplicationController::class, 'print'])->name('applications.print')->middleware('permission:application-list');
 
     // Settings (payment channels)

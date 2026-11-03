@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\InstallmentServiceInterface;
 use App\Contracts\InvoiceServiceInterface;
+use App\Contracts\OfficerNotificationServiceInterface;
 use App\Models\Invoice;
 use App\Models\InvoiceInstallment;
 use App\Models\User;
@@ -29,6 +30,7 @@ class InstallmentService implements InstallmentServiceInterface
 
     public function __construct(
         private readonly InvoiceServiceInterface $invoices,
+        private readonly OfficerNotificationServiceInterface $officerNotifications,
     ) {}
 
     /**
@@ -58,6 +60,8 @@ class InstallmentService implements InstallmentServiceInterface
             'installment_decision_note' => null,
         ]);
 
+        $this->officerNotifications->notifyInstallmentRequested($invoice);
+
         return $invoice;
     }
 
@@ -84,6 +88,8 @@ class InstallmentService implements InstallmentServiceInterface
 
         if (! $approve) {
             $invoice->save();
+
+            $this->officerNotifications->markInstallmentHandled($invoice);
 
             return $invoice;
         }
@@ -113,6 +119,8 @@ class InstallmentService implements InstallmentServiceInterface
                 $this->allocateTermItems($invoice->fresh());
             }
         });
+
+        $this->officerNotifications->markInstallmentHandled($invoice);
 
         return $invoice;
     }
