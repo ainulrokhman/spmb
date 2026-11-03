@@ -56,6 +56,9 @@ class FeeComponentDataTable
     {
         return function ($feeComponent) {
             $html = '<div class="d-flex justify-content-end gap-2">';
+            if (auth()->user()->can('school-unit-edit') || auth()->user()->can('unit-fee-manage')) {
+                $html .= '<a href="'.route('admin.fee-components.units', $feeComponent->id).'" class="btn btn-sm btn-light border" title="Atur Mode per Unit"><i class="bi bi-diagram-3 text-success"></i> Atur per Unit</a>';
+            }
             if (auth()->user()->can('fee-component-edit')) {
                 $html .= '<a href="'.route('admin.fee-components.edit', $feeComponent->id).'" class="btn btn-sm btn-light border" title="Ubah Fee Component"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }

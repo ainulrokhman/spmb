@@ -43,8 +43,14 @@
                 </a>
             </form>
 
+            @canany(['school-unit-edit', 'unit-fee-manage'])
+            <a href="{{ route('admin.unit-fees.index') }}" class="btn btn-light border">
+                <i class="bi bi-building fs-5"></i> Biaya per Unit
+            </a>
+            @endcanany
+
             @can('fee-amount-create')
-            <a href="{{ route('admin.fee-amounts.create') }}" class="btn btn-primary">
+            <a href="{{ route('admin.fee-amounts.create') }}" class="btn btn-primary" id="create-amount-btn">
                 <i class="bi bi-cash-stack fs-5"></i> Tambah Nominal
             </a>
             @endcan
@@ -151,7 +157,32 @@
             table.search('').draw();
         });
 
+        // Keep the URL (and the create button) in sync with the
+        // active filters, so the context survives refresh, the
+        // create form, and the return trip after saving.
+        const syncFilterUrl = () => {
+            const query = new URLSearchParams();
+            if ($('#unit-filter').val()) {
+                query.set('school_unit_id', $('#unit-filter').val());
+            }
+            if ($('#component-filter').val()) {
+                query.set('fee_component_id', $('#component-filter').val());
+            }
+            const qs = query.toString();
+            history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+            const $createBtn = $('#create-amount-btn');
+            if ($createBtn.length) {
+                $createBtn.attr('href', $createBtn.data('base-href') + (qs ? '?' + qs : ''));
+            }
+        };
+        const $createBtn = $('#create-amount-btn');
+        if ($createBtn.length) {
+            $createBtn.data('base-href', $createBtn.attr('href'));
+        }
+        syncFilterUrl();
+
         $('#unit-filter, #component-filter').on('change', function() {
+            syncFilterUrl();
             table.ajax.reload();
         });
     });
