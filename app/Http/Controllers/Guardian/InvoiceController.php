@@ -46,7 +46,7 @@ class InvoiceController extends Controller
                 ->with('error', 'Hasil pendaftaran belum diumumkan untuk gelombang ini.');
         }
 
-        $invoice = $application->invoice?->load(['items', 'payments', 'installments.payments']);
+        $invoice = $application->invoice?->load(['items', 'payments', 'installments.payments', 'installments.items.invoiceItem']);
         $draftLines = $invoice === null ? $this->invoices->draftLines($application) : [];
         $channels = $invoice === null ? [] : $this->payments->enabledChannels();
         $activePayment = $invoice?->payments
