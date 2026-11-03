@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\ApplicationServiceInterface;
 use App\Contracts\InstallmentServiceInterface;
+use App\Contracts\GuardianNotificationServiceInterface;
 use App\Contracts\OfficerNotificationServiceInterface;
 use App\Contracts\InvoiceServiceInterface;
 use App\Models\Application;
@@ -32,6 +33,7 @@ class PaymentService
         private readonly InvoiceServiceInterface $invoices,
         private readonly InstallmentServiceInterface $installments,
         private readonly OfficerNotificationServiceInterface $officerNotifications,
+        private readonly GuardianNotificationServiceInterface $guardianNotifications,
     ) {}
 
     /**
@@ -257,9 +259,11 @@ class PaymentService
         } elseif ($status === 'expire') {
             $payment->update(['status' => 'expired']);
             $this->resetPayable($payment);
+            $this->guardianNotifications->notifyPaymentUnsuccessful($payment);
         } elseif (in_array($status, ['cancel', 'deny'], true)) {
             $payment->update(['status' => 'failed']);
             $this->resetPayable($payment);
+            $this->guardianNotifications->notifyPaymentUnsuccessful($payment);
         }
 
         return true;

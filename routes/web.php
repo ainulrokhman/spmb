@@ -34,6 +34,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Guardian\ApplicationController as GuardianApplicationController;
 use App\Http\Controllers\Guardian\DashboardController as GuardianDashboardController;
 use App\Http\Controllers\Guardian\InvoiceController as GuardianInvoiceController;
+use App\Http\Controllers\Guardian\NotificationController as GuardianNotificationController;
 use App\Http\Controllers\GuardianAuthController;
 use App\Http\Controllers\PaymentNotificationController;
 use Illuminate\Support\Facades\Route;
@@ -66,6 +67,9 @@ Route::post('/payments/midtrans/notification', [PaymentNotificationController::c
 // Formulir -> Input Berkas; controllers guard each step server-side.
 Route::middleware(['auth', 'role:Wali'])->prefix('wali')->name('guardian.')->group(function () {
     Route::get('/', [GuardianDashboardController::class, 'index'])->name('dashboard');
+    Route::get('notifikasi', [GuardianNotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifikasi/read-all', [GuardianNotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::get('notifikasi/{notification}', [GuardianNotificationController::class, 'show'])->name('notifications.show');
     Route::get('pendaftaran/baru', [GuardianApplicationController::class, 'create'])->name('applications.create');
     Route::post('pendaftaran', [GuardianApplicationController::class, 'store'])->name('applications.store');
     Route::get('pendaftaran/{application}', [GuardianApplicationController::class, 'show'])->name('applications.show');

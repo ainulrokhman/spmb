@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\FeeServiceInterface;
+use App\Contracts\GuardianNotificationServiceInterface;
 use App\Contracts\OfficerNotificationServiceInterface;
 use App\Contracts\InvoiceServiceInterface;
 use App\Models\Application;
@@ -19,6 +20,7 @@ class InvoiceService implements InvoiceServiceInterface
     public function __construct(
         private readonly FeeServiceInterface $fees,
         private readonly OfficerNotificationServiceInterface $officerNotifications,
+        private readonly GuardianNotificationServiceInterface $guardianNotifications,
     ) {}
 
     /**
@@ -203,6 +205,7 @@ class InvoiceService implements InvoiceServiceInterface
                 $invoice->save();
 
                 $this->officerNotifications->markInvoiceReliefHandled($invoice);
+                $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, $approve);
 
                 return $this->markPaid($invoice);
             }
@@ -213,6 +216,7 @@ class InvoiceService implements InvoiceServiceInterface
         $invoice->save();
 
         $this->officerNotifications->markInvoiceReliefHandled($invoice);
+        $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, $approve);
 
         return $invoice;
     }
@@ -248,11 +252,15 @@ class InvoiceService implements InvoiceServiceInterface
         if ($invoice->payableAmount() === 0) {
             $invoice->save();
 
+            $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, true, directGrant: true);
+
             return $this->markPaid($invoice);
         }
 
         $invoice->status = 'unpaid';
         $invoice->save();
+
+        $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, true, directGrant: true);
 
         return $invoice;
     }
@@ -309,6 +317,8 @@ class InvoiceService implements InvoiceServiceInterface
         if ($application !== null && $application->status === 'passed') {
             $application->update(['status' => 're_registered']);
         }
+
+        $this->guardianNotifications->notifyInvoicePaid($invoice);
 
         return $invoice;
     }

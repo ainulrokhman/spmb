@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\InstallmentServiceInterface;
 use App\Contracts\InvoiceServiceInterface;
+use App\Contracts\GuardianNotificationServiceInterface;
 use App\Contracts\OfficerNotificationServiceInterface;
 use App\Models\Invoice;
 use App\Models\InvoiceInstallment;
@@ -31,6 +32,7 @@ class InstallmentService implements InstallmentServiceInterface
     public function __construct(
         private readonly InvoiceServiceInterface $invoices,
         private readonly OfficerNotificationServiceInterface $officerNotifications,
+        private readonly GuardianNotificationServiceInterface $guardianNotifications,
     ) {}
 
     /**
@@ -90,6 +92,7 @@ class InstallmentService implements InstallmentServiceInterface
             $invoice->save();
 
             $this->officerNotifications->markInstallmentHandled($invoice);
+            $this->guardianNotifications->notifyInstallmentDecided($invoice, false);
 
             return $invoice;
         }
@@ -121,6 +124,7 @@ class InstallmentService implements InstallmentServiceInterface
         });
 
         $this->officerNotifications->markInstallmentHandled($invoice);
+        $this->guardianNotifications->notifyInstallmentDecided($invoice, true);
 
         return $invoice;
     }
@@ -526,6 +530,14 @@ class InstallmentService implements InstallmentServiceInterface
             && $invoice->status !== 'paid'
             && ! $invoice->installments()->where('status', '!=', 'paid')->exists()) {
             $this->invoices->markPaid($invoice);
+        }
+
+        // When the last term settles the invoice, the
+        // invoice-paid notification already covers the
+        // completion; only partial settlements get their
+        // own term notification.
+        if ($invoice !== null && $invoice->fresh()->status !== 'paid') {
+            $this->guardianNotifications->notifyInstallmentPaid($installment);
         }
 
         return $installment;
