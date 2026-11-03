@@ -69,6 +69,7 @@ Route::middleware(['auth', 'role:Wali'])->prefix('wali')->name('guardian.')->gro
     Route::get('pendaftaran/baru', [GuardianApplicationController::class, 'create'])->name('applications.create');
     Route::post('pendaftaran', [GuardianApplicationController::class, 'store'])->name('applications.store');
     Route::get('pendaftaran/{application}', [GuardianApplicationController::class, 'show'])->name('applications.show');
+    Route::get('pendaftaran/{application}/rincian', [GuardianApplicationController::class, 'detail'])->name('applications.detail');
     Route::get('pendaftaran/{application}/bayar', [GuardianApplicationController::class, 'payment'])->name('applications.payment');
     Route::post('pendaftaran/{application}/bayar', [GuardianApplicationController::class, 'pay'])->name('applications.pay');
     Route::post('pendaftaran/{application}/pembayaran/{payment}/nyatakan-lunas', [GuardianApplicationController::class, 'declarePaid'])->name('applications.declare-paid');

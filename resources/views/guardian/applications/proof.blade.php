@@ -6,6 +6,9 @@
 <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
     <h3 class="fw-bold mb-0">Bukti Pendaftaran</h3>
     <div class="d-flex gap-2">
+        <a href="{{ route('guardian.applications.detail', $application) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-card-list"></i> Lihat Rincian
+        </a>
         <a href="{{ route('guardian.applications.print', $application) }}" class="btn btn-outline-primary">
             <i class="bi bi-file-text"></i> Cetak Formulir
         </a>

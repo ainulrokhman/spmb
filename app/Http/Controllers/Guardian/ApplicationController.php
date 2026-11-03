@@ -99,6 +99,78 @@ class ApplicationController extends Controller
     }
 
     /**
+     * Read-only recap of everything the guardian submitted
+     * for this child — biodata, parent identities, dynamic
+     * answers, uploaded documents, form-fee payments — plus
+     * every schedule that matters (Jadwal Penting).
+     */
+    public function detail(Application $application)
+    {
+        $this->ensureOwner($application);
+
+        $application->load([
+            'user', 'schoolUnit.program', 'admissionWave.academicYear', 'admissionTrack', 'major', 'childStatus',
+            'documents.documentType',
+            'payments' => fn ($query) => $query->latest('id'),
+            'invoice.installments',
+        ]);
+
+        $formFields = $application->schoolUnit->formFields()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        $schedules = $this->scheduleItems($application);
+
+        return view('guardian.applications.detail', compact('application', 'formFields', 'schedules'));
+    }
+
+    /**
+     * The schedule items shown to the guardian: the wave's
+     * opening and closing, the results announcement (per
+     * track when set), and every unpaid installment's due
+     * date.
+     *
+     * @return list<array{label: string, at: mixed, note: string, amount: int|null}>
+     */
+    private function scheduleItems(Application $application): array
+    {
+        $items = [];
+        $wave = $application->admissionWave;
+
+        if ($wave !== null) {
+            $items[] = ['label' => 'Pendaftaran gelombang dibuka', 'at' => $wave->opens_at, 'note' => '', 'amount' => null];
+            $items[] = ['label' => 'Pendaftaran gelombang ditutup', 'at' => $wave->closes_at, 'note' => '', 'amount' => null];
+        }
+
+        $announcementAt = $application->announcementAt();
+
+        $items[] = [
+            'label' => 'Pengumuman hasil',
+            'at' => $announcementAt,
+            'note' => $announcementAt === null
+                ? 'Belum dijadwalkan panitia'
+                : ($application->resultsAnnounced() ? 'Sudah diumumkan' : 'Hasil baru terlihat pada waktu ini'),
+            'amount' => null,
+        ];
+
+        foreach ($application->invoice?->installments ?? [] as $installment) {
+            if ($installment->status === 'paid') {
+                continue;
+            }
+
+            $items[] = [
+                'label' => 'Jatuh tempo termin '.$installment->sequence,
+                'at' => $installment->due_date,
+                'note' => $installment->statusLabel(),
+                'amount' => $installment->amount,
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
      * Step: form fee payment.
      */
     public function payment(Application $application)

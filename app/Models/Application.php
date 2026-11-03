@@ -259,6 +259,50 @@ class Application extends Model
         return $announcementAt !== null && ! now()->lt($announcementAt);
     }
 
+    /**
+     * The nearest upcoming schedule a guardian should know
+     * about this application: the results announcement, the
+     * next unpaid installment's due date, or the wave's
+     * closing date — whichever comes first.
+     *
+     * @return array{label: string, at: \Carbon\Carbon}|null
+     */
+    public function nextSchedule(): ?array
+    {
+        $candidates = [];
+
+        $announcementAt = $this->announcementAt();
+
+        if ($announcementAt !== null && now()->lt($announcementAt)
+            && in_array($this->status, ['submitted', 'verified', 'needs_revision', 'passed', 'failed'], true)) {
+            $candidates[] = ['label' => 'Pengumuman hasil', 'at' => $announcementAt];
+        }
+
+        $wave = $this->admissionWave;
+
+        if ($wave !== null && $wave->closes_at !== null && now()->lt($wave->closes_at)
+            && in_array($this->status, ['awaiting_form_fee', 'filling_form', 'uploading_documents'], true)) {
+            $candidates[] = ['label' => 'Pendaftaran gelombang ditutup', 'at' => $wave->closes_at];
+        }
+
+        $installment = $this->invoice?->installments
+            ->where('status', '!=', 'paid')
+            ->sortBy('due_date')
+            ->first();
+
+        if ($installment !== null) {
+            $candidates[] = ['label' => 'Jatuh tempo termin '.$installment->sequence, 'at' => $installment->due_date];
+        }
+
+        if ($candidates === []) {
+            return null;
+        }
+
+        usort($candidates, fn ($a, $b) => $a['at'] <=> $b['at']);
+
+        return $candidates[0];
+    }
+
     public function major(): BelongsTo
     {
         return $this->belongsTo(Major::class);
