@@ -30,6 +30,7 @@ class Payment extends Model
         'amount',
         'status',
         'reference',
+        'proof_path',
         'snap_token',
         'paid_at',
         'meta',

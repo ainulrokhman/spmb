@@ -24,7 +24,7 @@ interface ApplicationServiceInterface
      * guardian only states a reason; the committee decides the
      * form and size of the relief.
      */
-    public function requestFeeRelief(Application $application, string $reason): Application;
+    public function requestFeeRelief(Application $application, string $reason, ?\Illuminate\Http\UploadedFile $attachment = null): Application;
 
     /**
      * Decide a pending fee relief request (committee side). When

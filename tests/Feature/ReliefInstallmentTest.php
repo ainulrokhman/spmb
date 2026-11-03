@@ -175,7 +175,7 @@ class ReliefInstallmentTest extends TestCase
             $payment = $installment->payments()->latest('id')->firstOrFail();
 
             $this->actingAs($this->guardian)
-                ->post(route('guardian.invoices.declare-installment-paid', [$application, $payment]))
+                ->post(route('guardian.invoices.declare-installment-paid', [$application, $payment]), ['proof' => \Illuminate\Http\UploadedFile::fake()->image('bukti.jpg')])
                 ->assertSessionHas('success');
 
             $this->actingAs($this->superAdmin())

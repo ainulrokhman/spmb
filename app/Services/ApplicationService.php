@@ -63,7 +63,7 @@ class ApplicationService implements ApplicationServiceInterface
      * guardian only states a reason; the committee decides the
      * form and size of the relief when deciding the request.
      */
-    public function requestFeeRelief(Application $application, string $reason): Application
+    public function requestFeeRelief(Application $application, string $reason, ?UploadedFile $attachment = null): Application
     {
         if ($application->feeSettled() || $application->status !== 'awaiting_form_fee') {
             throw new InvalidArgumentException('Pengajuan hanya dapat dilakukan sebelum biaya formulir diselesaikan.');
@@ -73,11 +73,18 @@ class ApplicationService implements ApplicationServiceInterface
             throw new InvalidArgumentException('Masih ada pengajuan yang menunggu keputusan panitia.');
         }
 
+        // The attachment belongs to this request: a fresh request
+        // replaces (or clears) the previous request's file.
+        if ($application->form_fee_request_file_path) {
+            Storage::disk('local')->delete($application->form_fee_request_file_path);
+        }
+
         $application->update([
             'form_fee_request_kind' => null,
             'form_fee_request_type' => null,
             'form_fee_request_value' => null,
             'form_fee_request_reason' => $reason,
+            'form_fee_request_file_path' => $attachment?->store('lampiran-keringanan', 'local'),
             'form_fee_request_status' => 'pending',
             'form_fee_decision_note' => null,
         ]);

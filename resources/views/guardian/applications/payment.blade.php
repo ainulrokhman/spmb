@@ -69,8 +69,13 @@
 
                         @if($activePayment->channel === 'manual' && $activePayment->status === 'pending')
                             <p class="small mt-3 mb-2">{{ \App\Models\Setting::get('payment_manual_instructions', 'Transfer ke rekening yayasan atau bayar tunai di sekolah, lalu tekan tombol di bawah agar panitia dapat mengonfirmasi.') }}</p>
-                            <form method="POST" action="{{ route('guardian.applications.declare-paid', [$application, $activePayment]) }}">
+                            <form method="POST" action="{{ route('guardian.applications.declare-paid', [$application, $activePayment]) }}" enctype="multipart/form-data">
                                 @csrf
+                                <div class="mb-2">
+                                    <label class="form-label fw-semibold small" for="proof">Bukti Transfer <span class="text-danger">*</span></label>
+                                    <input type="file" class="form-control form-control-sm" id="proof" name="proof" accept=".jpg,.jpeg,.png,.pdf" required>
+                                    <div class="form-text">Foto atau PDF bukti pembayaran, maksimal 5 MB.</div>
+                                </div>
                                 <button type="submit" class="btn btn-success btn-sm">Saya Sudah Bayar</button>
                             </form>
                         @elseif($activePayment->channel === 'manual')
@@ -112,11 +117,16 @@
                 <p class="text-muted small">Cukup tuliskan alasan Anda — bentuk dan besar keringanan (pembebasan penuh atau diskon) ditentukan oleh panitia sebelum Anda membayar.</p>
 
                 @if($application->form_fee_request_status !== 'pending')
-                    <form method="POST" action="{{ route('guardian.applications.request-relief', $application) }}">
+                    <form method="POST" action="{{ route('guardian.applications.request-relief', $application) }}" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
                             <label for="reason" class="form-label fw-semibold">Alasan Pengajuan <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="reason" name="reason" rows="3" required placeholder="mis. Anak yatim, keluarga tidak mampu, anak karyawan yayasan">{{ old('reason') }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="attachment" class="form-label fw-semibold">Lampiran Pendukung <span class="text-muted fw-normal">(opsional)</span></label>
+                            <input type="file" class="form-control" id="attachment" name="attachment" accept=".jpg,.jpeg,.png,.pdf">
+                            <div class="form-text">Surat keterangan atau dokumen pendukung (JPG/PNG/PDF, maksimal 5 MB) — membantu panitia memutuskan.</div>
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-outline-primary">Kirim Pengajuan</button>

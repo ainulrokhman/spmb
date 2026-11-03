@@ -58,7 +58,11 @@
                                         <span class="badge bg-info">Keringanan</span>
                                     @endif
                                 </td>
-                                <td class="small">{{ $application->form_fee_request_reason }}</td>
+                                <td class="small">{{ $application->form_fee_request_reason }}
+                                    @if($application->form_fee_request_file_path)
+                                        <div><a href="{{ route('admin.applications.relief-file', $application) }}" target="_blank" rel="noopener" class="btn btn-sm btn-light border mt-1"><i class="bi bi-paperclip"></i> Lihat Lampiran</a></div>
+                                    @endif
+                                </td>
                                 <td>
                                     <form method="POST" action="{{ route('admin.form-payments.decide', $application) }}">
                                         @csrf
@@ -169,6 +173,9 @@
                                 <td>{{ $payment->payable?->schoolUnit?->name }}</td>
                                 <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
                                 <td class="text-end">
+                                    @if($payment->proof_path)
+                                        <a href="{{ route('admin.payments.proof', $payment) }}" target="_blank" rel="noopener" class="btn btn-light border btn-sm mb-1"><i class="bi bi-receipt"></i> Lihat Bukti</a>
+                                    @endif
                                     <form method="POST" action="{{ route('admin.form-payments.confirm', $payment) }}" onsubmit="return confirm('Konfirmasi pembayaran ini sebagai lunas?');">
                                         @csrf
                                         <button type="submit" class="btn btn-success btn-sm">Konfirmasi Lunas</button>

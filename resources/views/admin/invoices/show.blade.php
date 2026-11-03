@@ -103,6 +103,9 @@
                                         <td>{{ $payment->statusLabel() }}</td>
                                         <td class="text-end">
                                             @if($payment->channel === 'manual' && $payment->status === 'awaiting_confirmation')
+                                                @if($payment->proof_path)
+                                                    <a href="{{ route('admin.payments.proof', $payment) }}" target="_blank" rel="noopener" class="btn btn-sm btn-light border"><i class="bi bi-receipt"></i> Bukti</a>
+                                                @endif
                                                 <form method="POST" action="{{ route('admin.invoices.confirm', $payment) }}" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-success">Konfirmasi Lunas</button>
@@ -120,6 +123,9 @@
                                             <td>{{ $payment->statusLabel() }}</td>
                                             <td class="text-end">
                                                 @if($payment->channel === 'manual' && $payment->status === 'awaiting_confirmation')
+                                                    @if($payment->proof_path)
+                                                        <a href="{{ route('admin.payments.proof', $payment) }}" target="_blank" rel="noopener" class="btn btn-sm btn-light border"><i class="bi bi-receipt"></i> Bukti</a>
+                                                    @endif
                                                     <form method="POST" action="{{ route('admin.invoices.confirm', $payment) }}" class="d-inline">
                                                         @csrf
                                                         <button type="submit" class="btn btn-sm btn-success">Konfirmasi Lunas</button>
@@ -154,6 +160,9 @@
                         </p>
                     @endif
                     <p class="small text-muted">Alasan wali: {{ $invoice->request_reason }}</p>
+                    @if($invoice->request_file_path)
+                        <p class="small"><a href="{{ route('admin.invoices.relief-file', $invoice) }}" target="_blank" rel="noopener" class="btn btn-sm btn-light border"><i class="bi bi-paperclip"></i> Lihat Lampiran Pengajuan</a></p>
+                    @endif
                     <form method="POST" action="{{ route('admin.invoices.decide-discount', $invoice) }}">
                         @csrf
                         <div class="row g-2 mb-3">
