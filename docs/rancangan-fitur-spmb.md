@@ -157,6 +157,17 @@ gelombang, jurusan, syarat berkas, formulir, dan biaya yang berbeda.
   Berkas → Menunggu Verifikasi → Terverifikasi / Perlu Perbaikan /
   Ditolak → Lulus / Tidak Lulus → Daftar Ulang (terkonfirmasi)`.
 - Pendaftar dapat mengunduh/mencetak bukti pendaftaran.
+- Wali dapat membuka halaman **Rincian Pendaftaran** per anak
+  (hanya-lihat): seluruh data yang sudah diinput — biodata, identitas
+  orang tua, jawaban formulir, berkas terunggah beserta status
+  verifikasinya, dan riwayat pembayaran formulir — ditambah
+  **Jadwal Penting** (gelombang dibuka/ditutup, waktu pengumuman
+  hasil jalur anak, jatuh tempo termin yang belum lunas); kartu anak
+  di dasbor wali menampilkan **jadwal terdekat** (PR #46).
+- Wali menerima **notifikasi di dalam aplikasi** (lonceng + halaman
+  daftar) untuk keputusan keringanan dan cicilan, hasil verifikasi,
+  status pembayaran, kelulusan, dan pengingat jatuh tempo termin —
+  lihat Bab 8 keputusan 23 (PR #47).
 
 ### 3.1 Biaya Formulir, Pembebasan & Diskon
 
@@ -251,6 +262,17 @@ Setiap komponen yang dipakai sebuah unit dipetakan dengan satu **mode**:
 Contoh penerapan: SPI dapat bermode `pilihan` di satu unit dan `fixed`
 di unit lain; SOP dan DU umumnya `fixed`; INFAQ umumnya `bebas`.
 
+Pemetaan per unit juga memiliki saklar **aktif/nonaktif** (`is_active`):
+komponen yang dinonaktifkan **tidak pernah ditagihkan**, tetapi
+nominalnya tetap tersimpan dan dapat diaktifkan kembali kapan saja
+(PR #40). Halaman **Biaya per Unit** menampilkannya sebagai **satu
+kartu per komponen** — kepala kartu berisi saklar aktif, nama
+komponen, dan pilihan mode; badan kartu berisi isian nominal (isian
+minimum hanya tampil untuk mode `bebas`); tombol Simpan di kaki kartu
+menyimpan kepala dan badan sekaligus lewat AJAX. Satu blok penjelasan
+arti setiap mode berada di paling atas halaman, di luar kartu
+(PR #45).
+
 ### 6.3 Diferensiasi nominal
 
 Nominal (mode `fixed`) maupun tingkat pilihan (mode `pilihan`) dapat
@@ -301,6 +323,15 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
   sandbox/production) disimpan di `.env`, tidak di kode. Status
   pembayaran berlaku seragam untuk semua kanal:
   `Belum Bayar → Menunggu Pembayaran → Lunas / Kedaluwarsa / Gagal`.
+- **Cicilan dirinci per komponen**: rincian termin yang disetujui
+  panitia berbentuk matriks termin × komponen — setiap termin
+  menyebut potongan nominal tiap komponen, dan jumlah potongan per
+  komponen wajib sama persis dengan bagian komponen itu dari sisa
+  tagihan (diskon tagihan disebar proporsional). Panitia dapat
+  **menambah termin** saat merevisi rincian; termin yang sudah lunas
+  maupun yang pembayarannya sedang berjalan terkunci beserta
+  rinciannya. Rincian lama yang hanya berisi nominal diisi otomatis
+  per komponen saat migrasi (PR #42; memperjelas Bab 8 keputusan 13).
 
 ## 7. Dashboard & Laporan
 
@@ -308,6 +339,19 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
 - Rekap daftar ulang & pembayaran per unit.
 - Export CSV daftar pendaftar dan rekap tagihan; cetak formulir dan
   bukti daftar ulang.
+- **Laporan SPMB** memuat bagian **Pembayaran Formulir** per unit
+  (jumlah lunas/gratis/dibebaskan/belum bayar, total diskon, total
+  diterima, dan rincian per kanal) beserta **Export Formulir CSV**
+  (PR #41).
+- Halaman **Daftar Siswa** menampilkan pendaftar per unit/gelombang/
+  jalur dengan **semua status pendaftaran** dan export CSV yang
+  mengikuti filter status (PR #41; cakupan semua status dari PR #44).
+- Halaman kerja **Pembayaran Formulir** berbentuk satu **DataTable
+  untuk semua kondisi** biaya formulir, terurut mendesak-dulu
+  (pengajuan keringanan menunggu → pembayaran menunggu konfirmasi →
+  lainnya), dengan kolom aksi per kondisi: konfirmasi pembayaran
+  manual + tautan bukti transfer, keputusan/pemberian keringanan
+  lewat satu modal bersama, dan tautan detail (PR #44).
 
 ## 8. Keputusan (sudah diputuskan pemilik proyek)
 
@@ -374,6 +418,32 @@ tarif global dan hanya menulis pengecualian yang memang berbeda.
     **Tetapkan dari Poin** (pratinjau dulu, baru terapkan) ikut
     dibangun. Urutan pengerjaan yang disepakati: Seleksi, lalu Fase 6,
     lalu Fase 7 (PR #35, #36, #37).
+19. **Komponen biaya per unit dapat dinonaktifkan** — pemetaan biaya
+    memiliki saklar aktif (`is_active`); komponen nonaktif tidak
+    ditagihkan, nominalnya tetap tersimpan (PR #40).
+20. **Daftar operasional mencakup semua kondisi** — Daftar Siswa
+    menampilkan **semua status** pendaftaran (bukan hanya yang sudah
+    daftar ulang), dan daftar Pembayaran Formulir menjadi satu
+    DataTable semua kondisi biaya formulir dengan kolom aksi
+    (PR #44).
+21. **Halaman Biaya per Unit = satu kartu per komponen** — saklar,
+    mode, dan nominal satu komponen berada dalam satu kartu dengan
+    satu tombol Simpan (AJAX); penjelasan mode cukup satu blok di
+    atas halaman, di luar kartu (PR #45).
+22. **Wali melihat kembali datanya dan mengetahui jadwal** — halaman
+    Rincian Pendaftaran (hanya-lihat) merangkum semua input wali,
+    dan Jadwal Penting + jadwal terdekat di dasbor memberi tahu
+    setiap tanggal yang perlu diketahui wali (PR #46).
+23. **Notifikasi wali** — melengkapi keputusan 15: wali menerima
+    notifikasi **di dalam aplikasi** atas keputusan keringanan
+    (formulir & tagihan, termasuk pemberian langsung), keputusan
+    cicilan, hasil verifikasi (beserta catatan panitia), pembayaran
+    terkonfirmasi, termin dan tagihan lunas, pembayaran
+    gagal/kedaluwarsa, serta **hasil kelulusan yang baru tampil
+    setelah waktu pengumuman** jalurnya. Termasuk **pengingat jatuh
+    tempo termin** 3 hari sebelum dan pada hari H, dikirim oleh
+    pemeriksaan terjadwal harian. Penerima: pemegang akun dan akun
+    orang tua yang terhubung (PR #47).
 
 ## 9. Peta Fase Implementasi
 
@@ -407,12 +477,24 @@ ter-merge ke branch `done` (terakhir diverifikasi 3 November 2026).
 | Seleksi A | Status Anak: master data, pilihan wali di biodata, koreksi panitia, nominal biaya per status (PR #35) | Selesai |
 | Seleksi B | Tipe bidang Pilihan Unit Sekolah & Saudara Kandung dari master data (PR #36) | Selesai |
 | Seleksi C | Mesin seleksi poin: aturan per unit, hitung otomatis saat Terverifikasi, kriteria manual, koreksi beralasan, kolom poin terurut, Tetapkan dari Poin (PR #37) | Selesai |
-| 6 | Cicilan dirinci **per komponen** (matriks termin × komponen: SPI/SOP/DU/INFAQ per termin; jumlah per komponen wajib pas) + **tambah termin** setelah rincian dibuat; rincian rencana lama diisi otomatis saat migrasi | Direncanakan |
-| 7 | Notifikasi petugas terkait pengajuan keringanan & cicilan **dan** pembayaran manual menunggu konfirmasi, di dalam aplikasi (Bab 8 keputusan 15) | Direncanakan |
+| 6 | Cicilan dirinci **per komponen** (matriks termin × komponen: SPI/SOP/DU/INFAQ per termin; jumlah per komponen wajib pas) + **tambah termin** setelah rincian dibuat; rincian rencana lama diisi otomatis saat migrasi (PR #42) | Selesai |
+| 7 | Notifikasi petugas terkait pengajuan keringanan & cicilan **dan** pembayaran manual menunggu konfirmasi, di dalam aplikasi (Bab 8 keputusan 15) (PR #43) | Selesai |
+| Paket A | Komponen biaya dapat dinonaktifkan per unit; tabel Nominal Biaya menonjolkan nama komponen; halaman Biaya per Unit lebih mudah dipahami (panduan, legenda mode, pratinjau Contoh Tagihan) (PR #40) | Selesai |
+| Paket B | Laporan Pembayaran Formulir + Export Formulir CSV; halaman Daftar Siswa per unit/gelombang/jalur (PR #41) | Selesai |
+| Paket C | Pembayaran Formulir menjadi DataTable semua kondisi dengan kolom aksi; Daftar Siswa mencakup semua status (PR #44) | Selesai |
+| — | Biaya per Unit: satu kartu per komponen dengan simpan AJAX per kartu (PR #45) | Selesai |
+| — | Rincian Pendaftaran & Jadwal Penting untuk wali; jadwal terdekat di dasbor wali (PR #46) | Selesai |
+| — | Notifikasi wali di dalam aplikasi + pengingat jatuh tempo termin H-3 dan hari H (PR #47) | Selesai |
+
+Seluruh baris pada peta ini telah selesai dan ter-merge ke branch
+`done` (terakhir diverifikasi 3 November 2026). Pekerjaan lanjutan
+yang masih terbuka berada di luar peta ini: driver BSI (menunggu
+akses API bank), notifikasi Web Push (menunggu keputusan
+hosting/domain), dan sisa Bab 10.
 
 ## 10. Di Luar Cakupan v1
 
-- Notifikasi WhatsApp/email otomatis (pengingat status & pembayaran). Notifikasi petugas **di dalam aplikasi** tidak termasuk pengecualian ini — lihat Fase 7 pada Bab 9.1.
+- Notifikasi WhatsApp/email otomatis (pengingat status & pembayaran), termasuk notifikasi **Web Push** yang menunggu keputusan hosting/domain. Notifikasi **di dalam aplikasi** — untuk petugas maupun wali — tidak termasuk pengecualian ini; keduanya sudah tersedia (Fase 7 dan PR #47 pada Bab 9.1).
 - Login wali dengan OTP (v1: nomor HP + kata sandi).
 - Cicilan biaya formulir (cicilan tagihan daftar ulang sudah tersedia — Bab 8 keputusan 13).
 - Multi-yayasan (satu instalasi untuk banyak yayasan).
