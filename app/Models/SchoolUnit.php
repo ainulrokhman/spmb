@@ -56,6 +56,32 @@ class SchoolUnit extends Model
     /**
      * The program this unit runs.
      */
+    /**
+     * WhatsApp chat link (wa.me) built from the unit's phone
+     * number, or null when the number is not a valid mobile.
+     */
+    public function whatsappUrl(): ?string
+    {
+        $normalized = \App\Support\PhoneNumber::normalize($this->phone);
+
+        return $normalized === null
+            ? null
+            : 'https://wa.me/62'.substr($normalized, 1);
+    }
+
+    /**
+     * Google Maps search link for the unit's address, or null
+     * when the unit has no address yet.
+     */
+    public function mapsUrl(): ?string
+    {
+        if (blank($this->address)) {
+            return null;
+        }
+
+        return 'https://www.google.com/maps/search/?api=1&query='.urlencode($this->name.' '.$this->address);
+    }
+
     public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class);

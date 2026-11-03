@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Guardian\ApplicationController as GuardianApplicationController;
@@ -39,10 +40,8 @@ use App\Http\Controllers\GuardianAuthController;
 use App\Http\Controllers\PaymentNotificationController;
 use Illuminate\Support\Facades\Route;
 
-// Welcome Page
-Route::get('/', function () {
-    return view('welcome');
-});
+// Landing page (public homepage)
+Route::get('/', [AdmissionInfoController::class, 'home'])->name('home');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -204,4 +203,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Settings (payment channels)
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit')->middleware('permission:manage-settings');
     Route::put('settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('permission:manage-settings');
+    Route::get('gallery', [GalleryController::class, 'index'])->name('gallery.index')->middleware('permission:gallery-manage');
+    Route::post('gallery', [GalleryController::class, 'store'])->name('gallery.store')->middleware('permission:gallery-manage');
+    Route::put('gallery/{photo}', [GalleryController::class, 'update'])->name('gallery.update')->middleware('permission:gallery-manage');
+    Route::delete('gallery/{photo}', [GalleryController::class, 'destroy'])->name('gallery.destroy')->middleware('permission:gallery-manage');
 });
