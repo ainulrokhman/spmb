@@ -11,6 +11,7 @@ use App\Models\Application;
 use App\Models\ApplicationDocument;
 use App\Models\SchoolUnit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use InvalidArgumentException;
 
@@ -129,6 +130,26 @@ class ApplicationController extends Controller
      * Record the overall decision (verified / needs_revision /
      * rejected).
      */
+    /**
+     * Correct the application's child status during
+     * verification (the guardian's choice is a claim until
+     * the committee confirms it). The verified status is
+     * what selection points and fee amounts resolve against.
+     */
+    public function updateChildStatus(Request $request, Application $application)
+    {
+        Gate::authorize('application-verify');
+        $this->ensureUnitAccess($request, $application);
+
+        $validated = $request->validate([
+            'child_status_id' => ['nullable', Rule::exists('child_statuses', 'id')->where('is_active', true)],
+        ], [], ['child_status_id' => 'status anak']);
+
+        $this->applications->setChildStatus($application, $validated['child_status_id'] ?? null);
+
+        return back()->with('success', 'Status anak diperbarui menjadi '.$application->fresh()->childStatusLabel().'.');
+    }
+
     public function decide(Request $request, Application $application)
     {
         $this->ensureUnitAccess($request, $application);

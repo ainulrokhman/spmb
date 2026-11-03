@@ -103,6 +103,7 @@ class Application extends Model
         'parent_name',
         'parent_phone',
         'guardian_relation',
+        'child_status_id',
         'create_parent_account',
         'father_data',
         'mother_data',
@@ -173,6 +174,34 @@ class Application extends Model
 
         return $this->user_id === $user->id
             || $this->linkedUsers()->whereKey($user->id)->exists();
+    }
+
+    /**
+     * The child's status (Yatim, Anak Guru, ...) verified by
+     * the committee; null means the default Reguler status.
+     */
+    public function childStatus(): BelongsTo
+    {
+        return $this->belongsTo(ChildStatus::class);
+    }
+
+    /**
+     * The status id fee/point resolution should use: the
+     * stored status, or the Reguler master row when the
+     * guardian never chose one.
+     */
+    public function effectiveChildStatusId(): ?int
+    {
+        return $this->child_status_id
+            ?? ChildStatus::where('name', ChildStatus::DEFAULT_NAME)->value('id');
+    }
+
+    /**
+     * Display label for the child's status.
+     */
+    public function childStatusLabel(): string
+    {
+        return $this->childStatus?->name ?? ChildStatus::DEFAULT_NAME;
     }
 
     public function schoolUnit(): BelongsTo

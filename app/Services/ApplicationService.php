@@ -225,6 +225,7 @@ class ApplicationService implements ApplicationServiceInterface
             'birth_place' => $data['birth_place'],
             'birth_date' => $data['birth_date'],
             'gender' => $data['gender'],
+            'child_status_id' => $data['child_status_id'] ?? $application->child_status_id,
             'father_data' => $data['father'],
             'mother_data' => $data['mother'],
             'has_guardian' => (bool) ($data['has_guardian'] ?? false),
@@ -232,6 +233,19 @@ class ApplicationService implements ApplicationServiceInterface
             'answers' => $data['answers'] ?? [],
             'status' => 'uploading_documents',
         ]);
+
+        return $application;
+    }
+
+    /**
+     * Set (or clear) the application's child status. Used by
+     * the committee when correcting the guardian's choice
+     * during verification; the verified status is what
+     * selection points and fee amounts resolve against.
+     */
+    public function setChildStatus(Application $application, ?int $childStatusId): Application
+    {
+        $application->update(['child_status_id' => $childStatusId]);
 
         return $application;
     }

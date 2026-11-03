@@ -30,6 +30,19 @@
                     @error('gender')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6">
+                    <label class="form-label fw-semibold" for="child_status_id">Status Anak</label>
+                    <select class="form-select @error('child_status_id') is-invalid @enderror" id="child_status_id" name="child_status_id">
+                        <option value="">Reguler (umum)</option>
+                        @foreach($childStatuses as $status)
+                            @if($status->name !== 'Reguler')
+                                <option value="{{ $status->id }}" {{ (int) old('child_status_id', $application->child_status_id) === $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                    <div class="form-text">Pilih bila sesuai; status akan diverifikasi panitia bersama berkas pendukung.</div>
+                    @error('child_status_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-md-6">
                     <label class="form-label fw-semibold" for="birth_place">Tempat Lahir <span class="text-danger">*</span></label>
                     <input type="text" class="form-control @error('birth_place') is-invalid @enderror" id="birth_place" name="birth_place" value="{{ old('birth_place', $application->birth_place) }}" required>
                     @error('birth_place')<div class="invalid-feedback">{{ $message }}</div>@enderror

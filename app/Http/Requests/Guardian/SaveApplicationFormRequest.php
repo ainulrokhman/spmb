@@ -33,6 +33,7 @@ class SaveApplicationFormRequest extends FormRequest
             'birth_place' => ['required', 'string', 'max:255'],
             'birth_date' => ['required', 'date', 'before:today'],
             'gender' => ['required', Rule::in(['L', 'P'])],
+            'child_status_id' => ['nullable', Rule::exists('child_statuses', 'id')->where('is_active', true)],
             'has_guardian' => ['nullable', 'boolean'],
         ];
 
@@ -68,6 +69,7 @@ class SaveApplicationFormRequest extends FormRequest
     {
         $attributes = [
             'child_name' => 'nama lengkap anak',
+            'child_status_id' => 'status anak',
             'birth_place' => 'tempat lahir',
             'birth_date' => 'tanggal lahir',
             'gender' => 'jenis kelamin',

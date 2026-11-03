@@ -50,6 +50,8 @@ interface ApplicationServiceInterface
      */
     public function saveForm(Application $application, array $data): Application;
 
+    public function setChildStatus(Application $application, ?int $childStatusId): Application;
+
     /**
      * Create (or link) guardian accounts for the biodata identity
      * sections whose 'create_account' checkbox was ticked. A new

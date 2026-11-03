@@ -32,10 +32,10 @@ interface FeeServiceInterface
      * global). Returns every amount at the winning level: exactly one
      * for fixed fees, the offered tiers for pilihan fees.
      */
-    public function resolveAmounts(Fee $fee, ?int $admissionTrackId, ?string $gender): Collection;
+    public function resolveAmounts(Fee $fee, ?int $admissionTrackId, ?string $gender, ?int $childStatusId = null): Collection;
 
     /**
      * Resolve the single applicable amount for a fixed fee, if defined.
      */
-    public function resolveFixedAmount(Fee $fee, ?int $admissionTrackId, ?string $gender): ?int;
+    public function resolveFixedAmount(Fee $fee, ?int $admissionTrackId, ?string $gender, ?int $childStatusId = null): ?int;
 }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\FeeServiceInterface;
 use App\Models\Fee;
+use App\Models\FeeAmount;
 use App\Models\FeeComponent;
 use App\Models\SchoolUnit;
 use Illuminate\Support\Collection;
@@ -70,38 +71,32 @@ class FeeService implements FeeServiceInterface
      * Resolve the amounts that apply to a track/gender combination,
      * most specific first.
      */
-    public function resolveAmounts(Fee $fee, ?int $admissionTrackId, ?string $gender): Collection
+    public function resolveAmounts(Fee $fee, ?int $admissionTrackId, ?string $gender, ?int $childStatusId = null): Collection
     {
-        $amounts = $fee->amounts;
+        // An amount applies when every dimension it restricts
+        // matches the applicant; among the applicable amounts
+        // only the most specific scope level is used.
+        $applicable = $fee->amounts->filter(fn (FeeAmount $amount) => ($amount->child_status_id === null || $amount->child_status_id === $childStatusId)
+            && ($amount->admission_track_id === null || $amount->admission_track_id === $admissionTrackId)
+            && ($amount->gender === null || $amount->gender === $gender));
 
-        $levels = [
-            fn ($amount) => $admissionTrackId !== null && $gender !== null
-                && $amount->admission_track_id === $admissionTrackId && $amount->gender === $gender,
-            fn ($amount) => $admissionTrackId !== null
-                && $amount->admission_track_id === $admissionTrackId && $amount->gender === null,
-            fn ($amount) => $gender !== null
-                && $amount->admission_track_id === null && $amount->gender === $gender,
-            fn ($amount) => $amount->admission_track_id === null && $amount->gender === null,
-        ];
-
-        foreach ($levels as $matches) {
-            $resolved = $amounts->filter($matches)
-                ->sortBy([['sort_order', 'asc'], ['amount', 'asc']])
-                ->values();
-
-            if ($resolved->isNotEmpty()) {
-                return $resolved;
-            }
+        if ($applicable->isEmpty()) {
+            return collect();
         }
 
-        return collect();
+        $topSpecificity = $applicable->max(fn (FeeAmount $amount) => $amount->specificity());
+
+        return $applicable
+            ->filter(fn (FeeAmount $amount) => $amount->specificity() === $topSpecificity)
+            ->sortBy([['sort_order', 'asc'], ['amount', 'asc']])
+            ->values();
     }
 
     /**
      * Resolve the single applicable amount for a fixed fee, if defined.
      */
-    public function resolveFixedAmount(Fee $fee, ?int $admissionTrackId, ?string $gender): ?int
+    public function resolveFixedAmount(Fee $fee, ?int $admissionTrackId, ?string $gender, ?int $childStatusId = null): ?int
     {
-        return $this->resolveAmounts($fee, $admissionTrackId, $gender)->first()?->amount;
+        return $this->resolveAmounts($fee, $admissionTrackId, $gender, $childStatusId)->first()?->amount;
     }
 }

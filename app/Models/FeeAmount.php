@@ -28,6 +28,7 @@ class FeeAmount extends Model
     protected $fillable = [
         'fee_id',
         'admission_track_id',
+        'child_status_id',
         'gender',
         'amount',
         'sort_order',
@@ -60,11 +61,27 @@ class FeeAmount extends Model
     }
 
     /**
-     * Specificity rank used by most-specific-first resolution:
-     * track+gender (3) beats track (2), gender (1), and global (0).
+     * The child status this amount is restricted to, if any.
+     */
+    public function childStatus(): BelongsTo
+    {
+        return $this->belongsTo(ChildStatus::class);
+    }
+
+    /**
+     * Specificity rank used by most-specific-first resolution
+     * across the three scope dimensions (child status, track,
+     * gender). More specified dimensions win; among equally
+     * many, a status-scoped amount beats a non-status one:
+     * status+track+gender > status+track > status+gender >
+     * track+gender > status > track > gender > global.
      */
     public function specificity(): int
     {
-        return ($this->admission_track_id ? 2 : 0) + ($this->gender ? 1 : 0);
+        $mask = ($this->child_status_id ? 4 : 0)
+            + ($this->admission_track_id ? 2 : 0)
+            + ($this->gender ? 1 : 0);
+
+        return [0 => 1, 1 => 2, 2 => 3, 4 => 4, 3 => 5, 5 => 6, 6 => 7, 7 => 8][$mask];
     }
 }

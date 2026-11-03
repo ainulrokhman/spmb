@@ -18,6 +18,7 @@ trait ValidatesFeeAmount
             'fee_id' => ['required', 'exists:fees,id', $this->feeBelongsToAccessibleUnit()],
             'admission_track_id' => ['nullable', 'exists:admission_tracks,id', $this->trackBelongsToFeeUnit()],
             'gender' => ['nullable', Rule::in(array_keys(FeeAmount::GENDERS))],
+            'child_status_id' => ['nullable', 'exists:child_statuses,id'],
             'amount' => ['required', 'integer', 'min:0'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ];

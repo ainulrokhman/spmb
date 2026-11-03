@@ -47,6 +47,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'program-edit',
             'program-delete',
 
+            'child-status-list',
+            'child-status-create',
+            'child-status-edit',
+            'child-status-delete',
+
             'school-unit-list',
             'school-unit-create',
             'school-unit-edit',
@@ -193,6 +198,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'program-create',
             'program-edit',
             'program-delete',
+
+            'child-status-list',
+            'child-status-create',
+            'child-status-edit',
+            'child-status-delete',
 
             'school-unit-list',
             'school-unit-create',
