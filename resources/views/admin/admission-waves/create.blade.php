@@ -90,6 +90,14 @@
                             <input type="datetime-local" class="form-control @error('announcement_at') is-invalid @enderror" id="announcement_at" name="announcement_at" value="{{ old('announcement_at') }}">
                             @error('announcement_at')
                                 <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="mb-3">
+                            <label for="passing_score" class="form-label fw-semibold text-secondary">Batas Poin Lulus (Seleksi)</label>
+                            <input type="number" min="0" step="1" class="form-control @error('passing_score') is-invalid @enderror" id="passing_score" name="passing_score" value="{{ old('passing_score') }}" placeholder="Kosongkan bila tidak memakai tetapan dari poin">
+                            <div class="form-text text-muted small">Dipakai tombol "Tetapkan dari Poin": pendaftar Terverifikasi dengan total poin minimal sebesar ini dinyatakan Lulus. Hanya berlaku bila seleksi poin unit aktif.</div>
+                            @error('passing_score')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                             @enderror
                             <div class="form-text">Hasil Lulus/Tidak Lulus baru terlihat oleh wali setelah waktu ini, kecuali jalur yang memiliki waktu pengumumannya sendiri pada bagian Jalur yang Dibuka di bawah. Kosongkan bila belum dijadwalkan.</div>
                         </div>

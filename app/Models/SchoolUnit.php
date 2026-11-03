@@ -36,6 +36,7 @@ class SchoolUnit extends Model
         'level',
         'program_id',
         'form_fee',
+        'selection_enabled',
         'address',
         'phone',
         'is_active',
@@ -49,6 +50,7 @@ class SchoolUnit extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'form_fee' => 'integer',
+        'selection_enabled' => 'boolean',
     ];
 
     /**
@@ -86,6 +88,14 @@ class SchoolUnit extends Model
     /**
      * Dynamic form fields defined for this unit.
      */
+    /**
+     * Selection point rules configured for this unit.
+     */
+    public function selectionRules(): HasMany
+    {
+        return $this->hasMany(SelectionRule::class);
+    }
+
     public function formFields(): HasMany
     {
         return $this->hasMany(FormField::class);

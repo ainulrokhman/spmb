@@ -39,7 +39,7 @@ class ApplicationController extends Controller
         $units = $this->accessibleUnits($request);
         $waves = AdmissionWave::query()
             ->whereIn('school_unit_id', $units->pluck('id'))
-            ->with('academicYear')
+            ->with(['academicYear', 'schoolUnit'])
             ->orderBy('opens_at')
             ->get();
         $tracks = AdmissionTrack::query()
@@ -50,7 +50,10 @@ class ApplicationController extends Controller
             'submitted', 'verified', 'needs_revision', 'rejected', 'passed', 'failed', 're_registered',
         ]));
 
-        return view('admin.applications.index', compact('units', 'waves', 'tracks', 'statuses'));
+        $byPointsWaves = $waves->filter(fn (AdmissionWave $wave) => $wave->passing_score !== null
+            && $wave->schoolUnit !== null && $wave->schoolUnit->selection_enabled)->values();
+
+        return view('admin.applications.index', compact('units', 'waves', 'tracks', 'statuses', 'byPointsWaves'));
     }
 
     /**
@@ -165,8 +168,25 @@ class ApplicationController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
+        $message = 'Keputusan verifikasi tersimpan: '.$application->fresh()->statusLabel().'.';
+
+        // Becoming Terverifikasi triggers the selection score
+        // for units that use points; a scoring problem must not
+        // undo the decision, so it is reported as a warning.
+        if ($data['decision'] === 'verified') {
+            try {
+                $snapshot = app(\App\Contracts\SelectionServiceInterface::class)->calculate($application->fresh());
+
+                if ($snapshot !== null) {
+                    $message .= ' Poin seleksi terhitung: '.$snapshot['total'].'.';
+                }
+            } catch (\Throwable $e) {
+                $message .= ' Perhatian: perhitungan poin seleksi gagal ('.$e->getMessage().') — gunakan tombol Hitung Ulang pada kartu Poin Seleksi.';
+            }
+        }
+
         return redirect()->to($this->showUrlWithFilters($request, $application))
-            ->with('success', 'Keputusan verifikasi tersimpan: '.$application->fresh()->statusLabel().'.');
+            ->with('success', $message);
     }
 
     /**

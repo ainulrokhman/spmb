@@ -21,7 +21,9 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdmissionInfoController;
 use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use App\Http\Controllers\Admin\AttachmentController;
+use App\Http\Controllers\Admin\ApplicationSelectionController;
 use App\Http\Controllers\Admin\ChildStatusController;
+use App\Http\Controllers\Admin\SelectionRuleController;
 use App\Http\Controllers\Admin\FormPaymentController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ReportController;
@@ -122,6 +124,18 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('school-units/{school_unit}/form-preview', [FormFieldController::class, 'preview'])->name('school-units.form-preview');
 
     Route::resource('child-statuses', ChildStatusController::class)->middleware('permission:child-status-list');
+    Route::get('school-units/{school_unit}/selection', [SelectionRuleController::class, 'index'])->name('school-units.selection.index');
+    Route::patch('school-units/{school_unit}/selection-toggle', [SelectionRuleController::class, 'toggle'])->name('school-units.selection.toggle');
+    Route::get('school-units/{school_unit}/selection/create', [SelectionRuleController::class, 'create'])->name('school-units.selection.create');
+    Route::post('school-units/{school_unit}/selection', [SelectionRuleController::class, 'store'])->name('school-units.selection.store');
+    Route::get('school-units/{school_unit}/selection/{rule}/edit', [SelectionRuleController::class, 'edit'])->name('school-units.selection.edit');
+    Route::put('school-units/{school_unit}/selection/{rule}', [SelectionRuleController::class, 'update'])->name('school-units.selection.update');
+    Route::delete('school-units/{school_unit}/selection/{rule}', [SelectionRuleController::class, 'destroy'])->name('school-units.selection.destroy');
+    Route::post('applications/{application}/selection/recalculate', [ApplicationSelectionController::class, 'recalculate'])->name('applications.selection.recalculate');
+    Route::post('applications/{application}/selection/manual', [ApplicationSelectionController::class, 'manual'])->name('applications.selection.manual');
+    Route::post('applications/{application}/selection/adjustment', [ApplicationSelectionController::class, 'adjustment'])->name('applications.selection.adjustment');
+    Route::get('selection/by-points', [ApplicationSelectionController::class, 'preview'])->name('selection.by-points');
+    Route::post('selection/by-points', [ApplicationSelectionController::class, 'apply'])->name('selection.by-points.apply');
     Route::resource('fee-components', FeeComponentController::class)->middleware('permission:fee-component-list');
 
     // One component's fee mode across all units ("Atur per Unit")

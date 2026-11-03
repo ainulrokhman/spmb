@@ -48,6 +48,29 @@
 </div>
 @endcan
 
+@if($byPointsWaves->isNotEmpty())
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body px-4 py-3">
+            <form method="GET" action="{{ route('admin.selection.by-points') }}" class="d-flex flex-column flex-lg-row align-items-lg-end gap-3">
+                <div>
+                    <div class="fw-bold">Tetapkan dari Poin</div>
+                    <div class="text-muted small">Tetapkan Lulus / Tidak Lulus bagi pendaftar Terverifikasi berdasarkan batas poin gelombang (ada pratinjau sebelum diterapkan).</div>
+                </div>
+                <div>
+                    <label for="bypoints-wave" class="form-label small mb-1">Gelombang</label>
+                    <select id="bypoints-wave" name="admission_wave_id" class="form-select" required>
+                        <option value="">Pilih gelombang...</option>
+                        @foreach($byPointsWaves as $waveOption)
+                            <option value="{{ $waveOption->id }}">{{ $waveOption->schoolUnit?->name }} — {{ $waveOption->name }} (batas {{ $waveOption->passing_score }})</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-outline-primary">Pratinjau Hasil</button>
+            </form>
+        </div>
+    </div>
+@endif
+
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-transparent border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between pt-4 px-4 gap-3">
         <div>
@@ -107,6 +130,7 @@
                         <th class="text-secondary fw-semibold">Unit / Gelombang / Jalur</th>
                         <th class="text-secondary fw-semibold">Biaya Formulir</th>
                         <th class="text-secondary fw-semibold">Status</th>
+                        <th class="text-secondary fw-semibold">Poin</th>
                         <th class="text-secondary fw-semibold">Dikirim</th>
                         <th class="text-secondary fw-semibold text-end">Aksi</th>
                     </tr>
@@ -139,6 +163,7 @@
                 { data: 'unit', name: 'school_unit_id', orderable: false },
                 { data: 'fee', name: 'form_fee_status', orderable: false },
                 { data: 'status_badge', name: 'status', orderable: false },
+                { data: 'selection_total', name: 'selection_total' },
                 { data: 'submitted_at', name: 'submitted_at' },
                 { data: 'actions', name: 'actions', orderable: false, searchable: false, className: 'text-end' }
             ],

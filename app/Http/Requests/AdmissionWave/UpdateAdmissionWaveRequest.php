@@ -29,6 +29,7 @@ class UpdateAdmissionWaveRequest extends FormRequest
             'opens_at' => ['required', 'date'],
             'closes_at' => ['required', 'date', 'after_or_equal:opens_at'],
             'announcement_at' => ['nullable', 'date'],
+            'passing_score' => ['nullable', 'integer', 'min:0'],
             'tracks' => ['nullable', 'array'],
             'tracks.*' => ['integer', $this->trackBelongsToUnitRule()],
             'track_announcements' => ['nullable', 'array'],

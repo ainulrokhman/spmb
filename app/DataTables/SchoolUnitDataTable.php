@@ -97,6 +97,9 @@ class SchoolUnitDataTable
             if (auth()->user()->can('school-unit-edit') || auth()->user()->can('unit-fee-manage')) {
                 $html .= '<a href="'.route('admin.school-units.fees.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Fee Mappings"><i class="bi bi-cash-stack text-success"></i> Biaya</a>';
             }
+            if (auth()->user()->can('selection-manage')) {
+                $html .= '<a href="'.route('admin.school-units.selection.index', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Aturan Seleksi Poin"><i class="bi bi-star text-warning"></i> Seleksi</a>';
+            }
             if (auth()->user()->can('school-unit-edit')) {
                 $html .= '<a href="'.route('admin.school-units.edit', $schoolUnit->id).'" class="btn btn-sm btn-light border" title="Ubah School Unit"><i class="bi bi-pencil-square text-primary"></i> Ubah</a>';
             }
