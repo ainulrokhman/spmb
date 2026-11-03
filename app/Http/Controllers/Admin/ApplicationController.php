@@ -144,7 +144,7 @@ class ApplicationController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
-        return redirect()->route('admin.applications.show', $application)
+        return redirect()->to($this->showUrlWithFilters($request, $application))
             ->with('success', 'Keputusan verifikasi tersimpan: '.$application->fresh()->statusLabel().'.');
     }
 
@@ -186,9 +186,67 @@ class ApplicationController extends Controller
         }
 
         $label = $data['decision'] === 'passed' ? 'Lulus' : 'Tidak Lulus';
+        $message = $count." pendaftar ditetapkan {$label}.";
 
-        return redirect()->route('admin.applications.index')
-            ->with('success', $count." pendaftar ditetapkan {$label}.");
+        // Announcing specific applications happens on a detail
+        // page: stay there. The bulk form returns to the list,
+        // keeping the filters the committee was working with.
+        if (! empty($data['application_ids'])) {
+            return back()->with('success', $message);
+        }
+
+        return redirect()->to($this->indexUrlWithFilters($request))
+            ->with('success', $message);
+    }
+
+    /**
+     * The list filters a form carried back (return_* fields),
+     * whitelisted: positive integer ids and a known status.
+     *
+     * @return array<string, mixed>
+     */
+    private function pickedListFilters(Request $request): array
+    {
+        $filters = [];
+
+        foreach (['school_unit_id', 'admission_wave_id', 'admission_track_id'] as $key) {
+            $value = $request->input('return_'.$key);
+
+            if (is_numeric($value) && (int) $value > 0) {
+                $filters[$key] = (int) $value;
+            }
+        }
+
+        $status = $request->input('return_status');
+
+        if (is_string($status) && array_key_exists($status, Application::STATUSES)) {
+            $filters['status'] = $status;
+        }
+
+        return $filters;
+    }
+
+    /**
+     * Detail page URL that keeps the list filters in its query,
+     * so the "back to list" link lands on the filtered list.
+     */
+    private function showUrlWithFilters(Request $request, Application $application): string
+    {
+        $filters = $this->pickedListFilters($request);
+        $url = route('admin.applications.show', $application);
+
+        return $filters === [] ? $url : $url.'?'.http_build_query($filters);
+    }
+
+    /**
+     * List URL that keeps the filters a bulk action carried back.
+     */
+    private function indexUrlWithFilters(Request $request): string
+    {
+        $filters = $this->pickedListFilters($request);
+        $url = route('admin.applications.index');
+
+        return $filters === [] ? $url : $url.'?'.http_build_query($filters);
     }
 
     /**

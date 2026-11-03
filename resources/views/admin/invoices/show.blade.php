@@ -4,7 +4,7 @@
 @section('page-title', 'Detail Tagihan Daftar Ulang')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('admin.invoices.index') }}">Tagihan Daftar Ulang</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('admin.invoices.index', array_filter(request()->only(['status']))) }}">Tagihan Daftar Ulang</a></li>
     <li class="breadcrumb-item active" aria-current="page">Detail</li>
 @endsection
 

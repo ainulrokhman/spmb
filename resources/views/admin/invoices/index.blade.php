@@ -75,7 +75,7 @@
                                     @endif
                                 </td>
                                 <td class="text-end">
-                                    <a href="{{ route('admin.invoices.show', $invoice) }}" class="btn btn-sm btn-outline-primary">Detail</a>
+                                    <a href="{{ route('admin.invoices.show', array_filter([$invoice, 'status' => request('status')])) }}" class="btn btn-sm btn-outline-primary">Detail</a>
                                 </td>
                             </tr>
                         @endforeach

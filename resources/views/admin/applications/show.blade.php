@@ -4,7 +4,7 @@
 @section('page-title', 'Detail Pendaftaran')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('admin.applications.index') }}" class="text-decoration-none">Verifikasi Pendaftaran</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('admin.applications.index', array_filter(request()->only(['school_unit_id', 'admission_wave_id', 'admission_track_id', 'status']))) }}" class="text-decoration-none">Verifikasi Pendaftaran</a></li>
     <li class="breadcrumb-item active" aria-current="page">{{ $application->registration_number }}</li>
 @endsection
 
@@ -163,6 +163,10 @@
 
                     <form method="POST" action="{{ route('admin.applications.decide', $application) }}">
                         @csrf
+                        <input type="hidden" name="return_school_unit_id" value="{{ request()->query('school_unit_id') }}">
+                        <input type="hidden" name="return_admission_wave_id" value="{{ request()->query('admission_wave_id') }}">
+                        <input type="hidden" name="return_admission_track_id" value="{{ request()->query('admission_track_id') }}">
+                        <input type="hidden" name="return_status" value="{{ request()->query('status') }}">
                         <div class="mb-3">
                             <label for="note" class="form-label fw-semibold">Catatan untuk Wali</label>
                             <textarea class="form-control" id="note" name="note" rows="3" placeholder="Wajib diisi untuk Perlu Perbaikan / Ditolak">{{ old('note') }}</textarea>
