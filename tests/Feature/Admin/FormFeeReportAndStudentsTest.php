@@ -112,7 +112,7 @@ class FormFeeReportAndStudentsTest extends TestCase
         $this->assertStringContainsString('Belum Bayar', $csv);
     }
 
-    public function test_student_roster_lists_only_re_registered_students(): void
+    public function test_student_roster_lists_all_statuses_and_filters_by_status(): void
     {
         $scenario = $this->scenario();
 
@@ -125,18 +125,35 @@ class FormFeeReportAndStudentsTest extends TestCase
             ->assertOk()
             ->assertSee('Daftar Siswa');
 
+        // By default every status is listed (Paket C).
         $response = $this->actingAs($this->admin())
             ->getJson(route('admin.students.index'), ['X-Requested-With' => 'XMLHttpRequest']);
 
         $response->assertOk();
-        $this->assertSame(1, $response->json('recordsTotal'));
-        $this->assertStringContainsString('Siswa Tuntas', $response->json('data.0.student'));
+        $this->assertSame(2, $response->json('recordsTotal'));
 
+        // The status filter narrows the roster again.
+        $filtered = $this->actingAs($this->admin())
+            ->getJson(route('admin.students.index', ['status' => 're_registered']), ['X-Requested-With' => 'XMLHttpRequest']);
+
+        $filtered->assertOk();
+        $this->assertSame(1, $filtered->json('recordsTotal'));
+        $this->assertStringContainsString('Siswa Tuntas', $filtered->json('data.0.student'));
+        $this->assertStringContainsString('Daftar Ulang', $filtered->json('data.0.status_badge'));
+
+        // The export follows the same rule: all by default,
+        // narrowed when the status filter is given.
         $csv = $this->actingAs($this->admin())
             ->get(route('admin.students.export'))
             ->streamedContent();
         $this->assertStringContainsString('Siswa Tuntas', $csv);
-        $this->assertStringNotContainsString('Baru Lulus', $csv);
+        $this->assertStringContainsString('Baru Lulus', $csv);
+
+        $csvFiltered = $this->actingAs($this->admin())
+            ->get(route('admin.students.export', ['status' => 're_registered']))
+            ->streamedContent();
+        $this->assertStringContainsString('Siswa Tuntas', $csvFiltered);
+        $this->assertStringNotContainsString('Baru Lulus', $csvFiltered);
     }
 
     public function test_student_roster_is_scoped_to_the_committee_units(): void

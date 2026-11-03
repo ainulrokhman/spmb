@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Contracts\ApplicationServiceInterface;
+use App\DataTables\FormPaymentDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\AdmissionWave;
 use App\Models\Application;
 use App\Models\Payment;
+use App\Models\SchoolUnit;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -19,44 +22,36 @@ class FormPaymentController extends Controller
     ) {}
 
     /**
-     * Committee worklist for the form fee stage: pending waiver /
-     * discount requests and manual payments awaiting confirmation,
-     * scoped to the units the committee member serves.
+     * The form payments list: every application in every
+     * form-fee condition as a DataTable (urgent work first),
+     * with per-row actions — confirm an awaiting manual
+     * payment, decide or grant relief, open the applicant.
+     * Scoped to the units the committee member serves.
      */
-    public function index(Request $request)
+    public function index(Request $request, FormPaymentDataTable $dataTable)
     {
+        if ($request->ajax()) {
+            if (! $request->user()->hasGlobalUnitAccess()) {
+                $request->merge(['unit_scope' => implode(',', $request->user()->accessibleUnitIds())]);
+            }
+
+            return $dataTable->make();
+        }
+
         $unitIds = $this->accessibleUnitIds($request);
-
-        $pendingRequests = Application::query()
-            ->with(['user', 'schoolUnit', 'admissionWave'])
-            ->where('form_fee_request_status', 'pending')
-            ->when($unitIds !== null, fn ($query) => $query->whereIn('school_unit_id', $unitIds))
-            ->oldest('updated_at')
+        $units = SchoolUnit::query()
+            ->when($unitIds !== null, fn ($query) => $query->whereIn('id', $unitIds))
+            ->orderBy('name')
             ->get();
-
-        $grantable = Application::query()
-            ->with(['user', 'schoolUnit', 'admissionWave'])
-            ->where('status', 'awaiting_form_fee')
-            ->where('form_fee_status', 'unpaid')
-            ->whereNull('form_fee_discount_type')
-            ->where(fn ($query) => $query->whereNull('form_fee_request_status')->orWhere('form_fee_request_status', '!=', 'pending'))
-            ->when($unitIds !== null, fn ($query) => $query->whereIn('school_unit_id', $unitIds))
-            ->oldest()
+        $waves = AdmissionWave::query()
+            ->whereIn('school_unit_id', $units->pluck('id'))
+            ->with(['academicYear', 'schoolUnit'])
+            ->orderBy('opens_at')
             ->get();
+        $feeStatuses = Application::FEE_STATUSES;
+        $channels = Payment::CHANNELS;
 
-        $awaitingConfirmations = Payment::query()
-            ->with(['payable.user', 'payable.schoolUnit'])
-            ->where('status', 'awaiting_confirmation')
-            ->where('channel', 'manual')
-            ->whereHasMorph('payable', [Application::class], function ($query) use ($unitIds) {
-                if ($unitIds !== null) {
-                    $query->whereIn('school_unit_id', $unitIds);
-                }
-            })
-            ->oldest()
-            ->get();
-
-        return view('admin.form-payments.index', compact('pendingRequests', 'grantable', 'awaitingConfirmations'));
+        return view('admin.form-payments.index', compact('units', 'waves', 'feeStatuses', 'channels'));
     }
 
     /**

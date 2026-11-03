@@ -12,7 +12,7 @@
     <div class="card-header bg-transparent border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between pt-4 px-4 gap-3">
         <div>
             <h5 class="mb-0 fw-bold text-body">Daftar Siswa</h5>
-            <p class="text-muted small mb-0">Siswa baru yang sudah menyelesaikan daftar ulang, sesuai unit tugas Anda</p>
+            <p class="text-muted small mb-0">Semua pendaftar dalam semua status pendaftaran, sesuai unit tugas Anda</p>
         </div>
 
         <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -34,6 +34,12 @@
                     <option value="{{ $track->id }}" {{ (string) request()->query('admission_track_id') === (string) $track->id ? 'selected' : '' }}>{{ $track->name }}</option>
                 @endforeach
             </select>
+            <select id="status-filter" aria-label="Filter status" class="form-select" style="width: 190px;">
+                <option value="">Semua Status</option>
+                @foreach($statuses as $key => $label)
+                    <option value="{{ $key }}" {{ request()->query('status') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
             <a href="{{ route('admin.students.export', request()->query()) }}" id="export-btn" class="btn btn-outline-success"><i class="bi bi-filetype-csv"></i> Export CSV</a>
         </div>
     </div>
@@ -45,6 +51,7 @@
                     <tr>
                         <th class="text-secondary fw-semibold">Siswa</th>
                         <th class="text-secondary fw-semibold">Unit / Gelombang / Jalur</th>
+                        <th class="text-secondary fw-semibold">Status</th>
                         <th class="text-secondary fw-semibold">Jurusan</th>
                         <th class="text-secondary fw-semibold">Jender</th>
                         <th class="text-secondary fw-semibold">Wali</th>
@@ -71,11 +78,13 @@
                     d.school_unit_id = $('#unit-filter').val();
                     d.admission_wave_id = $('#wave-filter').val();
                     d.admission_track_id = $('#track-filter').val();
+                    d.status = $('#status-filter').val();
                 }
             },
             columns: [
                 { data: 'student', name: 'child_name', orderable: false },
                 { data: 'unit', name: 'school_unit_id', orderable: false },
+                { data: 'status_badge', name: 'status', orderable: false },
                 { data: 'major_name', name: 'major_id', orderable: false },
                 { data: 'gender_label', name: 'gender', orderable: false },
                 { data: 'guardian', name: 'user_id', orderable: false },
@@ -108,7 +117,8 @@
             const pairs = [
                 ['school_unit_id', $('#unit-filter').val()],
                 ['admission_wave_id', $('#wave-filter').val()],
-                ['admission_track_id', $('#track-filter').val()]
+                ['admission_track_id', $('#track-filter').val()],
+                ['status', $('#status-filter').val()]
             ];
             pairs.forEach(([key, value]) => {
                 if (value) params.set(key, value);
@@ -120,7 +130,7 @@
 
         syncFilterUrl();
 
-        $('#unit-filter, #wave-filter, #track-filter').on('change', function() {
+        $('#unit-filter, #wave-filter, #track-filter, #status-filter').on('change', function() {
             syncFilterUrl();
             table.ajax.reload();
         });
