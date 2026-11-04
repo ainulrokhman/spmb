@@ -68,7 +68,7 @@ class FeeService implements FeeServiceInterface
                 $key = ($row['admission_track_id'] ?? '').'|'.($row['gender'] ?? '').'|'.($row['child_status_id'] ?? '');
 
                 if (isset($seen[$key])) {
-                    throw new InvalidArgumentException('Kombinasi jalur, jender, dan status anak yang sama tidak boleh berulang untuk mode Tetap.');
+                    throw new InvalidArgumentException('Kombinasi jalur, jenis kelamin, dan status anak yang sama tidak boleh berulang untuk mode Tetap.');
                 }
 
                 $seen[$key] = true;

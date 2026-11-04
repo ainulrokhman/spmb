@@ -25,7 +25,13 @@ return new class extends Migration
             $table->unsignedBigInteger('amount');
             $table->timestamps();
 
-            $table->unique(['invoice_installment_id', 'invoice_item_id']);
+            // The index name is given explicitly: Laravel's
+            // auto-generated name for this pair is 71 characters,
+            // which exceeds MySQL's 64-character identifier
+            // limit and fails with error 1059 (SQLite, used for
+            // local tests, has no such limit, so the failure only
+            // ever appeared on MySQL).
+            $table->unique(['invoice_installment_id', 'invoice_item_id'], 'inv_installment_items_unique');
         });
 
         Invoice::query()

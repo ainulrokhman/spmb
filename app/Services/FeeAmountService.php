@@ -95,7 +95,7 @@ class FeeAmountService implements FeeAmountServiceInterface
             ->exists();
 
         if ($exists) {
-            throw new InvalidArgumentException('Biaya mode fixed hanya boleh memiliki satu nominal per kombinasi jalur/jender.');
+            throw new InvalidArgumentException('Biaya mode fixed hanya boleh memiliki satu nominal per kombinasi jalur/jenis kelamin.');
         }
     }
 }
