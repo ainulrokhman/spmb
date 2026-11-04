@@ -99,6 +99,32 @@ class OfficerNotificationTest extends TestCase
         $this->assertSame(0, $this->unread($this->superAdmin()));
     }
 
+    /**
+     * Stored notification links must be relative paths: an
+     * absolute URL freezes the APP_URL of creation time into
+     * the database, so moving domains (localhost → production)
+     * would strand every older notification on the old address.
+     */
+    public function test_stored_notification_url_is_a_relative_path(): void
+    {
+        $unit = SchoolUnit::factory()->create();
+        $panitia = $this->committeeFor($unit);
+
+        $application = Application::factory()->awaitingFee(50000)->create([
+            'user_id' => $this->guardian->id,
+            'school_unit_id' => $unit->id,
+        ]);
+
+        $this->actingAs($this->guardian)
+            ->post(route('guardian.applications.request-relief', $application), ['reason' => 'Anak yatim'])
+            ->assertSessionHas('success');
+
+        $url = $panitia->fresh()->notifications()->first()->data['url'];
+
+        $this->assertSame(route('admin.form-payments.index', [], false), $url);
+        $this->assertStringNotContainsString('://', $url);
+    }
+
     public function test_manual_form_payment_declaration_notifies_and_confirmation_clears(): void
     {
         $unit = SchoolUnit::factory()->create();
