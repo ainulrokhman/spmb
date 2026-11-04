@@ -399,8 +399,8 @@
                         @endcanany
 
                         {{-- Submenu: Sistem --}}
-                        @canany(['activity-log-list', 'manage-settings'])
-                        @php($sistemOpen = request()->is('admin/activity-logs*') || request()->is('admin/settings*'))
+                        @canany(['activity-log-list', 'manage-settings', 'gallery-manage'])
+                        @php($sistemOpen = request()->is('admin/activity-logs*') || request()->is('admin/settings*') || request()->is('admin/gallery*'))
                         <li class="nav-item {{ $sistemOpen ? 'menu-open' : '' }}">
                             <a href="#" class="nav-link {{ $sistemOpen ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-gear me-2"></i>
@@ -421,6 +421,15 @@
                                     <a href="{{ route('admin.settings.edit') }}" class="nav-link {{ request()->is('admin/settings*') ? 'active bg-primary text-white' : 'text-body' }}">
                                         <i class="nav-icon bi bi-gear me-2"></i>
                                         <p>Pengaturan</p>
+                                    </a>
+                                </li>
+                                @endcan
+
+                                @can('gallery-manage')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.gallery.index') }}" class="nav-link {{ request()->is('admin/gallery*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-images me-2"></i>
+                                        <p>Galeri</p>
                                     </a>
                                 </li>
                                 @endcan

@@ -7,15 +7,30 @@
 
     <title>@yield('title', 'Area Wali') | SPMB</title>
 
+    @php($siteName = \App\Models\Setting::get('foundation_name'))
+    @php($siteTagline = \App\Models\Setting::get('foundation_tagline'))
+    @php($siteLogo = \App\Models\Setting::get('site_logo'))
+    <meta name="description" content="Pendaftaran murid baru {{ $siteName ?: 'SPMB' }} secara online: satu akun wali untuk semua anak, pembayaran fleksibel, dan status pendaftaran terpantau. {{ $siteTagline }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SPMB{{ $siteName ? ' — '.$siteName : '' }}">
+    <meta property="og:description" content="Pendaftaran murid baru secara online: satu akun wali untuk semua anak, pembayaran fleksibel, dan status pendaftaran terpantau. {{ $siteTagline }}">
+    @if($siteLogo)
+        <meta property="og:image" content="{{ asset('storage/'.$siteLogo) }}">
+    @endif
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="layout-top-nav bg-body-tertiary">
     <div class="app-wrapper">
         <nav class="app-header navbar navbar-expand bg-body border-bottom">
             <div class="container">
-                <a href="{{ route('admissions.info') }}" class="navbar-brand d-flex align-items-center text-decoration-none">
-                    <i class="bi bi-cpu-fill text-primary me-2 fs-4"></i>
-                    <span class="fw-bold text-body">SPMB</span>
+                <a href="{{ route('home') }}" class="navbar-brand d-flex align-items-center text-decoration-none">
+                    @if($siteLogo)
+                        <img src="{{ asset('storage/'.$siteLogo) }}" alt="Logo {{ $siteName ?: 'SPMB' }}" style="height: 34px;" class="me-2">
+                    @else
+                        <i class="bi bi-cpu-fill text-primary me-2 fs-4"></i>
+                    @endif
+                    <span class="fw-bold text-body">{{ $siteName ?: 'SPMB' }}</span>
                 </a>
 
                 <ul class="navbar-nav ms-auto align-items-center flex-row gap-2">

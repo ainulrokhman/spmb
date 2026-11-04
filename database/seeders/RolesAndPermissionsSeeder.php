@@ -107,6 +107,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'manage-settings',
             'activity-log-list',
+            'gallery-manage',
         ];
 
         foreach ($permissions as $permission) {
@@ -260,6 +261,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'selection-manage',
 
             'manage-settings',
+            'gallery-manage',
         ]);
 
         // SuperAdmin Role: no explicit permissions are assigned

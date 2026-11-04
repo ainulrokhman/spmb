@@ -15,9 +15,50 @@
     </div>
 @endif
 
-<form action="{{ route('admin.settings.update') }}" method="POST">
+<form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h5 class="mb-0 fw-bold text-body">Branding &amp; Halaman Awal</h5>
+            <p class="text-muted small mb-0">Nama yayasan, tagline, logo, dan video profil yang tampil di halaman awal (landing page) dan navbar area wali. Semuanya opsional — kosong berarti memakai tampilan bawaan.</p>
+        </div>
+        <div class="card-body px-4 pb-4">
+            <div class="mb-3">
+                <label for="foundation_name" class="form-label fw-semibold text-secondary">Nama Yayasan</label>
+                <input type="text" class="form-control" id="foundation_name" name="foundation_name" maxlength="120" value="{{ old('foundation_name', $settings['foundation_name']) }}" placeholder="mis. Yayasan Pendidikan Islam Al-Ikhlas">
+            </div>
+
+            <div class="mb-3">
+                <label for="foundation_tagline" class="form-label fw-semibold text-secondary">Tagline</label>
+                <input type="text" class="form-control" id="foundation_tagline" name="foundation_tagline" maxlength="200" value="{{ old('foundation_tagline', $settings['foundation_tagline']) }}" placeholder="mis. Membentuk generasi berakhlak dan berprestasi">
+            </div>
+
+            <div class="mb-3">
+                <label for="site_logo" class="form-label fw-semibold text-secondary">Logo Yayasan (opsional)</label>
+                @if($settings['site_logo'])
+                    <div class="mb-2">
+                        <img src="{{ asset('storage/'.$settings['site_logo']) }}" alt="Logo yayasan saat ini" style="height: 56px;">
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="remove_logo" name="remove_logo" value="1">
+                        <label class="form-check-label" for="remove_logo">Hapus logo saat ini</label>
+                    </div>
+                @endif
+                <input type="file" class="form-control @error('site_logo') is-invalid @enderror" id="site_logo" name="site_logo" accept=".jpg,.jpeg,.png,.svg,.webp">
+                @error('site_logo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                <div class="form-text">JPG, PNG, SVG, atau WebP, maks 2MB. Disarankan PNG dengan latar transparan. Mengunggah berkas baru menggantikan logo lama.</div>
+            </div>
+
+            <div class="mb-0">
+                <label for="profile_video_url" class="form-label fw-semibold text-secondary">Tautan Video Profil (YouTube, opsional)</label>
+                <input type="url" class="form-control @error('profile_video_url') is-invalid @enderror" id="profile_video_url" name="profile_video_url" maxlength="500" value="{{ old('profile_video_url', $settings['profile_video_url']) }}" placeholder="mis. https://www.youtube.com/watch?v=xxxxxxxxxxx">
+                @error('profile_video_url')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                <div class="form-text">Bila diisi dan berupa tautan video YouTube yang valid, video tampil tertanam di halaman awal.</div>
+            </div>
+        </div>
+    </div>
 
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-transparent border-0 pt-4 px-4">
