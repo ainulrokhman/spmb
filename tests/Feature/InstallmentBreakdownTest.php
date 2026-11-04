@@ -145,7 +145,7 @@ class InstallmentBreakdownTest extends TestCase
         ['invoice' => $invoice, 'spi' => $spi, 'sop' => $sop] = $this->passedWithTwoComponents('61');
 
         $this->installments()->requestInstallment($invoice, 'Minta cicilan');
-        $this->installments()->decideInstallmentRequest($invoice->fresh(), true, [
+        $this->installments()->decideInstallmentRequest($invoice->fresh(), 'approve', [
             ['due_date' => now()->addDays(7)->toDateString(), 'items' => [$spi->id => 300000, $sop->id => 400000]],
             ['due_date' => now()->addDays(37)->toDateString(), 'items' => [$spi->id => 300000]],
         ], $this->superAdmin(), null);
@@ -164,7 +164,7 @@ class InstallmentBreakdownTest extends TestCase
         $this->installments()->requestInstallment($invoice, 'Minta cicilan');
 
         try {
-            $this->installments()->decideInstallmentRequest($invoice->fresh(), true, [
+            $this->installments()->decideInstallmentRequest($invoice->fresh(), 'approve', [
                 ['due_date' => now()->addDays(7)->toDateString(), 'items' => [$spi->id => 500000, $sop->id => 400000]],
                 ['due_date' => now()->addDays(37)->toDateString(), 'items' => [$spi->id => 50000]],
             ], $this->superAdmin(), null);
@@ -183,7 +183,7 @@ class InstallmentBreakdownTest extends TestCase
         ['invoice' => $invoice, 'spi' => $spi, 'sop' => $sop] = $this->passedWithTwoComponents('63');
 
         $this->installments()->requestInstallment($invoice, 'Minta cicilan');
-        $this->installments()->decideInstallmentRequest($invoice->fresh(), true, [
+        $this->installments()->decideInstallmentRequest($invoice->fresh(), 'approve', [
             ['due_date' => now()->addDays(30)->toDateString(), 'items' => [$spi->id => 600000, $sop->id => 200000]],
             ['due_date' => now()->addDays(60)->toDateString(), 'items' => [$sop->id => 200000]],
         ], $this->superAdmin(), null);
@@ -213,7 +213,7 @@ class InstallmentBreakdownTest extends TestCase
         ['invoice' => $invoice, 'spi' => $spi, 'sop' => $sop] = $this->passedWithTwoComponents('64');
 
         $this->installments()->requestInstallment($invoice, 'Minta cicilan');
-        $this->installments()->decideInstallmentRequest($invoice->fresh(), true, [
+        $this->installments()->decideInstallmentRequest($invoice->fresh(), 'approve', [
             ['due_date' => now()->addDays(7)->toDateString(), 'items' => [$spi->id => 300000, $sop->id => 400000]],
             ['due_date' => now()->addDays(37)->toDateString(), 'items' => [$spi->id => 300000]],
         ], $this->superAdmin(), null);
@@ -252,7 +252,7 @@ class InstallmentBreakdownTest extends TestCase
         // A term with a payment in flight is locked as well.
         ['invoice' => $invoice2, 'spi' => $spi2, 'sop' => $sop2] = $this->passedWithTwoComponents('65');
         $this->installments()->requestInstallment($invoice2, 'Minta cicilan');
-        $this->installments()->decideInstallmentRequest($invoice2->fresh(), true, [
+        $this->installments()->decideInstallmentRequest($invoice2->fresh(), 'approve', [
             ['due_date' => now()->addDays(7)->toDateString(), 'items' => [$spi2->id => 600000, $sop2->id => 400000]],
         ], $this->superAdmin(), null);
 

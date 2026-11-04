@@ -34,11 +34,14 @@ interface InvoiceServiceInterface
     public function requestDiscount(Invoice $invoice, string $reason, ?\Illuminate\Http\UploadedFile $attachment = null): Invoice;
 
     /**
-     * Decide a pending relief request (committee side). When
-     * approving, the committee chooses the relief itself: 'waiver'
-     * (full), 'percent' or 'nominal' with its value.
+     * Decide a pending relief request (committee side):
+     * $decision is 'approve' (the committee chooses the relief
+     * itself: 'waiver' full, 'percent' or 'nominal' with its
+     * value), 'revision' (handed back to the guardian to fix
+     * and resubmit; a note saying what to fix is required) or
+     * 'reject' (final for this request).
      */
-    public function decideDiscount(Invoice $invoice, bool $approve, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Invoice;
+    public function decideDiscount(Invoice $invoice, string $decision, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Invoice;
 
     /**
      * Grant invoice relief directly, without a guardian request

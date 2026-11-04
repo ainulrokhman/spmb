@@ -181,10 +181,11 @@
                         </div>
                         <div class="mb-3">
                             <label for="note" class="form-label fw-semibold text-secondary">Catatan Keputusan</label>
-                            <textarea class="form-control" id="note" name="note" rows="2" maxlength="500" placeholder="Opsional"></textarea>
+                            <textarea class="form-control" id="note" name="note" rows="2" maxlength="500" placeholder="Wajib diisi bila meminta revisi"></textarea>
                         </div>
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 flex-wrap">
                             <button type="submit" name="decision" value="approve" class="btn btn-success">Setujui</button>
+                            <button type="submit" name="decision" value="revision" class="btn btn-warning" formnovalidate>Minta Revisi</button>
                             <button type="submit" name="decision" value="reject" class="btn btn-outline-danger" formnovalidate>Tolak</button>
                         </div>
                     </form>
@@ -192,7 +193,7 @@
                     <p class="small mb-1">Keringanan sudah diberikan: <strong>{{ \App\Models\Application::DISCOUNT_TYPES[$invoice->discount_type] ?? '' }} {{ $invoice->discount_type === 'percent' ? $invoice->discount_value.'%' : 'Rp '.number_format($invoice->discount_value ?? 0, 0, ',', '.') }}</strong>@if($invoice->decider) oleh {{ $invoice->decider->name }}@endif.</p>
                     <p class="small text-muted mb-0">{{ $invoice->request_status === 'approved' ? 'Bermula dari pengajuan wali yang disetujui.' : 'Diberikan langsung oleh panitia tanpa pengajuan.' }}@if($invoice->decision_note) Catatan: {{ $invoice->decision_note }}@endif</p>
                 @elseif($invoice->request_status)
-                    <p class="small mb-1">Pengajuan terakhir: <strong>Ditolak</strong>@if($invoice->decider) oleh {{ $invoice->decider->name }}@endif.</p>
+                    <p class="small mb-1">Pengajuan terakhir: <strong>{{ $invoice->request_status === 'revision' ? 'Diminta Revisi — menunggu wali memperbaiki dan mengirim ulang' : 'Ditolak' }}</strong>@if($invoice->decider) oleh {{ $invoice->decider->name }}@endif.</p>
                     @if($invoice->decision_note)
                         <p class="small text-muted mb-0">Catatan: {{ $invoice->decision_note }}</p>
                     @endif
@@ -216,7 +217,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="grant_note" class="form-label fw-semibold text-secondary">Catatan</label>
-                            <textarea class="form-control" id="grant_note" name="note" rows="2" maxlength="500" placeholder="Opsional"></textarea>
+                            <textarea class="form-control" id="grant_note" name="note" rows="2" maxlength="500" placeholder="Wajib diisi bila meminta revisi"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary" onclick="return confirm('Berikan keringanan ini?');">Beri Keringanan</button>
                     </form>
@@ -287,10 +288,11 @@
                         </div>
                         <div class="mb-3">
                             <label for="installment_note" class="form-label fw-semibold text-secondary">Catatan Keputusan</label>
-                            <textarea class="form-control" id="installment_note" name="note" rows="2" maxlength="500" placeholder="Opsional"></textarea>
+                            <textarea class="form-control" id="installment_note" name="note" rows="2" maxlength="500" placeholder="Wajib diisi bila meminta revisi"></textarea>
                         </div>
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 flex-wrap">
                             <button type="submit" name="decision" value="approve" class="btn btn-success">Setujui &amp; Buat Rincian</button>
+                            <button type="submit" name="decision" value="revision" class="btn btn-warning" formnovalidate>Minta Revisi</button>
                             <button type="submit" name="decision" value="reject" class="btn btn-outline-danger" formnovalidate>Tolak</button>
                         </div>
                     </form>
@@ -367,6 +369,11 @@
                             </template>
                         @endif
                     </form>
+                @elseif($invoice->installment_request_status === 'revision')
+                    <p class="small mb-1">Pengajuan cicilan terakhir: <strong>Diminta Revisi — menunggu wali memperbaiki dan mengirim ulang</strong>@if($invoice->installmentDecider) oleh {{ $invoice->installmentDecider->name }}@endif.</p>
+                    @if($invoice->installment_decision_note)
+                        <p class="small text-muted mb-0">Catatan: {{ $invoice->installment_decision_note }}</p>
+                    @endif
                 @elseif($invoice->installment_request_status === 'rejected')
                     <p class="small mb-1">Pengajuan cicilan terakhir: <strong>Ditolak</strong>@if($invoice->installmentDecider) oleh {{ $invoice->installmentDecider->name }}@endif.</p>
                     @if($invoice->installment_decision_note)

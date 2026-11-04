@@ -153,18 +153,28 @@ class InvoiceService implements InvoiceServiceInterface
             throw new InvalidArgumentException('Masih ada pengajuan yang menunggu keputusan panitia.');
         }
 
-        if ($invoice->installment_request_status === 'pending') {
-            throw new InvalidArgumentException('Masih ada pengajuan cicilan yang menunggu keputusan panitia.');
+        if (in_array($invoice->installment_request_status, ['pending', 'revision'], true)) {
+            throw new InvalidArgumentException('Masih ada pengajuan cicilan yang belum selesai.');
         }
 
         if ($invoice->installments()->exists()) {
             throw new InvalidArgumentException('Tagihan ini sudah memiliki rincian cicilan.');
         }
 
-        // The attachment belongs to this request: a fresh request
-        // replaces (or clears) the previous request's file.
-        if ($invoice->request_file_path) {
-            Storage::disk('local')->delete($invoice->request_file_path);
+        // The attachment belongs to this request: uploading a
+        // new file replaces the previous one, while submitting
+        // without a file keeps the existing attachment — a
+        // guardian resubmitting after a revision decision often
+        // only corrects the reason and must not lose the proof
+        // they already uploaded.
+        $filePath = $invoice->request_file_path;
+
+        if ($attachment !== null) {
+            if ($filePath) {
+                Storage::disk('local')->delete($filePath);
+            }
+
+            $filePath = $attachment->store('lampiran-keringanan', 'local');
         }
 
         $invoice->update([
@@ -172,7 +182,7 @@ class InvoiceService implements InvoiceServiceInterface
             'request_type' => null,
             'request_value' => null,
             'request_reason' => $reason,
-            'request_file_path' => $attachment?->store('lampiran-keringanan', 'local'),
+            'request_file_path' => $filePath,
             'request_status' => 'pending',
             'decision_note' => null,
         ]);
@@ -183,29 +193,45 @@ class InvoiceService implements InvoiceServiceInterface
     }
 
     /**
-     * Decide a pending relief request (committee side). When
-     * approving, the committee itself chooses the relief: 'waiver'
-     * for a full waiver, or 'percent' / 'nominal' with a value.
+     * Decide a pending relief request (committee side):
+     * 'approve' (the committee itself chooses the relief:
+     * 'waiver' for a full waiver, or 'percent' / 'nominal' with
+     * a value), 'revision' (the request goes back to the
+     * guardian to fix and resubmit — a note saying what to fix
+     * is required) or 'reject' (final for this request; the
+     * guardian may file a new one).
      */
-    public function decideDiscount(Invoice $invoice, bool $approve, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Invoice
+    public function decideDiscount(Invoice $invoice, string $decision, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Invoice
     {
         if ($invoice->request_status !== 'pending') {
             throw new InvalidArgumentException('Tidak ada pengajuan yang menunggu keputusan.');
         }
 
-        $invoice->request_status = $approve ? 'approved' : 'rejected';
+        if (! in_array($decision, ['approve', 'revision', 'reject'], true)) {
+            throw new InvalidArgumentException('Keputusan tidak dikenal.');
+        }
+
+        if ($decision === 'revision' && ($note === null || trim($note) === '')) {
+            throw new InvalidArgumentException('Catatan wajib diisi bila meminta revisi, agar wali tahu apa yang harus diperbaiki.');
+        }
+
+        $invoice->request_status = match ($decision) {
+            'approve' => 'approved',
+            'revision' => 'revision',
+            default => 'rejected',
+        };
         $invoice->decision_note = $note;
         $invoice->decided_by = $decider->id;
         $invoice->decided_at = now();
 
-        if ($approve) {
+        if ($decision === 'approve') {
             $this->applyRelief($invoice, ...$this->validatedRelief($reliefType, $reliefValue));
 
             if ($invoice->payableAmount() === 0) {
                 $invoice->save();
 
                 $this->officerNotifications->markInvoiceReliefHandled($invoice);
-                $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, $approve);
+                $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, $invoice->request_status);
 
                 return $this->markPaid($invoice);
             }
@@ -216,7 +242,7 @@ class InvoiceService implements InvoiceServiceInterface
         $invoice->save();
 
         $this->officerNotifications->markInvoiceReliefHandled($invoice);
-        $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, $approve);
+        $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, $invoice->request_status);
 
         return $invoice;
     }
@@ -231,8 +257,8 @@ class InvoiceService implements InvoiceServiceInterface
             throw new InvalidArgumentException('Tagihan sudah lunas.');
         }
 
-        if ($invoice->request_status === 'pending' || $invoice->installment_request_status === 'pending') {
-            throw new InvalidArgumentException('Ada pengajuan yang menunggu keputusan; putuskan pengajuan tersebut.');
+        if (in_array($invoice->request_status, ['pending', 'revision'], true) || in_array($invoice->installment_request_status, ['pending', 'revision'], true)) {
+            throw new InvalidArgumentException('Ada pengajuan yang belum selesai; putuskan atau selesaikan pengajuan tersebut terlebih dahulu.');
         }
 
         if ($invoice->discount_type !== null) {
@@ -252,7 +278,7 @@ class InvoiceService implements InvoiceServiceInterface
         if ($invoice->payableAmount() === 0) {
             $invoice->save();
 
-            $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, true, directGrant: true);
+            $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, 'approved', directGrant: true);
 
             return $this->markPaid($invoice);
         }
@@ -260,7 +286,7 @@ class InvoiceService implements InvoiceServiceInterface
         $invoice->status = 'unpaid';
         $invoice->save();
 
-        $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, true, directGrant: true);
+        $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, 'approved', directGrant: true);
 
         return $invoice;
     }

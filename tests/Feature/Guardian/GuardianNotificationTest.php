@@ -88,7 +88,7 @@ class GuardianNotificationTest extends TestCase
     public function test_form_relief_decision_notifies_holder_and_linked_parent(): void
     {
         app(ApplicationServiceInterface::class)->decideFeeRequest(
-            $this->application, true, 'percent', 50, $this->officer, null,
+            $this->application, 'approve', 'percent', 50, $this->officer, null,
         );
 
         foreach ([$this->guardian, $this->linkedParent] as $user) {
@@ -197,7 +197,7 @@ class GuardianNotificationTest extends TestCase
         ]);
 
         $installments = app(InstallmentServiceInterface::class);
-        $installments->decideInstallmentRequest($invoice, true, [
+        $installments->decideInstallmentRequest($invoice, 'approve', [
             ['amount' => 1000000, 'due_date' => now()->addDays(3)->toDateString()],
         ], $this->officer, null);
 

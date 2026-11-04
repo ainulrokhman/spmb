@@ -21,21 +21,25 @@ use Illuminate\Support\Collection;
 interface GuardianNotificationServiceInterface
 {
     /**
-     * The committee decided the form-fee relief request (or
-     * granted relief directly, $directGrant = true).
+     * The committee decided the form-fee relief request:
+     * $outcome is 'approved', 'revision' (the guardian must fix
+     * and resubmit) or 'rejected' — or relief was granted
+     * directly, $directGrant = true.
      */
-    public function notifyFormReliefDecided(Application $application, bool $approved, bool $directGrant = false): void;
+    public function notifyFormReliefDecided(Application $application, string $outcome, bool $directGrant = false): void;
 
     /**
-     * The committee decided the invoice relief request (or
-     * granted relief directly, $directGrant = true).
+     * The committee decided the invoice relief request:
+     * $outcome is 'approved', 'revision' or 'rejected' — or
+     * relief was granted directly, $directGrant = true.
      */
-    public function notifyInvoiceReliefDecided(Invoice $invoice, bool $approved, bool $directGrant = false): void;
+    public function notifyInvoiceReliefDecided(Invoice $invoice, string $outcome, bool $directGrant = false): void;
 
     /**
-     * The committee decided the installment request.
+     * The committee decided the installment request: $outcome
+     * is 'approved', 'revision' or 'rejected'.
      */
-    public function notifyInstallmentDecided(Invoice $invoice, bool $approved): void;
+    public function notifyInstallmentDecided(Invoice $invoice, string $outcome): void;
 
     /**
      * The committee recorded a verification decision

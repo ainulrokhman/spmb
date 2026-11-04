@@ -80,10 +80,20 @@ class ApplicationService implements ApplicationServiceInterface
             throw new InvalidArgumentException('Masih ada pengajuan yang menunggu keputusan panitia.');
         }
 
-        // The attachment belongs to this request: a fresh request
-        // replaces (or clears) the previous request's file.
-        if ($application->form_fee_request_file_path) {
-            Storage::disk('local')->delete($application->form_fee_request_file_path);
+        // The attachment belongs to this request: uploading a
+        // new file replaces the previous one, while submitting
+        // without a file keeps the existing attachment — a
+        // guardian resubmitting after a revision decision often
+        // only corrects the reason and must not lose the proof
+        // they already uploaded.
+        $filePath = $application->form_fee_request_file_path;
+
+        if ($attachment !== null) {
+            if ($filePath) {
+                Storage::disk('local')->delete($filePath);
+            }
+
+            $filePath = $attachment->store('lampiran-keringanan', 'local');
         }
 
         $application->update([
@@ -91,7 +101,7 @@ class ApplicationService implements ApplicationServiceInterface
             'form_fee_request_type' => null,
             'form_fee_request_value' => null,
             'form_fee_request_reason' => $reason,
-            'form_fee_request_file_path' => $attachment?->store('lampiran-keringanan', 'local'),
+            'form_fee_request_file_path' => $filePath,
             'form_fee_request_status' => 'pending',
             'form_fee_decision_note' => null,
         ]);
@@ -102,29 +112,45 @@ class ApplicationService implements ApplicationServiceInterface
     }
 
     /**
-     * Decide a pending fee relief request (committee side). When
-     * approving, the committee itself chooses the relief: 'waiver'
-     * for a full waiver, or 'percent' / 'nominal' with a value.
+     * Decide a pending fee relief request (committee side):
+     * 'approve' (the committee itself chooses the relief:
+     * 'waiver' for a full waiver, or 'percent' / 'nominal' with
+     * a value), 'revision' (the request goes back to the
+     * guardian to fix and resubmit — a note saying what to fix
+     * is required) or 'reject' (final for this request; the
+     * guardian may file a new one).
      */
-    public function decideFeeRequest(Application $application, bool $approve, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Application
+    public function decideFeeRequest(Application $application, string $decision, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Application
     {
         if ($application->form_fee_request_status !== 'pending') {
             throw new InvalidArgumentException('Tidak ada pengajuan yang menunggu keputusan.');
         }
 
-        $application->form_fee_request_status = $approve ? 'approved' : 'rejected';
+        if (! in_array($decision, ['approve', 'revision', 'reject'], true)) {
+            throw new InvalidArgumentException('Keputusan tidak dikenal.');
+        }
+
+        if ($decision === 'revision' && ($note === null || trim($note) === '')) {
+            throw new InvalidArgumentException('Catatan wajib diisi bila meminta revisi, agar wali tahu apa yang harus diperbaiki.');
+        }
+
+        $application->form_fee_request_status = match ($decision) {
+            'approve' => 'approved',
+            'revision' => 'revision',
+            default => 'rejected',
+        };
         $application->form_fee_decision_note = $note;
         $application->form_fee_decided_by = $decider->id;
         $application->form_fee_decided_at = now();
 
-        if ($approve) {
+        if ($decision === 'approve') {
             $this->applyFeeRelief($application, ...$this->validatedRelief($reliefType, $reliefValue));
         }
 
         $application->save();
 
         $this->officerNotifications->markFormFeeReliefHandled($application);
-        $this->guardianNotifications->notifyFormReliefDecided($application, $approve);
+        $this->guardianNotifications->notifyFormReliefDecided($application, $application->form_fee_request_status);
 
         return $application;
     }
@@ -139,8 +165,8 @@ class ApplicationService implements ApplicationServiceInterface
             throw new InvalidArgumentException('Keringanan hanya dapat diberikan sebelum biaya formulir diselesaikan.');
         }
 
-        if ($application->form_fee_request_status === 'pending') {
-            throw new InvalidArgumentException('Ada pengajuan yang menunggu keputusan; putuskan pengajuan tersebut.');
+        if (in_array($application->form_fee_request_status, ['pending', 'revision'], true)) {
+            throw new InvalidArgumentException('Ada pengajuan yang belum selesai; putuskan atau selesaikan pengajuan tersebut terlebih dahulu.');
         }
 
         if ($application->form_fee_discount_type !== null) {
@@ -155,7 +181,7 @@ class ApplicationService implements ApplicationServiceInterface
 
         $application->save();
 
-        $this->guardianNotifications->notifyFormReliefDecided($application, true, directGrant: true);
+        $this->guardianNotifications->notifyFormReliefDecided($application, 'approved', directGrant: true);
 
         return $application;
     }

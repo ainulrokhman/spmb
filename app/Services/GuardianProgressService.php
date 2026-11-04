@@ -123,6 +123,10 @@ class GuardianProgressService
             return $this->step('form_fee', 'Bayar Formulir', 'done');
         }
 
+        if ($application->form_fee_request_status === 'revision') {
+            return $this->step('form_fee', 'Bayar Formulir', 'attention', 'Panitia meminta revisi pengajuan keringananmu: '.($application->form_fee_decision_note ?: 'perbaiki pengajuanmu lalu kirim ulang.'), 'Perbaiki Pengajuan', route('guardian.applications.show', $application));
+        }
+
         if ($application->form_fee_request_status === 'pending') {
             return $this->step('form_fee', 'Bayar Formulir', 'waiting', 'Pengajuan keringananmu sedang menunggu keputusan panitia.');
         }
@@ -227,6 +231,14 @@ class GuardianProgressService
             return $this->step('re_registration', 'Daftar Ulang', 'done', 'Daftar ulang selesai. Selamat bergabung!');
         }
 
+        $url = route('guardian.invoices.show', $application);
+
+        if ($invoice->request_status === 'revision' || $invoice->installment_request_status === 'revision') {
+            $note = $invoice->request_status === 'revision' ? $invoice->decision_note : $invoice->installment_decision_note;
+
+            return $this->step('re_registration', 'Daftar Ulang', 'attention', 'Panitia meminta revisi pengajuanmu pada tagihan ini: '.($note ?: 'perbaiki pengajuanmu lalu kirim ulang.'), 'Perbaiki Pengajuan', $url);
+        }
+
         if ($invoice->request_status === 'pending' || $invoice->installment_request_status === 'pending') {
             return $this->step('re_registration', 'Daftar Ulang', 'waiting', 'Pengajuanmu pada tagihan ini sedang menunggu keputusan panitia.');
         }
@@ -235,7 +247,6 @@ class GuardianProgressService
             return $this->step('re_registration', 'Daftar Ulang', 'waiting', 'Pembayaran tagihanmu sedang menunggu konfirmasi panitia.');
         }
 
-        $url = route('guardian.invoices.show', $application);
         $term = $invoice->installments
             ->where('status', '!=', 'paid')
             ->sortBy('sequence')

@@ -143,6 +143,14 @@
                     <strong>Pengajuan keringanan tagihan sedang menunggu keputusan panitia.</strong>
                     <div class="small text-muted">Alasan Anda: {{ $invoice->request_reason }}</div>
                 </div>
+            @elseif($invoice->request_status === 'revision')
+                <div class="alert alert-warning bg-warning bg-opacity-10 text-body border-0 rounded-3 p-3">
+                    <strong>Panitia meminta revisi pada pengajuan keringanan Anda.</strong>
+                    @if($invoice->decision_note)
+                        <div class="small text-muted">Catatan panitia: {{ $invoice->decision_note }}</div>
+                    @endif
+                    <div class="small">Perbaiki pengajuan Anda pada formulir pengajuan di halaman ini, lalu kirim ulang.</div>
+                </div>
             @elseif($invoice->request_status === 'rejected')
                 <div class="alert alert-danger bg-danger bg-opacity-10 text-body border-0 rounded-3 p-3">
                     <strong>Pengajuan Anda ditolak panitia.</strong>
@@ -156,6 +164,14 @@
                 <div class="alert alert-warning bg-warning bg-opacity-10 text-body border-0 rounded-3 p-3">
                     <strong>Pengajuan cicilan sedang menunggu keputusan panitia.</strong>
                     <div class="small text-muted">Alasan Anda: {{ $invoice->installment_request_reason }}</div>
+                </div>
+            @elseif($invoice->installment_request_status === 'revision')
+                <div class="alert alert-warning bg-warning bg-opacity-10 text-body border-0 rounded-3 p-3">
+                    <strong>Panitia meminta revisi pada pengajuan cicilan Anda.</strong>
+                    @if($invoice->installment_decision_note)
+                        <div class="small text-muted">Catatan panitia: {{ $invoice->installment_decision_note }}</div>
+                    @endif
+                    <div class="small">Perbaiki pengajuan Anda pada formulir pengajuan cicilan di halaman ini, lalu kirim ulang.</div>
                 </div>
             @elseif($invoice->installment_request_status === 'rejected')
                 <div class="alert alert-danger bg-danger bg-opacity-10 text-body border-0 rounded-3 p-3">
@@ -308,20 +324,20 @@
                         @else
                             <p class="text-muted small">Cukup tuliskan alasan Anda — bentuk dan besar keringanan (pembebasan penuh atau diskon) ditentukan oleh panitia.</p>
 
-                            @if($invoice->request_status !== 'pending' && $invoice->installment_request_status !== 'pending')
+                            @if($invoice->request_status !== 'pending' && ! in_array($invoice->installment_request_status, ['pending', 'revision'], true))
                                 <form method="POST" action="{{ route('guardian.invoices.request-discount', $application) }}" enctype="multipart/form-data">
                                     @csrf
                                     <div class="mb-3">
                                         <label for="reason" class="form-label fw-semibold">Alasan Pengajuan <span class="text-danger">*</span></label>
-                                        <textarea class="form-control" id="reason" name="reason" rows="3" required placeholder="mis. Anak yatim, keluarga tidak mampu, anak karyawan yayasan">{{ old('reason') }}</textarea>
+                                        <textarea class="form-control" id="reason" name="reason" rows="3" required placeholder="mis. Anak yatim, keluarga tidak mampu, anak karyawan yayasan">{{ old('reason', $invoice->request_status === 'revision' ? $invoice->request_reason : '') }}</textarea>
                                     </div>
                                     <div class="mb-3">
                                         <label for="attachment" class="form-label fw-semibold">Lampiran Pendukung <span class="text-muted fw-normal">(opsional)</span></label>
                                         <input type="file" class="form-control" id="attachment" name="attachment" accept=".jpg,.jpeg,.png,.pdf">
-                                        <div class="form-text">Surat keterangan atau dokumen pendukung (JPG/PNG/PDF, maksimal 5 MB) — membantu panitia memutuskan.</div>
+                                        <div class="form-text">Surat keterangan atau dokumen pendukung (JPG/PNG/PDF, maksimal 5 MB) — membantu panitia memutuskan.@if($invoice->request_file_path) Lampiran pengajuan sebelumnya sudah tersimpan; biarkan kosong bila tidak ingin menggantinya.@endif</div>
                                     </div>
                                     <div class="d-grid">
-                                        <button type="submit" class="btn btn-outline-primary">Kirim Pengajuan</button>
+                                        <button type="submit" class="btn btn-outline-primary">{{ $invoice->request_status === 'revision' ? 'Kirim Ulang Pengajuan' : 'Kirim Pengajuan' }}</button>
                                     </div>
                                 </form>
                             @else
@@ -339,15 +355,15 @@
                         @else
                             <p class="text-muted small">Ajukan cicilan dengan alasan Anda. Bila disetujui, panitia yang merincikan jumlah termin, nominal, dan jatuh temponya.</p>
 
-                            @if($invoice->installment_request_status !== 'pending' && $invoice->request_status !== 'pending')
+                            @if($invoice->installment_request_status !== 'pending' && ! in_array($invoice->request_status, ['pending', 'revision'], true))
                                 <form method="POST" action="{{ route('guardian.invoices.request-installment', $application) }}">
                                     @csrf
                                     <div class="mb-3">
                                         <label for="installment-reason" class="form-label fw-semibold">Alasan Pengajuan <span class="text-danger">*</span></label>
-                                        <textarea class="form-control" id="installment-reason" name="reason" rows="3" required placeholder="mis. Membayar bertahap mengikuti gaji bulanan">{{ old('reason') }}</textarea>
+                                        <textarea class="form-control" id="installment-reason" name="reason" rows="3" required placeholder="mis. Membayar bertahap mengikuti gaji bulanan">{{ old('reason', $invoice->installment_request_status === 'revision' ? $invoice->installment_request_reason : '') }}</textarea>
                                     </div>
                                     <div class="d-grid">
-                                        <button type="submit" class="btn btn-outline-primary">Ajukan Cicilan</button>
+                                        <button type="submit" class="btn btn-outline-primary">{{ $invoice->installment_request_status === 'revision' ? 'Kirim Ulang Pengajuan' : 'Ajukan Cicilan' }}</button>
                                     </div>
                                 </form>
                             @else

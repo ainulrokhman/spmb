@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Notification;
  */
 class GuardianNotificationService implements GuardianNotificationServiceInterface
 {
-    public function notifyFormReliefDecided(Application $application, bool $approved, bool $directGrant = false): void
+    public function notifyFormReliefDecided(Application $application, string $outcome, bool $directGrant = false): void
     {
         $child = $application->child_name ?? 'Anak Anda';
         $payable = 'Sisa yang perlu dibayar: Rp '.number_format($application->payableAmount(), 0, ',', '.').'.';
@@ -40,10 +40,15 @@ class GuardianNotificationService implements GuardianNotificationServiceInterfac
             $title = 'Anda Mendapat Keringanan Biaya Formulir';
             $message = 'Panitia memberikan keringanan biaya formulir untuk '.$child.': '
                 .$this->describeRelief($application->form_fee_discount_type, $application->form_fee_discount_value).'. '.$payable;
-        } elseif ($approved) {
+        } elseif ($outcome === 'approved') {
             $title = 'Keringanan Biaya Formulir Disetujui';
             $message = 'Pengajuan keringanan biaya formulir untuk '.$child.' disetujui: '
                 .$this->describeRelief($application->form_fee_discount_type, $application->form_fee_discount_value).'. '.$payable;
+        } elseif ($outcome === 'revision') {
+            $title = 'Pengajuan Keringanan Formulir Perlu Direvisi';
+            $message = 'Panitia meminta revisi pada pengajuan keringanan biaya formulir untuk '.$child.'.'
+                .$this->noteSuffix($application->form_fee_decision_note)
+                .' Perbaiki pengajuanmu di halaman pembayaran formulir, lalu kirim ulang.';
         } else {
             $title = 'Pengajuan Keringanan Formulir Ditolak';
             $message = 'Pengajuan keringanan biaya formulir untuk '.$child.' belum dapat disetujui.'
@@ -54,12 +59,17 @@ class GuardianNotificationService implements GuardianNotificationServiceInterfac
             'g_form_relief:'.$application->id,
             $title,
             $message,
-            route('guardian.applications.detail', $application),
+            // A revision is acted on at the payment step; the
+            // other outcomes are reading matter for the detail
+            // page.
+            $outcome === 'revision'
+                ? route('guardian.applications.show', $application)
+                : route('guardian.applications.detail', $application),
             $application->id,
         ));
     }
 
-    public function notifyInvoiceReliefDecided(Invoice $invoice, bool $approved, bool $directGrant = false): void
+    public function notifyInvoiceReliefDecided(Invoice $invoice, string $outcome, bool $directGrant = false): void
     {
         $application = $invoice->application;
 
@@ -74,10 +84,15 @@ class GuardianNotificationService implements GuardianNotificationServiceInterfac
             $title = 'Anda Mendapat Keringanan Tagihan';
             $message = 'Panitia memberikan keringanan tagihan daftar ulang untuk '.$child.': '
                 .$this->describeRelief($invoice->discount_type, $invoice->discount_value).'. '.$payable;
-        } elseif ($approved) {
+        } elseif ($outcome === 'approved') {
             $title = 'Keringanan Tagihan Disetujui';
             $message = 'Pengajuan keringanan tagihan daftar ulang untuk '.$child.' disetujui: '
                 .$this->describeRelief($invoice->discount_type, $invoice->discount_value).'. '.$payable;
+        } elseif ($outcome === 'revision') {
+            $title = 'Pengajuan Keringanan Tagihan Perlu Direvisi';
+            $message = 'Panitia meminta revisi pada pengajuan keringanan tagihan daftar ulang untuk '.$child.'.'
+                .$this->noteSuffix($invoice->decision_note)
+                .' Perbaiki pengajuanmu di halaman daftar ulang, lalu kirim ulang.';
         } else {
             $title = 'Pengajuan Keringanan Tagihan Ditolak';
             $message = 'Pengajuan keringanan tagihan daftar ulang untuk '.$child.' belum dapat disetujui.'
@@ -93,7 +108,7 @@ class GuardianNotificationService implements GuardianNotificationServiceInterfac
         ));
     }
 
-    public function notifyInstallmentDecided(Invoice $invoice, bool $approved): void
+    public function notifyInstallmentDecided(Invoice $invoice, string $outcome): void
     {
         $application = $invoice->application;
 
@@ -103,10 +118,15 @@ class GuardianNotificationService implements GuardianNotificationServiceInterfac
 
         $child = $application->child_name ?? 'Anak Anda';
 
-        if ($approved) {
+        if ($outcome === 'approved') {
             $title = 'Pengajuan Cicilan Disetujui';
             $message = 'Tagihan daftar ulang '.$child.' dapat dibayar dalam '
                 .$invoice->installments()->count().' termin. Lihat rincian dan jadwalnya di halaman daftar ulang.';
+        } elseif ($outcome === 'revision') {
+            $title = 'Pengajuan Cicilan Perlu Direvisi';
+            $message = 'Panitia meminta revisi pada pengajuan cicilan tagihan daftar ulang untuk '.$child.'.'
+                .$this->noteSuffix($invoice->installment_decision_note)
+                .' Perbaiki pengajuanmu di halaman daftar ulang, lalu kirim ulang.';
         } else {
             $title = 'Pengajuan Cicilan Ditolak';
             $message = 'Pengajuan cicilan tagihan daftar ulang untuk '.$child.' belum dapat disetujui.'

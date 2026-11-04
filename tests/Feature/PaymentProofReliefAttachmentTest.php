@@ -127,7 +127,7 @@ class PaymentProofReliefAttachmentTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_form_fee_relief_attachment_is_optional_and_replaced_on_a_new_request(): void
+    public function test_form_fee_relief_attachment_is_optional_kept_without_a_new_file_and_replaced_with_one(): void
     {
         $this->actingAs($this->guardian)
             ->post(route('guardian.applications.request-relief', $this->application), [
@@ -141,14 +141,17 @@ class PaymentProofReliefAttachmentTest extends TestCase
         Storage::disk('local')->assertExists($application->form_fee_request_file_path);
         $firstPath = $application->form_fee_request_file_path;
 
-        // Committee can open the attachment; a decided request can
-        // be followed by a new one without a file, which clears it.
+        // Committee can open the attachment.
         $this->actingAs($this->admin)
             ->get(route('admin.applications.relief-file', $this->application))
             ->assertOk();
 
         $application->update(['form_fee_request_status' => 'rejected']);
 
+        // A follow-up request without a file KEEPS the previous
+        // attachment: guardians resubmitting (e.g. after a
+        // revision decision) often only correct their reason
+        // and must not lose the proof they already uploaded.
         $this->actingAs($this->guardian)
             ->post(route('guardian.applications.request-relief', $this->application), [
                 'reason' => 'Mengajukan kembali.',
@@ -156,8 +159,23 @@ class PaymentProofReliefAttachmentTest extends TestCase
             ->assertSessionDoesntHaveErrors();
 
         $application = $this->application->fresh();
-        $this->assertNull($application->form_fee_request_file_path);
+        $this->assertSame($firstPath, $application->form_fee_request_file_path);
+        Storage::disk('local')->assertExists($firstPath);
+
+        // Uploading a new file replaces the previous one.
+        $application->update(['form_fee_request_status' => 'rejected']);
+
+        $this->actingAs($this->guardian)
+            ->post(route('guardian.applications.request-relief', $this->application), [
+                'reason' => 'Mengajukan dengan lampiran baru.',
+                'attachment' => UploadedFile::fake()->create('sktm-baru.pdf', 20, 'application/pdf'),
+            ])
+            ->assertSessionDoesntHaveErrors();
+
+        $application = $this->application->fresh();
+        $this->assertNotSame($firstPath, $application->form_fee_request_file_path);
         Storage::disk('local')->assertMissing($firstPath);
+        Storage::disk('local')->assertExists($application->form_fee_request_file_path);
     }
 
     public function test_invoice_relief_attachment_and_invoice_payment_proof(): void

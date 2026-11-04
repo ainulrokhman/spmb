@@ -261,7 +261,7 @@ class AnnouncementInvoiceTest extends TestCase
         ]);
 
         $this->invoices()->requestDiscount($invoice, 'Anak yatim');
-        $this->invoices()->decideDiscount($invoice->fresh(), true, 'waiver', null, $this->admin(), null);
+        $this->invoices()->decideDiscount($invoice->fresh(), 'approve', 'waiver', null, $this->admin(), null);
 
         $this->assertSame('paid', $invoice->fresh()->status);
         $this->assertSame('re_registered', $application->fresh()->status);

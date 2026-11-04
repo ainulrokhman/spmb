@@ -235,7 +235,7 @@ class ReliefInstallmentTest extends TestCase
 
         $installments = app(\App\Contracts\InstallmentServiceInterface::class);
         $installments->requestInstallment($invoice, 'Minta cicilan');
-        $installments->decideInstallmentRequest($invoice->fresh(), true, [
+        $installments->decideInstallmentRequest($invoice->fresh(), 'approve', [
             ['amount' => 1000000, 'due_date' => now()->addDays(7)->toDateString()],
         ], $this->superAdmin(), null);
 
@@ -252,7 +252,7 @@ class ReliefInstallmentTest extends TestCase
 
         $installments = app(\App\Contracts\InstallmentServiceInterface::class);
         $installments->requestInstallment($invoice, 'Minta cicilan');
-        $installments->decideInstallmentRequest($invoice->fresh(), true, [
+        $installments->decideInstallmentRequest($invoice->fresh(), 'approve', [
             ['amount' => 600000, 'due_date' => now()->addDays(7)->toDateString()],
             ['amount' => 400000, 'due_date' => now()->addDays(37)->toDateString()],
         ], $this->superAdmin(), null);
@@ -298,7 +298,7 @@ class ReliefInstallmentTest extends TestCase
 
         $installments = app(\App\Contracts\InstallmentServiceInterface::class);
         $installments->requestInstallment($invoice, 'Minta cicilan');
-        $installments->decideInstallmentRequest($invoice->fresh(), true, [
+        $installments->decideInstallmentRequest($invoice->fresh(), 'approve', [
             ['amount' => 600000, 'due_date' => now()->addDays(7)->toDateString()],
             ['amount' => 400000, 'due_date' => now()->addDays(37)->toDateString()],
         ], $this->superAdmin(), null);
