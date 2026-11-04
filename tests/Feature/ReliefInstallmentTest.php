@@ -14,6 +14,7 @@ use App\Models\Invoice;
 use App\Models\SchoolUnit;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\Concerns\SeedsDemoUsers;
 use Tests\TestCase;
 
@@ -281,5 +282,60 @@ class ReliefInstallmentTest extends TestCase
         } catch (\InvalidArgumentException $e) {
             $this->assertStringContainsString('sudah lunas', $e->getMessage());
         }
+    }
+
+    /**
+     * Regression guard for the MySQL-only revise failures:
+     * resequence() used to park terms on NEGATIVE sequence
+     * values, which the unsigned sequence column rejects under
+     * MySQL strict mode (error 1264) while SQLite silently
+     * accepts them. Recording the queries makes the negative
+     * write observable on any database.
+     */
+    public function test_revise_never_writes_a_negative_sequence(): void
+    {
+        ['invoice' => $invoice] = $this->passedWithInvoice('58');
+
+        $installments = app(\App\Contracts\InstallmentServiceInterface::class);
+        $installments->requestInstallment($invoice, 'Minta cicilan');
+        $installments->decideInstallmentRequest($invoice->fresh(), true, [
+            ['amount' => 600000, 'due_date' => now()->addDays(7)->toDateString()],
+            ['amount' => 400000, 'due_date' => now()->addDays(37)->toDateString()],
+        ], $this->superAdmin(), null);
+
+        [$first, $second] = $invoice->fresh()->installments;
+
+        DB::enableQueryLog();
+
+        try {
+            // Swap the due dates so resequencing really reorders.
+            $installments->reviseSchedule($invoice->fresh(), [
+                $first->id => ['amount' => 500000, 'due_date' => now()->addDays(40)->toDateString()],
+                $second->id => ['amount' => 500000, 'due_date' => now()->addDays(10)->toDateString()],
+            ]);
+            $log = DB::getQueryLog();
+        } finally {
+            DB::disableQueryLog();
+        }
+
+        $negativeWrites = [];
+
+        foreach ($log as $entry) {
+            if (! str_contains($entry['query'], 'invoice_installments')) {
+                continue;
+            }
+
+            foreach ($entry['bindings'] as $binding) {
+                if (is_int($binding) && $binding < 0) {
+                    $negativeWrites[] = $binding;
+                }
+            }
+        }
+
+        $this->assertSame([], $negativeWrites, 'Revisi cicilan tidak boleh menulis sequence negatif (kolom unsigned; ditolak MySQL).');
+
+        // The reorder itself must still land correctly.
+        $this->assertSame(1, $second->fresh()->sequence);
+        $this->assertSame(2, $first->fresh()->sequence);
     }
 }

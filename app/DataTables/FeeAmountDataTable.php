@@ -26,7 +26,12 @@ class FeeAmountDataTable
             ->when(request()->filled('fee_component_id'), function ($query) {
                 $query->whereHas('fee', fn ($feeQuery) => $feeQuery->where('fee_component_id', request()->integer('fee_component_id')));
             })
-            ->orderBy('sort_order');
+            // The id tiebreaker keeps rows with equal sort_order
+            // in creation order on every database engine —
+            // without it, tied rows may come back in any order
+            // (MySQL does not promise insertion order for ties).
+            ->orderBy('sort_order')
+            ->orderBy('id');
 
         return DataTables::of($feeAmounts)
             ->addColumn('mapping', $this->mappingColumn())

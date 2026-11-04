@@ -29,6 +29,15 @@ class InstallmentService implements InstallmentServiceInterface
      */
     private const LOCKED_STATUSES = ['paid', 'awaiting_payment', 'awaiting_confirmation'];
 
+    /**
+     * Parking offset used while re-numbering terms: temporary
+     * sequences live at this base plus the term's position, far
+     * above any real position a plan can reach, so they can
+     * never collide with the unique invoice+sequence constraint
+     * mid-renumbering.
+     */
+    private const TEMP_SEQUENCE_BASE = 1000;
+
     public function __construct(
         private readonly InvoiceServiceInterface $invoices,
         private readonly OfficerNotificationServiceInterface $officerNotifications,
@@ -497,8 +506,13 @@ class InstallmentService implements InstallmentServiceInterface
 
     /**
      * Re-number the plan's terms by due date (then id), via
-     * temporary negative sequences so the unique
-     * invoice+sequence constraint is never tripped mid-way.
+     * temporary sequences parked above any real position so the
+     * unique invoice+sequence constraint is never tripped
+     * mid-way. The temporaries must stay positive: sequence is
+     * an unsigned column and negative values are rejected under
+     * MySQL strict mode (error 1264), which SQLite silently
+     * tolerates — that mismatch hid the failure from local
+     * tests until the suite ran on a MySQL-family server.
      */
     private function resequence(Invoice $invoice): void
     {
@@ -506,8 +520,8 @@ class InstallmentService implements InstallmentServiceInterface
             ->sortBy([['due_date', 'asc'], ['id', 'asc']])
             ->values();
 
-        foreach ($ordered as $installment) {
-            $installment->update(['sequence' => -$installment->id]);
+        foreach ($ordered as $index => $installment) {
+            $installment->update(['sequence' => self::TEMP_SEQUENCE_BASE + $index]);
         }
 
         foreach ($ordered as $index => $installment) {
