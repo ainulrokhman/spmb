@@ -30,18 +30,13 @@
                     @else
                         <i class="bi bi-cpu-fill text-primary me-2 fs-4"></i>
                     @endif
-                    <span class="fw-bold text-body">{{ $siteName ?: 'SPMB' }}</span>
+                    <span class="fw-bold text-body text-truncate" style="max-width: 48vw;">{{ $siteName ?: 'SPMB' }}</span>
                 </a>
 
                 <ul class="navbar-nav ms-auto align-items-center flex-row gap-2">
-                    <li class="nav-item">
-                        <a href="{{ route('admissions.info') }}" class="nav-link">Info Pendaftaran</a>
-                    </li>
                     @auth
-                        @if(auth()->user()->hasRole(\App\Support\SystemAccess::WALI_ROLE))
-                            <li class="nav-item">
-                                <a href="{{ route('guardian.dashboard') }}" class="nav-link">Dasbor Saya</a>
-                            </li>
+                        @php($isWali = auth()->user()->hasRole(\App\Support\SystemAccess::WALI_ROLE))
+                        @if($isWali)
                             @php($guardianUnread = app(\App\Contracts\GuardianNotificationServiceInterface::class)->visibleUnread(auth()->user()))
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link position-relative" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifikasi">
@@ -68,16 +63,31 @@
                                 </ul>
                             </li>
                         @endif
-                        <li class="nav-item">
-                            <span class="nav-link text-muted">{{ auth()->user()->name }}</span>
-                        </li>
-                        <li class="nav-item">
-                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-outline-secondary btn-sm">Keluar</button>
-                            </form>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle d-flex align-items-center gap-1" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle fs-5"></i>
+                                <span class="text-truncate" style="max-width: 110px;">{{ \Illuminate\Support\Str::of(auth()->user()->name)->explode(' ')->first() }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <li><h6 class="dropdown-header text-truncate" style="max-width: 240px;">{{ auth()->user()->name }}</h6></li>
+                                @if($isWali)
+                                    <li><a class="dropdown-item" href="{{ route('guardian.dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dasbor Saya</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('guardian.notifications.index') }}"><i class="bi bi-bell me-2"></i>Semua Notifikasi</a></li>
+                                @endif
+                                <li><a class="dropdown-item" href="{{ route('admissions.info') }}"><i class="bi bi-info-circle me-2"></i>Info Pendaftaran</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2"></i>Keluar</button>
+                                    </form>
+                                </li>
+                            </ul>
                         </li>
                     @else
+                        <li class="nav-item">
+                            <a href="{{ route('admissions.info') }}" class="nav-link">Info Pendaftaran</a>
+                        </li>
                         <li class="nav-item">
                             <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm">Masuk</a>
                         </li>
