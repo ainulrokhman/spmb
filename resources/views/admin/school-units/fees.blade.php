@@ -102,9 +102,9 @@
                                                 </select>
                                             </div>
                                             <div>
-                                                <label class="form-label small mb-1">Jender</label>
+                                                <label class="form-label small mb-1">Jenis Kelamin</label>
                                                 <select name="amounts[{{ $loop->index }}][gender]" class="form-select" style="width: 150px;">
-                                                    <option value="">Semua Jender</option>
+                                                    <option value="">Semua Jenis Kelamin</option>
                                                     @foreach(\App\Models\FeeAmount::GENDERS as $genderCode => $genderLabel)
                                                         <option value="{{ $genderCode }}" {{ $amount->gender === $genderCode ? 'selected' : '' }}>{{ $genderLabel }}</option>
                                                     @endforeach
@@ -129,7 +129,7 @@
                                 @endif
                             </div>
                             <button type="button" class="btn btn-sm btn-outline-primary row-add"><i class="bi bi-plus-lg"></i> Tambah Baris</button>
-                            <p class="text-muted small mt-2 mb-0">Aturan paling spesifik yang menang: status anak + jalur + jender, lalu kombinasi yang lebih sempit, terakhir global (semua cakupan dikosongkan). Untuk Pilihan, setiap baris adalah satu tingkat yang dapat dipilih wali. Baris yang dihapus akan hilang setelah Anda menekan Simpan.</p>
+                            <p class="text-muted small mt-2 mb-0">Aturan paling spesifik yang menang: status anak + jalur + jenis kelamin, lalu kombinasi yang lebih sempit, terakhir global (semua cakupan dikosongkan). Untuk Pilihan, setiap baris adalah satu tingkat yang dapat dipilih wali. Baris yang dihapus akan hilang setelah Anda menekan Simpan.</p>
                         </div>
 
                         <p class="unused-hint text-muted small mb-0 {{ $currentMode === 'unused' ? '' : 'd-none' }}">Komponen ini tidak dipakai di unit ini dan tidak muncul di tagihan. Pilih jenis Tetap, Pilihan, atau Bebas, lalu tekan Simpan untuk memakainya.</p>
@@ -163,9 +163,9 @@
                     </select>
                 </div>
                 <div>
-                    <label class="form-label small mb-1">Jender</label>
+                    <label class="form-label small mb-1">Jenis Kelamin</label>
                     <select name="amounts[__INDEX__][gender]" class="form-select" style="width: 150px;">
-                        <option value="">Semua Jender</option>
+                        <option value="">Semua Jenis Kelamin</option>
                         @foreach(\App\Models\FeeAmount::GENDERS as $genderCode => $genderLabel)
                             <option value="{{ $genderCode }}">{{ $genderLabel }}</option>
                         @endforeach
@@ -205,7 +205,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="form-label small fw-semibold mb-1" for="preview-gender">Jender</label>
+                        <label class="form-label small fw-semibold mb-1" for="preview-gender">Jenis Kelamin</label>
                         <select id="preview-gender" name="preview_gender" class="form-select">
                             @foreach(\App\Models\FeeAmount::GENDERS as $genderCode => $genderLabel)
                                 <option value="{{ $genderCode }}" {{ $previewGender === $genderCode ? 'selected' : '' }}>{{ $genderLabel }}</option>

@@ -53,7 +53,7 @@
                         <th class="text-secondary fw-semibold">Unit / Gelombang / Jalur</th>
                         <th class="text-secondary fw-semibold">Status</th>
                         <th class="text-secondary fw-semibold">Jurusan</th>
-                        <th class="text-secondary fw-semibold">Jender</th>
+                        <th class="text-secondary fw-semibold">Jenis Kelamin</th>
                         <th class="text-secondary fw-semibold">Wali</th>
                         <th class="text-secondary fw-semibold">Tagihan Lunas</th>
                         <th class="text-secondary fw-semibold text-end">Aksi</th>

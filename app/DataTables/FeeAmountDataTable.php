@@ -56,7 +56,7 @@ class FeeAmountDataTable
     {
         return function ($feeAmount) {
             $track = $feeAmount->admissionTrack?->name ?? 'Semua Jalur';
-            $gender = $feeAmount->gender ? (FeeAmount::GENDERS[$feeAmount->gender] ?? $feeAmount->gender) : 'Semua Jender';
+            $gender = $feeAmount->gender ? (FeeAmount::GENDERS[$feeAmount->gender] ?? $feeAmount->gender) : 'Semua Jenis Kelamin';
             $status = $feeAmount->childStatus?->name ?? 'Semua Status';
 
             return '<span class="text-body">'.e($track).'</span>'

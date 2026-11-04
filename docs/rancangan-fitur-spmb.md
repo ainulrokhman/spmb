@@ -280,19 +280,19 @@ dibedakan menurut:
 
 - **Global** — berlaku untuk semua pendaftar pada unit tersebut
 - **Jalur** — nominal khusus untuk jalur tertentu milik unit itu
-- **Jender** — nominal khusus laki-laki / perempuan
+- **Jenis Kelamin** — nominal khusus laki-laki / perempuan
 - **Status anak** — nominal khusus untuk status anak terverifikasi
   pendaftar (Yatim, Anak Guru, dst.; PR #35)
 
 Penyelesaian memakai aturan **paling spesifik menang**:
-status+jalur+jender → status+jalur → status+jender → jalur+jender →
-status → jalur → jender → global. Panitia cukup mengisi
+status+jalur+jenis kelamin → status+jalur → status+jenis kelamin → jalur+jenis kelamin →
+status → jalur → jenis kelamin → global. Panitia cukup mengisi
 tarif global dan hanya menulis pengecualian yang memang berbeda.
 
 ### 6.4 Tagihan (`invoices` & `invoice_items`)
 
 - Saat daftar ulang dimulai, sistem menyusun tagihan dari pemetaan
-  biaya berdasarkan unit, jalur, dan jender pendaftar:
+  biaya berdasarkan unit, jalur, dan jenis kelamin pendaftar:
   - komponen `fixed` → nominal hasil penyelesaian diferensiasi
   - komponen `pilihan` → menunggu pilihan tingkat oleh orang tua
   - komponen `bebas` → menunggu isian nominal orang tua

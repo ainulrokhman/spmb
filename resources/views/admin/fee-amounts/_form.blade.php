@@ -47,7 +47,7 @@
                     <div class="mb-3">
                         <label for="gender" class="form-label fw-semibold text-secondary">Jenis Kelamin</label>
                         <select class="form-select @error('gender') is-invalid @enderror" id="gender" name="gender">
-                            <option value="">Semua jender</option>
+                            <option value="">Semua jenis kelamin</option>
                             @foreach(\App\Models\FeeAmount::GENDERS as $code => $label)
                                 <option value="{{ $code }}" {{ old('gender', $feeAmount->gender ?? '') === $code ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
@@ -65,7 +65,7 @@
                                 <option value="{{ $status->id }}" {{ (string) old('child_status_id', $feeAmount->child_status_id ?? '') === (string) $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
                             @endforeach
                         </select>
-                        <div class="form-text text-muted small">Isi bila nominal ini khusus untuk satu status anak (mis. Yatim); nominal berstatus lebih diutamakan daripada nominal jalur/jender yang sama.</div>
+                        <div class="form-text text-muted small">Isi bila nominal ini khusus untuk satu status anak (mis. Yatim); nominal berstatus lebih diutamakan daripada nominal jalur/jenis kelamin yang sama.</div>
                         @error('child_status_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

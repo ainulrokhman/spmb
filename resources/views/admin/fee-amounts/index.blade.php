@@ -12,7 +12,7 @@
     <div class="card-header bg-transparent border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between pt-4 px-4 gap-3">
         <div>
             <h5 class="mb-0 fw-bold text-body">Nominal Biaya</h5>
-            <p class="text-muted small mb-0">Nominal dan tingkat per pemetaan biaya unit; aturan paling spesifik yang menang (jalur + jender, lalu jalur, lalu jender, lalu global)</p>
+            <p class="text-muted small mb-0">Nominal dan tingkat per pemetaan biaya unit; aturan paling spesifik yang menang (jalur + jenis kelamin, lalu jalur, lalu jenis kelamin, lalu global)</p>
         </div>
 
         <div class="d-flex align-items-center gap-3 flex-wrap">
