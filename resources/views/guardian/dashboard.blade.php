@@ -63,9 +63,9 @@
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
                             <h5 class="fw-bold mb-1">{{ $application->child_name ?? 'Pendaftaran Baru' }}</h5>
-                            <span class="badge bg-primary">{{ $resultHidden ? 'Menunggu Pengumuman' : $application->statusLabel() }}</span>
+                            <span class="badge bg-primary text-wrap text-start">{{ $resultHidden ? 'Menunggu Pengumuman' : $application->statusLabel() }}</span>
                         </div>
                         <p class="text-muted small mb-2">
                             {{ $application->schoolUnit?->name }} &middot; {{ $application->admissionWave?->name }} ({{ $application->admissionWave?->academicYear?->name }}) &middot; {{ $application->admissionTrack?->name }}
