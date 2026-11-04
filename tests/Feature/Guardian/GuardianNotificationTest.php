@@ -165,6 +165,28 @@ class GuardianNotificationTest extends TestCase
         $this->assertSame('paid', $this->application->fresh()->form_fee_status);
     }
 
+    /**
+     * Stored notification links must be relative paths, so a
+     * domain change never strands older notifications on the
+     * APP_URL that was configured when they were created.
+     */
+    public function test_stored_notification_url_is_a_relative_path(): void
+    {
+        $payment = $this->application->payments()->create([
+            'channel' => 'manual',
+            'amount' => 100000,
+            'status' => 'awaiting_confirmation',
+            'reference' => 'FRM-NOTIF-REL',
+        ]);
+
+        app(PaymentService::class)->confirmPayment($payment);
+
+        $url = $this->guardian->fresh()->notifications()->first()->data['url'];
+
+        $this->assertSame(route('guardian.applications.show', $this->application, false), $url);
+        $this->assertStringNotContainsString('://', $url);
+    }
+
     public function test_installment_decision_and_due_reminders(): void
     {
         $invoice = Invoice::factory()->create([
