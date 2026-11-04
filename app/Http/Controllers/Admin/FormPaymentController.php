@@ -55,25 +55,29 @@ class FormPaymentController extends Controller
     }
 
     /**
-     * Approve or reject a pending relief request. When approving,
-     * the committee chooses the relief (full waiver, or a percent
-     * / nominal discount with its value).
+     * Decide a pending relief request: approve (the committee
+     * chooses the relief — full waiver, or a percent / nominal
+     * discount with its value), ask for a revision (the guardian
+     * fixes and resubmits; the note is required so they know
+     * what to fix), or reject it.
      */
     public function decide(Request $request, Application $application)
     {
         $this->ensureUnitAccess($request, $application->school_unit_id);
 
         $data = $request->validate([
-            'decision' => ['required', 'in:approve,reject'],
+            'decision' => ['required', 'in:approve,revision,reject'],
             'relief_type' => ['nullable', Rule::in(['waiver', 'percent', 'nominal'])],
             'relief_value' => ['nullable', 'integer', 'min:1'],
-            'note' => ['nullable', 'string', 'max:500'],
+            'note' => ['nullable', 'string', 'max:500', 'required_if:decision,revision'],
+        ], [
+            'note.required_if' => 'Catatan wajib diisi bila meminta revisi, agar wali tahu apa yang harus diperbaiki.',
         ]);
 
         try {
             $this->applications->decideFeeRequest(
                 $application,
-                $data['decision'] === 'approve',
+                $data['decision'],
                 $data['relief_type'] ?? null,
                 isset($data['relief_value']) ? (int) $data['relief_value'] : null,
                 $request->user(),

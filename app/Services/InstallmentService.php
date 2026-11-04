@@ -61,8 +61,8 @@ class InstallmentService implements InstallmentServiceInterface
             throw new InvalidArgumentException('Masih ada pengajuan cicilan yang menunggu keputusan panitia.');
         }
 
-        if ($invoice->request_status === 'pending') {
-            throw new InvalidArgumentException('Masih ada pengajuan keringanan yang menunggu keputusan panitia.');
+        if (in_array($invoice->request_status, ['pending', 'revision'], true)) {
+            throw new InvalidArgumentException('Masih ada pengajuan keringanan yang belum selesai.');
         }
 
         $invoice->update([
@@ -86,22 +86,34 @@ class InstallmentService implements InstallmentServiceInterface
      *
      * @param  list<array<string, mixed>>|null  $schedule
      */
-    public function decideInstallmentRequest(Invoice $invoice, bool $approve, ?array $schedule, User $decider, ?string $note): Invoice
+    public function decideInstallmentRequest(Invoice $invoice, string $decision, ?array $schedule, User $decider, ?string $note): Invoice
     {
         if ($invoice->installment_request_status !== 'pending') {
             throw new InvalidArgumentException('Tidak ada pengajuan cicilan yang menunggu keputusan.');
         }
 
-        $invoice->installment_request_status = $approve ? 'approved' : 'rejected';
+        if (! in_array($decision, ['approve', 'revision', 'reject'], true)) {
+            throw new InvalidArgumentException('Keputusan tidak dikenal.');
+        }
+
+        if ($decision === 'revision' && ($note === null || trim($note) === '')) {
+            throw new InvalidArgumentException('Catatan wajib diisi bila meminta revisi, agar wali tahu apa yang harus diperbaiki.');
+        }
+
+        $invoice->installment_request_status = match ($decision) {
+            'approve' => 'approved',
+            'revision' => 'revision',
+            default => 'rejected',
+        };
         $invoice->installment_decision_note = $note;
         $invoice->installment_decided_by = $decider->id;
         $invoice->installment_decided_at = now();
 
-        if (! $approve) {
+        if ($decision !== 'approve') {
             $invoice->save();
 
             $this->officerNotifications->markInstallmentHandled($invoice);
-            $this->guardianNotifications->notifyInstallmentDecided($invoice, false);
+            $this->guardianNotifications->notifyInstallmentDecided($invoice, $invoice->installment_request_status);
 
             return $invoice;
         }
@@ -133,7 +145,7 @@ class InstallmentService implements InstallmentServiceInterface
         });
 
         $this->officerNotifications->markInstallmentHandled($invoice);
-        $this->guardianNotifications->notifyInstallmentDecided($invoice, true);
+        $this->guardianNotifications->notifyInstallmentDecided($invoice, 'approved');
 
         return $invoice;
     }

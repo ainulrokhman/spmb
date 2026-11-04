@@ -39,6 +39,14 @@
                 <strong>Pengajuan keringanan sedang menunggu keputusan panitia.</strong>
                 <div class="small text-muted">Alasan Anda: {{ $application->form_fee_request_reason }}</div>
             </div>
+        @elseif($application->form_fee_request_status === 'revision')
+            <div class="alert alert-warning bg-warning bg-opacity-10 text-body border-0 rounded-3 p-3">
+                <strong>Panitia meminta revisi pada pengajuan Anda.</strong>
+                @if($application->form_fee_decision_note)
+                    <div class="small text-muted">Catatan panitia: {{ $application->form_fee_decision_note }}</div>
+                @endif
+                <div class="small">Perbaiki pengajuan Anda pada formulir "Butuh Keringanan?" di halaman ini, lalu kirim ulang.</div>
+            </div>
         @elseif($application->form_fee_request_status === 'rejected')
             <div class="alert alert-danger bg-danger bg-opacity-10 text-body border-0 rounded-3 p-3">
                 <strong>Pengajuan Anda ditolak panitia.</strong>
@@ -121,15 +129,15 @@
                         @csrf
                         <div class="mb-3">
                             <label for="reason" class="form-label fw-semibold">Alasan Pengajuan <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="reason" name="reason" rows="3" required placeholder="mis. Anak yatim, keluarga tidak mampu, anak karyawan yayasan">{{ old('reason') }}</textarea>
+                            <textarea class="form-control" id="reason" name="reason" rows="3" required placeholder="mis. Anak yatim, keluarga tidak mampu, anak karyawan yayasan">{{ old('reason', $application->form_fee_request_status === 'revision' ? $application->form_fee_request_reason : '') }}</textarea>
                         </div>
                         <div class="mb-3">
                             <label for="attachment" class="form-label fw-semibold">Lampiran Pendukung <span class="text-muted fw-normal">(opsional)</span></label>
                             <input type="file" class="form-control" id="attachment" name="attachment" accept=".jpg,.jpeg,.png,.pdf">
-                            <div class="form-text">Surat keterangan atau dokumen pendukung (JPG/PNG/PDF, maksimal 5 MB) — membantu panitia memutuskan.</div>
+                            <div class="form-text">Surat keterangan atau dokumen pendukung (JPG/PNG/PDF, maksimal 5 MB) — membantu panitia memutuskan.@if($application->form_fee_request_file_path) Lampiran pengajuan sebelumnya sudah tersimpan; biarkan kosong bila tidak ingin menggantinya.@endif</div>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-outline-primary">Kirim Pengajuan</button>
+                            <button type="submit" class="btn btn-outline-primary">{{ $application->form_fee_request_status === 'revision' ? 'Kirim Ulang Pengajuan' : 'Kirim Pengajuan' }}</button>
                         </div>
                     </form>
                 @else

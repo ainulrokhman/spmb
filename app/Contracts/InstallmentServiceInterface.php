@@ -24,9 +24,13 @@ interface InstallmentServiceInterface
      * component's payable share — or a bare 'amount', which is
      * then allocated over the components greedily.
      *
+     * $decision is 'approve' (with the schedule), 'revision'
+     * (handed back to the guardian to fix and resubmit; a note
+     * saying what to fix is required) or 'reject' (final).
+     *
      * @param  list<array<string, mixed>>|null  $schedule
      */
-    public function decideInstallmentRequest(Invoice $invoice, bool $approve, ?array $schedule, User $decider, ?string $note): Invoice;
+    public function decideInstallmentRequest(Invoice $invoice, string $decision, ?array $schedule, User $decider, ?string $note): Invoice;
 
     /**
      * Revise an existing plan (committee side) and optionally

@@ -27,11 +27,14 @@ interface ApplicationServiceInterface
     public function requestFeeRelief(Application $application, string $reason, ?\Illuminate\Http\UploadedFile $attachment = null): Application;
 
     /**
-     * Decide a pending fee relief request (committee side). When
-     * approving, the committee chooses the relief itself: 'waiver'
-     * (full), 'percent' or 'nominal' with its value.
+     * Decide a pending fee relief request (committee side):
+     * $decision is 'approve' (the committee chooses the relief
+     * itself: 'waiver' full, 'percent' or 'nominal' with its
+     * value), 'revision' (handed back to the guardian to fix
+     * and resubmit; a note saying what to fix is required) or
+     * 'reject' (final for this request).
      */
-    public function decideFeeRequest(Application $application, bool $approve, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Application;
+    public function decideFeeRequest(Application $application, string $decision, ?string $reliefType, ?int $reliefValue, User $decider, ?string $note): Application;
 
     /**
      * Grant form fee relief directly, without a guardian request

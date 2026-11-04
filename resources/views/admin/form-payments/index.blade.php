@@ -105,12 +105,13 @@
                 </div>
                 <div class="mb-1">
                     <label for="relief-note" class="form-label fw-semibold text-secondary">Catatan Keputusan</label>
-                    <input type="text" name="note" id="relief-note" class="form-control" maxlength="500" placeholder="Opsional">
+                    <input type="text" name="note" id="relief-note" class="form-control" maxlength="500" placeholder="Wajib diisi bila meminta revisi">
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="submit" name="decision" value="reject" id="relief-reject" class="btn btn-outline-danger" onclick="return confirm('Tolak pengajuan ini?');">Tolak</button>
+                <button type="submit" name="decision" value="revision" id="relief-revision" class="btn btn-warning" onclick="return confirm('Minta wali merevisi pengajuan ini? Catatan keputusan wajib diisi agar wali tahu apa yang harus diperbaiki.');">Minta Revisi</button>
                 <button type="submit" name="decision" value="approve" id="relief-approve" class="btn btn-success">Setujui</button>
                 <button type="submit" id="relief-grant" class="btn btn-primary">Beri Keringanan</button>
             </div>
@@ -217,7 +218,7 @@
 
             // Only the buttons of the active mode may submit:
             // hidden ones are disabled so Enter cannot fire them.
-            [['relief-reject', isDecide], ['relief-approve', isDecide], ['relief-grant', !isDecide]].forEach(([id, active]) => {
+            [['relief-reject', isDecide], ['relief-revision', isDecide], ['relief-approve', isDecide], ['relief-grant', !isDecide]].forEach(([id, active]) => {
                 const el = document.getElementById(id);
                 el.classList.toggle('d-none', !active);
                 el.disabled = !active;
