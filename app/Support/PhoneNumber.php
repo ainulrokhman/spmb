@@ -38,4 +38,16 @@ final class PhoneNumber
     {
         return $value !== null && preg_match('/^08\d{8,12}$/', $value) === 1;
     }
+
+    /**
+     * The WhatsApp form of a number (628…, country code without
+     * the plus sign), or null when the input is not a plausible
+     * Indonesian mobile number.
+     */
+    public static function toWhatsApp(?string $value): ?string
+    {
+        $local = self::normalize($value);
+
+        return $local === null ? null : '62'.substr($local, 1);
+    }
 }
