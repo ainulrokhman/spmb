@@ -197,6 +197,36 @@ class WhatsappDeviceManagementTest extends TestCase
         $this->assertSame(0, WhatsappDevice::count());
     }
 
+    public function test_toggle_disables_and_reenables_the_feature(): void
+    {
+        $this->actingAs($this->admin())
+            ->post(route('admin.whatsapp.toggle'))
+            ->assertSessionHas('success');
+
+        $this->assertFalse(\App\Services\Whatsapp\WhatsappSender::isEnabled());
+        $this->assertSame('0', \App\Models\Setting::get('whatsapp_enabled'));
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.whatsapp.index'))
+            ->assertOk()
+            ->assertSee('nonaktif');
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.whatsapp.toggle'))
+            ->assertSessionHas('success');
+
+        $this->assertTrue(\App\Services\Whatsapp\WhatsappSender::isEnabled());
+    }
+
+    public function test_toggle_is_forbidden_without_the_permission(): void
+    {
+        $this->actingAs($this->panitia())
+            ->post(route('admin.whatsapp.toggle'))
+            ->assertForbidden();
+
+        $this->assertTrue(\App\Services\Whatsapp\WhatsappSender::isEnabled());
+    }
+
     public function test_login_page_is_only_for_gowa_devices(): void
     {
         $fonnte = WhatsappDevice::create(['provider' => 'fonnte', 'token' => 'abc']);

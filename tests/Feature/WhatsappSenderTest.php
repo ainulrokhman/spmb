@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\SchoolUnit;
+use App\Models\Setting;
 use App\Models\WhatsappDevice;
 use App\Models\WhatsappMessageLog;
 use App\Services\Whatsapp\WhatsappSender;
@@ -193,6 +194,32 @@ class WhatsappSenderTest extends TestCase
         $this->assertSame(WhatsappMessageLog::STATUS_FAILED, $log->status);
         $this->assertSame(WhatsappMessageLog::TYPE_TEST, $log->type);
         $this->assertSame($device->id, $log->whatsapp_device_id);
+    }
+
+    public function test_disabled_feature_skips_without_any_http_call(): void
+    {
+        Setting::set('whatsapp_enabled', '0');
+        $this->gowaDevice($this->unit->id, 'unit-33');
+        Http::fake();
+
+        $log = app(WhatsappSender::class)->send($this->unit->id, '081234567890', 'Halo', WhatsappMessageLog::TYPE_PAYMENT);
+
+        $this->assertSame(WhatsappMessageLog::STATUS_SKIPPED, $log->status);
+        $this->assertStringContainsString('dinonaktifkan', (string) $log->error);
+        Http::assertNothingSent();
+    }
+
+    public function test_disabled_feature_also_blocks_direct_device_sends(): void
+    {
+        Setting::set('whatsapp_enabled', '0');
+        $device = $this->gowaDevice($this->unit->id, 'unit-33');
+        Http::fake();
+
+        $log = app(WhatsappSender::class)->sendViaDevice($device, '081234567890', 'Uji');
+
+        $this->assertSame(WhatsappMessageLog::STATUS_SKIPPED, $log->status);
+        $this->assertSame($device->id, $log->whatsapp_device_id);
+        Http::assertNothingSent();
     }
 
     public function test_unreachable_provider_counts_as_not_connected(): void

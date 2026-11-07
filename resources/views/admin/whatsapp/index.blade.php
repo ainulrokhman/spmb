@@ -22,6 +22,25 @@
 @endif
 
 <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body px-4 py-4 d-flex flex-wrap align-items-center gap-3">
+        <div class="flex-grow-1">
+            <h5 class="mb-1 fw-bold text-body"><i class="bi bi-toggles me-2"></i>Status Fitur WhatsApp</h5>
+            @if($enabled)
+                <p class="text-muted small mb-0">Fitur <strong class="text-success">aktif</strong> — pesan WhatsApp dikirim seperti biasa.</p>
+            @else
+                <p class="text-muted small mb-0">Fitur <strong class="text-danger">nonaktif</strong> — tidak ada pesan WhatsApp yang dikirim (percobaan pengiriman tercatat di laporan sebagai Dilewati). Device tetap dapat dikelola.</p>
+            @endif
+        </div>
+        <form action="{{ route('admin.whatsapp.toggle') }}" method="POST" onsubmit="return confirm('{{ $enabled ? 'Nonaktifkan fitur WhatsApp? Semua pengiriman pesan akan berhenti.' : 'Aktifkan kembali fitur WhatsApp?' }}')">
+            @csrf
+            <button type="submit" class="btn {{ $enabled ? 'btn-outline-danger' : 'btn-success' }}">
+                <i class="bi {{ $enabled ? 'bi-power' : 'bi-play-circle' }}"></i> {{ $enabled ? 'Nonaktifkan' : 'Aktifkan' }}
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-transparent border-0 pt-4 px-4">
         <h5 class="mb-0 fw-bold text-body"><i class="bi bi-building me-2"></i>Device Yayasan (Cadangan)</h5>
         <p class="text-muted small mb-0">Nomor bersama tingkat yayasan. Dipakai oleh unit yang belum mempunyai device sendiri, dan menjadi cadangan bila device unit sedang tidak terhubung.</p>

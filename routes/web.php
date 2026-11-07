@@ -212,6 +212,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // WhatsApp devices & report
     Route::get('whatsapp', [WhatsappDeviceController::class, 'index'])->name('whatsapp.index')->middleware('permission:whatsapp-manage');
+    Route::post('whatsapp/toggle', [WhatsappDeviceController::class, 'toggle'])->name('whatsapp.toggle')->middleware('permission:whatsapp-manage');
     Route::post('whatsapp/devices', [WhatsappDeviceController::class, 'store'])->name('whatsapp.devices.store')->middleware('permission:whatsapp-manage');
     Route::get('whatsapp/devices/{device}/login', [WhatsappDeviceController::class, 'login'])->name('whatsapp.devices.login')->middleware('permission:whatsapp-manage');
     Route::get('whatsapp/devices/{device}/qr', [WhatsappDeviceController::class, 'qr'])->name('whatsapp.devices.qr')->middleware('permission:whatsapp-manage');

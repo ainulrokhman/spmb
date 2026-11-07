@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SchoolUnit;
+use App\Models\Setting;
 use App\Models\WhatsappDevice;
 use App\Models\WhatsappMessageLog;
 use App\Services\Whatsapp\WhatsappGatewayException;
@@ -41,8 +42,25 @@ class WhatsappDeviceController extends Controller
             ->orderBy('name')
             ->get();
         $providers = WhatsappDevice::PROVIDERS;
+        $enabled = WhatsappSender::isEnabled();
 
-        return view('admin.whatsapp.index', compact('foundation', 'units', 'providers'));
+        return view('admin.whatsapp.index', compact('foundation', 'units', 'providers', 'enabled'));
+    }
+
+    /**
+     * Flip the WhatsApp kill switch. While off, the sender
+     * service makes no provider send calls (attempts are logged
+     * as skipped); device management stays available so numbers
+     * can be prepared or repaired.
+     */
+    public function toggle(): RedirectResponse
+    {
+        $enabled = ! WhatsappSender::isEnabled();
+        Setting::set('whatsapp_enabled', $enabled ? '1' : '0');
+
+        return back()->with('success', $enabled
+            ? 'Fitur WhatsApp diaktifkan. Pesan akan dikirim seperti biasa.'
+            : 'Fitur WhatsApp dinonaktifkan. Tidak ada pesan WhatsApp yang akan dikirim sampai diaktifkan kembali.');
     }
 
     /**

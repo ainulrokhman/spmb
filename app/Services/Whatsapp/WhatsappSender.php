@@ -2,6 +2,7 @@
 
 namespace App\Services\Whatsapp;
 
+use App\Models\Setting;
 use App\Models\WhatsappDevice;
 use App\Models\WhatsappMessageLog;
 use App\Support\PhoneNumber;
@@ -26,11 +27,26 @@ class WhatsappSender
     ) {}
 
     /**
+     * The feature kill switch (Pengaturan key whatsapp_enabled,
+     * toggled from the WhatsApp page). While off, no provider
+     * send call is made at all; attempts are still logged as
+     * skipped so the report shows what was suppressed.
+     */
+    public static function isEnabled(): bool
+    {
+        return Setting::flag('whatsapp_enabled', true);
+    }
+
+    /**
      * Send a message belonging to a unit (or to the foundation
      * when $schoolUnitId is null) through the resolution chain.
      */
     public function send(?int $schoolUnitId, string $phone, string $message, string $type, ?string $recipientName = null): WhatsappMessageLog
     {
+        if (! self::isEnabled()) {
+            return $this->log(null, $schoolUnitId, PhoneNumber::toWhatsApp($phone) ?? $phone, $recipientName, $type, $message, WhatsappMessageLog::STATUS_SKIPPED, 'Fitur WhatsApp sedang dinonaktifkan.');
+        }
+
         $target = PhoneNumber::toWhatsApp($phone);
         if ($target === null) {
             return $this->log(null, $schoolUnitId, $phone, $recipientName, $type, $message, WhatsappMessageLog::STATUS_SKIPPED, 'Nomor tujuan tidak valid sebagai nomor WhatsApp.');
@@ -66,6 +82,10 @@ class WhatsappSender
      */
     public function sendViaDevice(WhatsappDevice $device, string $phone, string $message, string $type = WhatsappMessageLog::TYPE_TEST, ?string $recipientName = null): WhatsappMessageLog
     {
+        if (! self::isEnabled()) {
+            return $this->log($device, $device->school_unit_id, PhoneNumber::toWhatsApp($phone) ?? $phone, $recipientName, $type, $message, WhatsappMessageLog::STATUS_SKIPPED, 'Fitur WhatsApp sedang dinonaktifkan.');
+        }
+
         $target = PhoneNumber::toWhatsApp($phone);
         if ($target === null) {
             return $this->log($device, $device->school_unit_id, $phone, $recipientName, $type, $message, WhatsappMessageLog::STATUS_SKIPPED, 'Nomor tujuan tidak valid sebagai nomor WhatsApp.');
