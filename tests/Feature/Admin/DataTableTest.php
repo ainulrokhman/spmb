@@ -72,7 +72,7 @@ class DataTableTest extends TestCase
             // Permissions ask for one full page: the default page size
             // of 10 would cut the list before every seeded permission.
             'permissions' => [
-                'admin.permissions.index', 70, 69,
+                'admin.permissions.index', 70, 70,
                 ['permission_name', 'roles_using_this', 'actions'],
                 'user-list',
             ],

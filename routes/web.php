@@ -30,6 +30,8 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\WhatsappDeviceController;
+use App\Http\Controllers\Admin\WhatsappReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Guardian\ApplicationController as GuardianApplicationController;
@@ -207,4 +209,18 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('gallery', [GalleryController::class, 'store'])->name('gallery.store')->middleware('permission:gallery-manage');
     Route::put('gallery/{photo}', [GalleryController::class, 'update'])->name('gallery.update')->middleware('permission:gallery-manage');
     Route::delete('gallery/{photo}', [GalleryController::class, 'destroy'])->name('gallery.destroy')->middleware('permission:gallery-manage');
+
+    // WhatsApp devices & report
+    Route::get('whatsapp', [WhatsappDeviceController::class, 'index'])->name('whatsapp.index')->middleware('permission:whatsapp-manage');
+    Route::post('whatsapp/toggle', [WhatsappDeviceController::class, 'toggle'])->name('whatsapp.toggle')->middleware('permission:whatsapp-manage');
+    Route::post('whatsapp/devices', [WhatsappDeviceController::class, 'store'])->name('whatsapp.devices.store')->middleware('permission:whatsapp-manage');
+    Route::get('whatsapp/devices/{device}/login', [WhatsappDeviceController::class, 'login'])->name('whatsapp.devices.login')->middleware('permission:whatsapp-manage');
+    Route::get('whatsapp/devices/{device}/qr', [WhatsappDeviceController::class, 'qr'])->name('whatsapp.devices.qr')->middleware('permission:whatsapp-manage');
+    Route::post('whatsapp/devices/{device}/refresh', [WhatsappDeviceController::class, 'refresh'])->name('whatsapp.devices.refresh')->middleware('permission:whatsapp-manage');
+    Route::post('whatsapp/devices/{device}/reconnect', [WhatsappDeviceController::class, 'reconnect'])->name('whatsapp.devices.reconnect')->middleware('permission:whatsapp-manage');
+    Route::post('whatsapp/devices/{device}/logout', [WhatsappDeviceController::class, 'logout'])->name('whatsapp.devices.logout')->middleware('permission:whatsapp-manage');
+    Route::post('whatsapp/devices/{device}/test', [WhatsappDeviceController::class, 'test'])->name('whatsapp.devices.test')->middleware('permission:whatsapp-manage');
+    Route::delete('whatsapp/devices/{device}', [WhatsappDeviceController::class, 'destroy'])->name('whatsapp.devices.destroy')->middleware('permission:whatsapp-manage');
+    Route::get('whatsapp/report', [WhatsappReportController::class, 'index'])->name('whatsapp.report')->middleware('permission:whatsapp-manage');
+    Route::get('whatsapp/report/export', [WhatsappReportController::class, 'export'])->name('whatsapp.report.export')->middleware('permission:whatsapp-manage');
 });
