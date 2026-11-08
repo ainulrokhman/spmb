@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class SchoolUnit extends Model
 {
@@ -141,5 +142,14 @@ class SchoolUnit extends Model
     public function majors(): HasMany
     {
         return $this->hasMany(Major::class);
+    }
+
+    /**
+     * The WhatsApp sender device registered for this unit, if
+     * any; units without one send through the foundation device.
+     */
+    public function whatsappDevice(): HasOne
+    {
+        return $this->hasOne(WhatsappDevice::class);
     }
 }

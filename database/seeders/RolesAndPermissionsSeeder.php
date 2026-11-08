@@ -108,6 +108,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-settings',
             'activity-log-list',
             'gallery-manage',
+            'whatsapp-manage',
         ];
 
         foreach ($permissions as $permission) {
@@ -262,6 +263,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'manage-settings',
             'gallery-manage',
+            'whatsapp-manage',
         ]);
 
         // SuperAdmin Role: no explicit permissions are assigned

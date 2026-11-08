@@ -399,8 +399,8 @@
                         @endcanany
 
                         {{-- Submenu: Sistem --}}
-                        @canany(['activity-log-list', 'manage-settings', 'gallery-manage'])
-                        @php($sistemOpen = request()->is('admin/activity-logs*') || request()->is('admin/settings*') || request()->is('admin/gallery*'))
+                        @canany(['activity-log-list', 'manage-settings', 'gallery-manage', 'whatsapp-manage'])
+                        @php($sistemOpen = request()->is('admin/activity-logs*') || request()->is('admin/settings*') || request()->is('admin/gallery*') || request()->is('admin/whatsapp*'))
                         <li class="nav-item {{ $sistemOpen ? 'menu-open' : '' }}">
                             <a href="#" class="nav-link {{ $sistemOpen ? 'active bg-primary text-white' : 'text-body' }}">
                                 <i class="nav-icon bi bi-gear me-2"></i>
@@ -430,6 +430,21 @@
                                     <a href="{{ route('admin.gallery.index') }}" class="nav-link {{ request()->is('admin/gallery*') ? 'active bg-primary text-white' : 'text-body' }}">
                                         <i class="nav-icon bi bi-images me-2"></i>
                                         <p>Galeri</p>
+                                    </a>
+                                </li>
+                                @endcan
+
+                                @can('whatsapp-manage')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.whatsapp.index') }}" class="nav-link {{ request()->is('admin/whatsapp') || request()->is('admin/whatsapp/devices*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-whatsapp me-2"></i>
+                                        <p>WhatsApp</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.whatsapp.report') }}" class="nav-link {{ request()->is('admin/whatsapp/report*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-chat-text me-2"></i>
+                                        <p>Laporan WhatsApp</p>
                                     </a>
                                 </li>
                                 @endcan
