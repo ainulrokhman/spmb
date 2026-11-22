@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\WhatsappDeviceController;
 use App\Http\Controllers\Admin\WhatsappReportController;
+use App\Http\Controllers\Admin\WhatsappTemplateController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Guardian\ApplicationController as GuardianApplicationController;
@@ -223,4 +224,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('whatsapp/devices/{device}', [WhatsappDeviceController::class, 'destroy'])->name('whatsapp.devices.destroy')->middleware('permission:whatsapp-manage');
     Route::get('whatsapp/report', [WhatsappReportController::class, 'index'])->name('whatsapp.report')->middleware('permission:whatsapp-manage');
     Route::get('whatsapp/report/export', [WhatsappReportController::class, 'export'])->name('whatsapp.report.export')->middleware('permission:whatsapp-manage');
+
+    // WhatsApp message templates (Tahap 2)
+    Route::get('whatsapp/templates', [WhatsappTemplateController::class, 'index'])->name('whatsapp.templates.index')->middleware('permission:whatsapp-manage');
+    Route::get('whatsapp/templates/{type}/edit', [WhatsappTemplateController::class, 'edit'])->name('whatsapp.templates.edit')->middleware('permission:whatsapp-manage');
+    Route::put('whatsapp/templates/{type}', [WhatsappTemplateController::class, 'update'])->name('whatsapp.templates.update')->middleware('permission:whatsapp-manage');
+    Route::post('whatsapp/templates/{type}/restore', [WhatsappTemplateController::class, 'restore'])->name('whatsapp.templates.restore')->middleware('permission:whatsapp-manage');
+    Route::post('whatsapp/templates/{type}/test', [WhatsappTemplateController::class, 'test'])->name('whatsapp.templates.test')->middleware('permission:whatsapp-manage');
 });

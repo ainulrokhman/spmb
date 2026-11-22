@@ -5,6 +5,7 @@ namespace App\Services\Whatsapp;
 use App\Models\Setting;
 use App\Models\WhatsappDevice;
 use App\Models\WhatsappMessageLog;
+use App\Models\WhatsappMessageTemplate;
 use App\Support\PhoneNumber;
 use Illuminate\Support\Facades\Log;
 
@@ -40,16 +41,22 @@ class WhatsappSender
     /**
      * Send a message belonging to a unit (or to the foundation
      * when $schoolUnitId is null) through the resolution chain.
+     *
+     * $logMessage overrides the text stored on the log row —
+     * used by the OTP flow so the report never stores the
+     * actual verification code.
      */
-    public function send(?int $schoolUnitId, string $phone, string $message, string $type, ?string $recipientName = null): WhatsappMessageLog
+    public function send(?int $schoolUnitId, string $phone, string $message, string $type, ?string $recipientName = null, ?string $logMessage = null): WhatsappMessageLog
     {
+        $logged = $logMessage ?? $message;
+
         if (! self::isEnabled()) {
-            return $this->log(null, $schoolUnitId, PhoneNumber::toWhatsApp($phone) ?? $phone, $recipientName, $type, $message, WhatsappMessageLog::STATUS_SKIPPED, 'Fitur WhatsApp sedang dinonaktifkan.');
+            return $this->log(null, $schoolUnitId, PhoneNumber::toWhatsApp($phone) ?? $phone, $recipientName, $type, $logged, WhatsappMessageLog::STATUS_SKIPPED, 'Fitur WhatsApp sedang dinonaktifkan.');
         }
 
         $target = PhoneNumber::toWhatsApp($phone);
         if ($target === null) {
-            return $this->log(null, $schoolUnitId, $phone, $recipientName, $type, $message, WhatsappMessageLog::STATUS_SKIPPED, 'Nomor tujuan tidak valid sebagai nomor WhatsApp.');
+            return $this->log(null, $schoolUnitId, $phone, $recipientName, $type, $logged, WhatsappMessageLog::STATUS_SKIPPED, 'Nomor tujuan tidak valid sebagai nomor WhatsApp.');
         }
 
         $candidates = [];
@@ -70,10 +77,36 @@ class WhatsappSender
                 continue;
             }
 
-            return $this->deliver($device, $schoolUnitId, $target, $recipientName, $type, $message);
+            return $this->deliver($device, $schoolUnitId, $target, $recipientName, $type, $message, $logged);
         }
 
-        return $this->log(null, $schoolUnitId, $target, $recipientName, $type, $message, WhatsappMessageLog::STATUS_SKIPPED, 'Tidak ada device WhatsApp yang terhubung untuk unit ini maupun yayasan.');
+        return $this->log(null, $schoolUnitId, $target, $recipientName, $type, $logged, WhatsappMessageLog::STATUS_SKIPPED, 'Tidak ada device WhatsApp yang terhubung untuk unit ini maupun yayasan.');
+    }
+
+    /**
+     * Send a templated notification (WhatsApp Tahap 2): the
+     * text comes from the type's editable template, rendered
+     * with $data. An inactive template suppresses the message
+     * — the attempt is still logged as skipped so the report
+     * shows the type is off. OTP texts are logged with the
+     * code masked.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function sendTemplated(?int $schoolUnitId, string $phone, string $type, array $data, ?string $recipientName = null): WhatsappMessageLog
+    {
+        $template = WhatsappMessageTemplate::activeFor($type);
+
+        if ($template === null) {
+            return $this->log(null, $schoolUnitId, PhoneNumber::toWhatsApp($phone) ?? $phone, $recipientName, $type, '', WhatsappMessageLog::STATUS_SKIPPED, 'Template pesan untuk jenis ini sedang dinonaktifkan.');
+        }
+
+        $message = $template->render($data);
+        $logMessage = $type === WhatsappMessageLog::TYPE_OTP && array_key_exists('kode_otp', $data)
+            ? $template->render(array_merge($data, ['kode_otp' => '••••••']))
+            : null;
+
+        return $this->send($schoolUnitId, $phone, $message, $type, $recipientName, $logMessage);
     }
 
     /**
@@ -136,8 +169,10 @@ class WhatsappSender
      * message is not silently retried from another number,
      * because the provider may already have accepted it.
      */
-    private function deliver(WhatsappDevice $device, ?int $schoolUnitId, string $target, ?string $recipientName, string $type, string $message): WhatsappMessageLog
+    private function deliver(WhatsappDevice $device, ?int $schoolUnitId, string $target, ?string $recipientName, string $type, string $message, ?string $logMessage = null): WhatsappMessageLog
     {
+        $logged = $logMessage ?? $message;
+
         try {
             $providerMessageId = $this->gateways->forDevice($device)->send($device, $target, $message);
         } catch (WhatsappGatewayException $e) {
@@ -148,10 +183,10 @@ class WhatsappSender
                 'error' => $e->getMessage(),
             ]);
 
-            return $this->log($device, $schoolUnitId, $target, $recipientName, $type, $message, WhatsappMessageLog::STATUS_FAILED, $e->getMessage());
+            return $this->log($device, $schoolUnitId, $target, $recipientName, $type, $logged, WhatsappMessageLog::STATUS_FAILED, $e->getMessage());
         }
 
-        return $this->log($device, $schoolUnitId, $target, $recipientName, $type, $message, WhatsappMessageLog::STATUS_SENT, null, $providerMessageId);
+        return $this->log($device, $schoolUnitId, $target, $recipientName, $type, $logged, WhatsappMessageLog::STATUS_SENT, null, $providerMessageId);
     }
 
     private function log(?WhatsappDevice $device, ?int $schoolUnitId, string $phone, ?string $recipientName, string $type, string $message, string $status, ?string $error, ?string $providerMessageId = null): WhatsappMessageLog

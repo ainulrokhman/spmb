@@ -447,6 +447,12 @@
                                         <p>Laporan WhatsApp</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.whatsapp.templates.index') }}" class="nav-link {{ request()->is('admin/whatsapp/templates*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-file-text me-2"></i>
+                                        <p>Template WhatsApp</p>
+                                    </a>
+                                </li>
                                 @endcan
                             </ul>
                         </li>

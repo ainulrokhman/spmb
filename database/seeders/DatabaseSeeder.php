@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolesAndPermissionsSeeder::class,
             SpmbMasterSeeder::class,
+            WhatsappTemplateSeeder::class,
             InitialAdminSeeder::class,
         ]);
     }
