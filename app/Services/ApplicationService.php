@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\ApplicationServiceInterface;
 use App\Contracts\GuardianNotificationServiceInterface;
 use App\Contracts\OfficerNotificationServiceInterface;
+use App\Models\AcademicYear;
 use App\Models\AdmissionTrack;
 use App\Models\AdmissionWave;
 use App\Models\Application;
@@ -15,6 +16,7 @@ use App\Models\Major;
 use App\Models\SchoolUnit;
 use App\Models\User;
 use App\Services\Whatsapp\WhatsappNotificationService;
+use App\Support\RegistrationNumberFormatter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -485,19 +487,31 @@ class ApplicationService implements ApplicationServiceInterface
             $number = $application->registration_number;
 
             if (! $isResubmission) {
-                // Serialize number issuance per school unit.
+                // Serialize number issuance per school unit and
+                // per academic year: the sequence scope follows
+                // the configured pattern (a pattern without the
+                // unit token counts across the whole year), so
+                // both rows are locked before counting.
                 SchoolUnit::query()->whereKey($application->school_unit_id)->lockForUpdate()->first();
+                AcademicYear::query()->whereKey($application->academic_year_id)->lockForUpdate()->first();
 
-                $sequence = Application::query()
-                    ->where('school_unit_id', $application->school_unit_id)
-                    ->where('academic_year_id', $application->academic_year_id)
-                    ->whereNotNull('registration_number')
-                    ->count() + 1;
+                $pattern = RegistrationNumberFormatter::pattern();
 
-                $yearCode = substr((string) $application->academicYear->name, 2, 2);
-                $number = $application->schoolUnit->code
-                    .$yearCode
-                    .str_pad((string) $sequence, 3, '0', STR_PAD_LEFT);
+                $count = Application::query()->whereNotNull('registration_number');
+                match (RegistrationNumberFormatter::sequenceScope($pattern)) {
+                    'unit_year' => $count
+                        ->where('school_unit_id', $application->school_unit_id)
+                        ->where('academic_year_id', $application->academic_year_id),
+                    'year' => $count->where('academic_year_id', $application->academic_year_id),
+                    default => null,
+                };
+
+                $number = RegistrationNumberFormatter::render(
+                    $pattern,
+                    (string) $application->schoolUnit->code,
+                    (string) $application->academicYear->name,
+                    $count->count() + 1,
+                );
             }
 
             $application->update([

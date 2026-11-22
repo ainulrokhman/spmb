@@ -99,6 +99,27 @@
         </div>
     </div>
 
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h5 class="mb-0 fw-bold text-body">Nomor Registrasi</h5>
+            <p class="text-muted small mb-0">Format nomor yang diterbitkan saat pendaftar mengumpulkan formulir. Perubahan pola hanya berlaku untuk nomor yang terbit sesudahnya; nomor lama tidak berubah.</p>
+        </div>
+        <div class="card-body px-4 pb-4">
+            <div class="mb-3">
+                <label for="registration_number_pattern" class="form-label fw-semibold text-secondary">Pola Nomor Registrasi</label>
+                <input type="text" class="form-control @error('registration_number_pattern') is-invalid @enderror" id="registration_number_pattern" name="registration_number_pattern" maxlength="60" value="{{ old('registration_number_pattern', $settings['registration_number_pattern']) }}" placeholder="{unit}{tahun2}{urut:3}">
+                @error('registration_number_pattern')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                <div class="form-text">
+                    Token: <code>{unit}</code> kode unit, <code>{tahun}</code> tahun ajaran 4 digit, <code>{tahun2}</code> tahun ajaran 2 digit, <code>{urut}</code> nomor urut, <code>{urut:4}</code> nomor urut 4 digit (angka di belakang titik dua boleh 1–6). Teks lain ditulis apa adanya, mis. <code>PPDB-{tahun}-{urut:4}</code>.
+                    @if(! str_contains($settings['registration_number_pattern'], '{unit}'))
+                        Pola saat ini tidak memakai <code>{unit}</code>, jadi nomor urut dihitung gabungan semua unit dalam satu tahun ajaran agar nomor tidak ganda.
+                    @endif
+                </div>
+            </div>
+            <p class="mb-0 small text-secondary">Contoh hasil pola saat ini: <strong>{{ $registrationPreview }}</strong> <span class="text-muted">(kode unit 31, urutan pertama)</span></p>
+        </div>
+    </div>
+
     <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
         <button type="submit" class="btn btn-primary">
             Simpan Pengaturan <i class="bi bi-check-lg ms-1"></i>

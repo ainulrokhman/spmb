@@ -10,6 +10,7 @@ use App\Models\DocumentRequirement;
 use App\Models\DocumentType;
 use App\Models\FormField;
 use App\Models\SchoolUnit;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -285,6 +286,44 @@ class ApplicationFlowTest extends TestCase
             ->post(route('guardian.applications.submit', $second))
             ->assertSessionHas('error');
         $this->assertNull($second->fresh()->registration_number);
+    }
+
+    private function submitFlow(array $scenario, string $fileName): Application
+    {
+        $application = $this->startApplication($scenario);
+        $this->actingAs($this->guardian)
+            ->post(route('guardian.applications.form.save', $application), $this->validFormPayload());
+        $this->actingAs($this->guardian)
+            ->post(route('guardian.applications.documents.upload', [$application, $scenario['docType']]), [
+                'file' => UploadedFile::fake()->create($fileName, 100, 'application/pdf'),
+            ]);
+        $this->actingAs($this->guardian)->post(route('guardian.applications.submit', $application));
+
+        return $application;
+    }
+
+    public function test_submit_issues_the_default_registration_number_format(): void
+    {
+        Storage::fake('public');
+        $scenario = $this->scenario(formFee: 0);
+
+        $application = $this->submitFlow($scenario, 'kk.pdf');
+
+        // Unit code 31 + year code 26 + sequence 001.
+        $this->assertSame('3126001', $application->fresh()->registration_number);
+    }
+
+    public function test_submit_uses_the_configured_registration_number_pattern(): void
+    {
+        Storage::fake('public');
+        Setting::set('registration_number_pattern', 'PPDB-{tahun}-{urut:4}');
+        $scenario = $this->scenario(formFee: 0);
+
+        $first = $this->submitFlow($scenario, 'kk.pdf');
+        $second = $this->submitFlow($scenario, 'kk2.pdf');
+
+        $this->assertSame('PPDB-2026-0001', $first->fresh()->registration_number);
+        $this->assertSame('PPDB-2026-0002', $second->fresh()->registration_number);
     }
 
     public function test_guardian_cannot_open_another_guardians_application(): void
