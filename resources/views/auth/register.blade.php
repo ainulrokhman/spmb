@@ -88,6 +88,18 @@
                         @error('phone_normalized')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
 
+                    @if($otpRequired)
+                    <div class="mb-3">
+                        <label for="otp_code" class="form-label small fw-semibold">Kode Verifikasi WhatsApp (OTP)</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control @error('otp_code') is-invalid @enderror" id="otp_code" name="otp_code" value="{{ old('otp_code') }}" placeholder="6 digit" inputmode="numeric" autocomplete="one-time-code" maxlength="6">
+                            <button type="button" class="btn btn-outline-success" id="otp-send-btn"><i class="bi bi-whatsapp"></i> Kirim Kode</button>
+                        </div>
+                        @error('otp_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        <div class="form-text" id="otp-status">Pilih unit sekolah dulu, lalu tekan Kirim Kode — kode dikirim ke nomor WhatsApp di atas dan berlaku 5 menit.</div>
+                    </div>
+                    @endif
+
                     <div class="mb-3">
                         <label for="child_name" class="form-label small fw-semibold">Nama Lengkap Anak</label>
                         <input type="text" class="form-control @error('child_name') is-invalid @enderror" id="child_name" name="child_name" value="{{ old('child_name') }}" placeholder="Nama anak yang didaftarkan" required>
@@ -221,6 +233,86 @@
                         waveSel.addEventListener('change', fillTracks);
                     })();
                 </script>
+
+                @if($otpRequired)
+                <script>
+                    // OTP request button: posts the phone + chosen
+                    // unit to the OTP endpoint and counts down the
+                    // 60-second resend cooldown. The code itself is
+                    // verified server-side on the final submit.
+                    (function () {
+                        const btn = document.getElementById('otp-send-btn');
+                        const status = document.getElementById('otp-status');
+                        if (!btn || !status) return;
+
+                        let cooldownTimer = null;
+                        const startCooldown = (seconds) => {
+                            let left = seconds;
+                            btn.disabled = true;
+                            const tick = () => {
+                                if (left <= 0) {
+                                    btn.disabled = false;
+                                    btn.innerHTML = '<i class="bi bi-whatsapp"></i> Kirim Kode';
+                                    clearInterval(cooldownTimer);
+                                    return;
+                                }
+                                btn.innerHTML = 'Tunggu ' + left + ' detik';
+                                left -= 1;
+                            };
+                            tick();
+                            cooldownTimer = setInterval(tick, 1000);
+                        };
+
+                        btn.addEventListener('click', async () => {
+                            const phone = document.getElementById('phone').value.trim();
+                            const unit = document.getElementById('school_unit_id').value;
+                            const name = document.getElementById('name').value.trim();
+                            const token = document.querySelector('input[name="_token"]').value;
+
+                            if (!phone) {
+                                status.textContent = 'Isi nomor HP terlebih dahulu.';
+                                status.classList.add('text-danger');
+                                return;
+                            }
+                            if (!unit) {
+                                status.textContent = 'Pilih unit sekolah terlebih dahulu — kode dikirim dari nomor unit tersebut.';
+                                status.classList.add('text-danger');
+                                return;
+                            }
+
+                            btn.disabled = true;
+                            status.classList.remove('text-danger', 'text-success');
+                            status.textContent = 'Mengirim kode...';
+
+                            try {
+                                const response = await fetch('{{ route('guardian.register.otp') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': token,
+                                    },
+                                    body: JSON.stringify({ phone: phone, school_unit_id: Number(unit), name: name }),
+                                });
+                                const result = await response.json();
+                                status.textContent = result.message || 'Terjadi kesalahan.';
+                                status.classList.toggle('text-success', !!result.success);
+                                status.classList.toggle('text-danger', !result.success);
+                                if (result.success) {
+                                    document.getElementById('otp_code').focus();
+                                    startCooldown(60);
+                                } else {
+                                    btn.disabled = false;
+                                }
+                            } catch (error) {
+                                status.textContent = 'Gagal menghubungi server. Periksa koneksi Anda, lalu coba lagi.';
+                                status.classList.add('text-danger');
+                                btn.disabled = false;
+                            }
+                        });
+                    })();
+                </script>
+                @endif
 
                 <p class="text-center text-muted small mt-3 mb-0">
                     Sudah punya akun? <a href="{{ route('login') }}">Masuk di sini</a>

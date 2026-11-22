@@ -60,6 +60,7 @@ Route::get('/pendaftaran', [AdmissionInfoController::class, 'index'])->name('adm
 Route::middleware('guest')->group(function () {
     Route::get('/daftar', [GuardianAuthController::class, 'showRegister'])->name('guardian.register');
     Route::post('/daftar', [GuardianAuthController::class, 'register'])->name('guardian.register.store');
+    Route::post('/daftar/otp', [GuardianAuthController::class, 'sendRegistrationOtp'])->name('guardian.register.otp')->middleware('throttle:5,1');
 });
 
 // Payment channel notifications (signature-verified, CSRF-exempt)
@@ -214,6 +215,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // WhatsApp devices & report
     Route::get('whatsapp', [WhatsappDeviceController::class, 'index'])->name('whatsapp.index')->middleware('permission:whatsapp-manage');
     Route::post('whatsapp/toggle', [WhatsappDeviceController::class, 'toggle'])->name('whatsapp.toggle')->middleware('permission:whatsapp-manage');
+    Route::post('whatsapp/otp-toggle', [WhatsappDeviceController::class, 'toggleOtp'])->name('whatsapp.otp-toggle')->middleware('permission:whatsapp-manage');
     Route::post('whatsapp/devices', [WhatsappDeviceController::class, 'store'])->name('whatsapp.devices.store')->middleware('permission:whatsapp-manage');
     Route::get('whatsapp/devices/{device}/login', [WhatsappDeviceController::class, 'login'])->name('whatsapp.devices.login')->middleware('permission:whatsapp-manage');
     Route::get('whatsapp/devices/{device}/qr', [WhatsappDeviceController::class, 'qr'])->name('whatsapp.devices.qr')->middleware('permission:whatsapp-manage');

@@ -41,6 +41,25 @@
 </div>
 
 <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body px-4 py-4 d-flex flex-wrap align-items-center gap-3">
+        <div class="flex-grow-1">
+            <h5 class="mb-1 fw-bold text-body"><i class="bi bi-shield-lock me-2"></i>Verifikasi OTP Pendaftaran</h5>
+            @if($otpEnabled)
+                <p class="text-muted small mb-0">OTP <strong class="text-success">aktif</strong> — pendaftar akun wali baru wajib memasukkan kode verifikasi yang dikirim ke WhatsApp mereka (dari device unit yang dipilih, cadangan device yayasan). Isi pesannya diatur di <a href="{{ route('admin.whatsapp.templates.index') }}">Template WhatsApp</a>.</p>
+            @else
+                <p class="text-muted small mb-0">OTP <strong class="text-danger">nonaktif</strong> — pendaftaran akun wali berjalan tanpa kode verifikasi, seperti biasa.</p>
+            @endif
+        </div>
+        <form action="{{ route('admin.whatsapp.otp-toggle') }}" method="POST" onsubmit="return confirm('{{ $otpEnabled ? 'Nonaktifkan verifikasi OTP pendaftaran?' : 'Aktifkan verifikasi OTP pendaftaran? Pastikan device WhatsApp unit/yayasan sudah terhubung.' }}')">
+            @csrf
+            <button type="submit" class="btn {{ $otpEnabled ? 'btn-outline-danger' : 'btn-success' }}">
+                <i class="bi {{ $otpEnabled ? 'bi-power' : 'bi-play-circle' }}"></i> {{ $otpEnabled ? 'Nonaktifkan' : 'Aktifkan' }}
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-transparent border-0 pt-4 px-4">
         <h5 class="mb-0 fw-bold text-body"><i class="bi bi-building me-2"></i>Device Yayasan (Cadangan)</h5>
         <p class="text-muted small mb-0">Nomor bersama tingkat yayasan. Dipakai oleh unit yang belum mempunyai device sendiri, dan menjadi cadangan bila device unit sedang tidak terhubung.</p>

@@ -5,6 +5,7 @@ namespace App\Http\Requests\Guardian;
 use App\Models\AdmissionWave;
 use App\Models\Application;
 use App\Models\Major;
+use App\Services\Whatsapp\WhatsappOtpService;
 use App\Support\PhoneNumber;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -54,6 +55,7 @@ class RegisterGuardianRequest extends FormRequest
             'admission_wave_id' => ['nullable', 'integer', 'exists:admission_waves,id'],
             'admission_track_id' => ['required', 'integer', 'exists:admission_tracks,id'],
             'major_id' => ['nullable', 'integer', 'exists:majors,id'],
+            'otp_code' => ['nullable', 'string', 'max:10'],
         ];
     }
 
@@ -121,6 +123,18 @@ class RegisterGuardianRequest extends FormRequest
 
                 if ($major !== null && (int) $major->school_unit_id !== $unitId) {
                     $validator->errors()->add('major_id', 'Jurusan tidak dimiliki unit yang dipilih.');
+                }
+            }
+
+            // WhatsApp OTP (Tahap 2): checked last, only when
+            // every other rule passed, because a successful
+            // check consumes the code. While the OTP switch is
+            // off the field is ignored entirely.
+            if ($validator->errors()->isEmpty() && WhatsappOtpService::isRequired()) {
+                $code = (string) $this->input('otp_code', '');
+
+                if ($code === '' || ! app(WhatsappOtpService::class)->verify((string) $this->input('phone_normalized'), $code)) {
+                    $validator->errors()->add('otp_code', 'Kode OTP tidak valid atau sudah kedaluwarsa. Minta kode baru, lalu coba lagi.');
                 }
             }
         });

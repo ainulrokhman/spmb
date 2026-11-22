@@ -9,6 +9,7 @@ use App\Models\WhatsappDevice;
 use App\Models\WhatsappMessageLog;
 use App\Services\Whatsapp\WhatsappGatewayException;
 use App\Services\Whatsapp\WhatsappGatewayManager;
+use App\Services\Whatsapp\WhatsappOtpService;
 use App\Services\Whatsapp\WhatsappSender;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,8 +44,9 @@ class WhatsappDeviceController extends Controller
             ->get();
         $providers = WhatsappDevice::PROVIDERS;
         $enabled = WhatsappSender::isEnabled();
+        $otpEnabled = WhatsappOtpService::isRequired();
 
-        return view('admin.whatsapp.index', compact('foundation', 'units', 'providers', 'enabled'));
+        return view('admin.whatsapp.index', compact('foundation', 'units', 'providers', 'enabled', 'otpEnabled'));
     }
 
     /**
@@ -61,6 +63,21 @@ class WhatsappDeviceController extends Controller
         return back()->with('success', $enabled
             ? 'Fitur WhatsApp diaktifkan. Pesan akan dikirim seperti biasa.'
             : 'Fitur WhatsApp dinonaktifkan. Tidak ada pesan WhatsApp yang akan dikirim sampai diaktifkan kembali.');
+    }
+
+    /**
+     * Flip the registration OTP switch (WhatsApp Tahap 2).
+     * While on, new guardians must verify their phone number
+     * with a WhatsApp code before the account is created.
+     */
+    public function toggleOtp(): RedirectResponse
+    {
+        $enabled = ! WhatsappOtpService::isRequired();
+        Setting::set('whatsapp_otp_enabled', $enabled ? '1' : '0');
+
+        return back()->with('success', $enabled
+            ? 'Verifikasi OTP pendaftaran diaktifkan. Pendaftar baru wajib memasukkan kode yang dikirim ke WhatsApp mereka.'
+            : 'Verifikasi OTP pendaftaran dinonaktifkan. Pendaftaran berjalan tanpa kode verifikasi.');
     }
 
     /**

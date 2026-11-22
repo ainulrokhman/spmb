@@ -7,7 +7,10 @@ use App\Http\Requests\Guardian\RegisterGuardianRequest;
 use App\Models\AdmissionWave;
 use App\Models\SchoolUnit;
 use App\Models\User;
+use App\Services\Whatsapp\WhatsappOtpService;
+use App\Support\PhoneNumber;
 use App\Support\SystemAccess;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +19,7 @@ class GuardianAuthController extends Controller
 {
     public function __construct(
         private readonly ApplicationServiceInterface $applications,
+        private readonly WhatsappOtpService $otp,
     ) {}
 
     /**
@@ -65,7 +69,43 @@ class GuardianAuthController extends Controller
                 ->values(),
         ])->values();
 
-        return view('auth.register', compact('units', 'selectedUnit', 'waves', 'selectedWave', 'cascade'));
+        $otpRequired = WhatsappOtpService::isRequired();
+
+        return view('auth.register', compact('units', 'selectedUnit', 'waves', 'selectedWave', 'cascade', 'otpRequired'));
+    }
+
+    /**
+     * Send the registration OTP to the phone being registered
+     * (WhatsApp Tahap 2). Called by the registration form's
+     * "Kirim Kode" button; the code itself is verified later,
+     * inside the registration request, so the single-form flow
+     * stays a single final submit. The code travels through
+     * the chosen unit's device chain (foundation fallback).
+     */
+    public function sendRegistrationOtp(Request $request): JsonResponse
+    {
+        if (! WhatsappOtpService::isRequired()) {
+            return response()->json(['success' => false, 'message' => 'Verifikasi OTP sedang tidak diaktifkan.'], 422);
+        }
+
+        $data = $request->validate([
+            'phone' => ['required', 'string', 'max:20'],
+            'school_unit_id' => ['required', 'integer', 'exists:school_units,id'],
+            'name' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $normalized = PhoneNumber::normalize($data['phone']);
+        if ($normalized === null) {
+            return response()->json(['success' => false, 'message' => 'Nomor HP tidak valid. Periksa kembali nomor WhatsApp Anda.'], 422);
+        }
+
+        if (User::query()->where('phone', $normalized)->exists()) {
+            return response()->json(['success' => false, 'message' => 'Nomor HP sudah terdaftar. Silakan masuk dengan nomor tersebut.'], 422);
+        }
+
+        $result = $this->otp->send($normalized, (int) $data['school_unit_id'], $data['name'] ?? null);
+
+        return response()->json($result, $result['success'] ? 200 : 422);
     }
 
     /**
