@@ -27,13 +27,14 @@ class ApplicationService implements ApplicationServiceInterface
         private readonly OfficerNotificationServiceInterface $officerNotifications,
         private readonly GuardianNotificationServiceInterface $guardianNotifications,
         private readonly WhatsappNotificationService $whatsappNotifications,
+        private readonly ApplicationQuotaService $quotas,
     ) {}
 
     /**
      * Start an application for a child: freezes the unit's form fee
      * and places the application at its first step.
      */
-    public function start(User $guardian, AdmissionWave $wave, AdmissionTrack $track, ?Major $major, string $childName, string $guardianRelation, bool $createParentAccount = false): Application
+    public function start(User $guardian, AdmissionWave $wave, AdmissionTrack $track, ?Major $major, string $childName, string $guardianRelation, bool $createParentAccount = false, ?int $targetGrade = null): Application
     {
         if ($wave->status() !== AdmissionWave::STATUS_OPEN) {
             throw new InvalidArgumentException('Gelombang yang dipilih tidak sedang dibuka.');
@@ -64,6 +65,7 @@ class ApplicationService implements ApplicationServiceInterface
             'child_name' => $childName,
             'guardian_relation' => $guardianRelation,
             'create_parent_account' => $createParentAccount,
+            'target_grade' => $track->is_transfer ? $targetGrade : null,
         ]);
 
         $this->whatsappNotifications->registrationStarted($application);
@@ -473,6 +475,10 @@ class ApplicationService implements ApplicationServiceInterface
             if ($submittedCount >= $wave->quota) {
                 throw new InvalidArgumentException('Kuota gelombang sudah penuh.');
             }
+        }
+
+        if (! $isResubmission) {
+            $this->quotas->assertQuotas($application);
         }
 
         return DB::transaction(function () use ($application, $isResubmission) {

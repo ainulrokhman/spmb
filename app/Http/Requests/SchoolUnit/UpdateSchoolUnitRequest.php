@@ -30,6 +30,8 @@ class UpdateSchoolUnitRequest extends FormRequest
             'address' => ['nullable', 'string'],
             'phone' => ['nullable', 'string', 'max:30'],
             'is_active' => ['nullable', 'boolean'],
+            'unit_quotas' => ['nullable', 'array'],
+            'unit_quotas.*' => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

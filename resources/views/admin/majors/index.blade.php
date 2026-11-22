@@ -66,6 +66,7 @@
                         <th class="text-secondary fw-semibold">Unit Sekolah</th>
                         <th class="text-secondary fw-semibold">Nama Jurusan</th>
                         <th class="text-secondary fw-semibold">Kode</th>
+                        <th class="text-secondary fw-semibold">Kuota</th>
                         <th class="text-secondary fw-semibold">Status</th>
                         <th style="width: 180px;" class="text-secondary fw-semibold text-end">Aksi</th>
                     </tr>
@@ -95,6 +96,7 @@
                 { data: 'unit_name', name: 'school_unit_id' },
                 { data: 'name', name: 'name' },
                 { data: 'code', name: 'code' },
+                { data: 'quota_info', name: 'quota_info', orderable: false, searchable: false },
                 { data: 'is_active', name: 'is_active', searchable: false },
                 { data: 'actions', name: 'actions', orderable: false, searchable: false, class: 'text-end' }
             ],

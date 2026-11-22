@@ -26,6 +26,9 @@ class StoreMajorRequest extends FormRequest
             'name' => ['required', 'string', 'max:255', Rule::unique('majors', 'name')->where('school_unit_id', $this->input('school_unit_id'))],
             'code' => ['nullable', 'string', 'max:20'],
             'is_active' => ['nullable', 'boolean'],
+            'quota' => ['nullable', 'integer', 'min:1'],
+            'quota_putra' => ['nullable', 'integer', 'min:1'],
+            'quota_putri' => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

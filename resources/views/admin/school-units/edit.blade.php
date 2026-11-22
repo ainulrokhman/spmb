@@ -93,6 +93,28 @@
                 </div>
             </div>
 
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="mb-0 fw-bold text-body">Kuota Unit per Tahun Ajaran</h5>
+                    <p class="text-muted small mb-0">Batas total pendaftar unit ini dalam satu tahun ajaran, dihitung lintas semua gelombang dari pendaftar yang sudah bernomor registrasi. Kosongkan untuk tanpa batas.</p>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    @foreach($academicYears as $year)
+                        <div class="row align-items-center mb-2">
+                            <label for="unit_quotas_{{ $year->id }}" class="col-sm-6 col-form-label fw-semibold text-secondary">
+                                {{ $year->name }}@if($year->is_active) <span class="badge text-bg-primary">Aktif</span>@endif
+                            </label>
+                            <div class="col-sm-6">
+                                <input type="number" min="1" class="form-control @error('unit_quotas.'.$year->id) is-invalid @enderror" id="unit_quotas_{{ $year->id }}" name="unit_quotas[{{ $year->id }}]" value="{{ old('unit_quotas.'.$year->id, $unitQuotas[$year->id] ?? null) }}" placeholder="Tanpa batas">
+                                @error('unit_quotas.'.$year->id)
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
             <div class="d-flex justify-content-end gap-2">
                 <a href="{{ route('admin.school-units.index') }}" class="btn btn-secondary">
                     Batal

@@ -17,7 +17,7 @@ interface ApplicationServiceInterface
      * Start an application for a child: freezes the unit's form fee
      * and places the application at its first step.
      */
-    public function start(User $guardian, AdmissionWave $wave, AdmissionTrack $track, ?Major $major, string $childName, string $guardianRelation, bool $createParentAccount = false): Application;
+    public function start(User $guardian, AdmissionWave $wave, AdmissionTrack $track, ?Major $major, string $childName, string $guardianRelation, bool $createParentAccount = false, ?int $targetGrade = null): Application;
 
     /**
      * Record a guardian's relief request on the form fee. The

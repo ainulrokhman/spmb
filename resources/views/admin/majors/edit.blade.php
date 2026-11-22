@@ -49,6 +49,31 @@
                         @enderror
                     </div>
 
+                    <div class="row g-3 mb-1">
+                        <div class="col-md-4">
+                            <label for="quota" class="form-label fw-semibold text-secondary">Kuota Total</label>
+                            <input type="number" min="1" class="form-control @error('quota') is-invalid @enderror" id="quota" name="quota" value="{{ old('quota', $major->quota) }}" placeholder="Tanpa batas">
+                            @error('quota')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label for="quota_putra" class="form-label fw-semibold text-secondary">Kuota Putra</label>
+                            <input type="number" min="1" class="form-control @error('quota_putra') is-invalid @enderror" id="quota_putra" name="quota_putra" value="{{ old('quota_putra', $major->quota_putra) }}" placeholder="Tanpa batas">
+                            @error('quota_putra')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label for="quota_putri" class="form-label fw-semibold text-secondary">Kuota Putri</label>
+                            <input type="number" min="1" class="form-control @error('quota_putri') is-invalid @enderror" id="quota_putri" name="quota_putri" value="{{ old('quota_putri', $major->quota_putri) }}" placeholder="Tanpa batas">
+                            @error('quota_putri')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <p class="form-text mt-0 mb-3">Kuota dihitung per tahun ajaran dari pendaftar yang sudah bernomor registrasi. Kosongkan untuk tanpa batas; kuota putra/putri membatasi masing-masing jenis kelamin.</p>
+
                     <div class="form-check form-switch mb-2">
                         <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', $major->is_active) ? 'checked' : '' }}>
                         <label class="form-check-label fw-semibold text-secondary" for="is_active">Aktif</label>

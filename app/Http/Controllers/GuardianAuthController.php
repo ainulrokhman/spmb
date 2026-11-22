@@ -64,7 +64,7 @@ class GuardianAuthController extends Controller
                 ->map(fn (AdmissionWave $wave) => [
                     'id' => $wave->id,
                     'label' => $wave->name.' ('.($wave->academicYear?->name ?? '-').') — s.d. '.($wave->closes_at?->format('d M Y') ?? '-'),
-                    'tracks' => $wave->admissionTracks->map(fn ($track) => ['id' => $track->id, 'name' => $track->name])->values(),
+                    'tracks' => $wave->admissionTracks->map(fn ($track) => ['id' => $track->id, 'name' => $track->name, 'is_transfer' => (bool) $track->is_transfer])->values(),
                 ])
                 ->values(),
         ])->values();
@@ -145,6 +145,8 @@ class GuardianAuthController extends Controller
                 $major,
                 $data['child_name'],
                 $data['guardian_relation'],
+                false,
+                ! empty($data['target_grade']) ? (int) $data['target_grade'] : null,
             );
 
             return [$user, $application];

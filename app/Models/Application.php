@@ -95,6 +95,7 @@ class Application extends Model
         'admission_wave_id',
         'admission_track_id',
         'major_id',
+        'target_grade',
         'academic_year_id',
         'child_name',
         'birth_place',
@@ -146,6 +147,7 @@ class Application extends Model
             'form_fee_decided_at' => 'datetime',
             'submitted_at' => 'datetime',
             'verified_at' => 'datetime',
+            'target_grade' => 'integer',
         ];
     }
 

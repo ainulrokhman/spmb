@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\Concerns\ScopesUnits;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SchoolUnit\StoreSchoolUnitRequest;
 use App\Http\Requests\SchoolUnit\UpdateSchoolUnitRequest;
+use App\Models\AcademicYear;
 use App\Models\Program;
 use App\Models\SchoolUnit;
 use Illuminate\Http\Request;
@@ -77,8 +78,10 @@ class SchoolUnitController extends Controller
         Gate::authorize('school-unit-edit');
 
         $programs = Program::where('is_active', true)->orderBy('name')->get();
+        $academicYears = AcademicYear::orderByDesc('name')->get();
+        $unitQuotas = $schoolUnit->unitQuotas()->pluck('quota', 'academic_year_id');
 
-        return view('admin.school-units.edit', compact('schoolUnit', 'programs'));
+        return view('admin.school-units.edit', compact('schoolUnit', 'programs', 'academicYears', 'unitQuotas'));
     }
 
     /**
@@ -92,8 +95,31 @@ class SchoolUnitController extends Controller
             return $errorRedirect;
         }
 
+        $this->syncUnitQuotas($schoolUnit, $request->validated('unit_quotas') ?? []);
+
         return redirect()->route('admin.school-units.index')
             ->with('success', 'Unit sekolah "'.$schoolUnit->name.'" berhasil diperbarui.');
+    }
+
+    /**
+     * Save the per-academic-year intake caps from the edit
+     * form: an emptied field removes that year's cap (back to
+     * unlimited), a filled one creates or updates it.
+     *
+     * @param  array<int, int|null>  $quotas  academic year id => quota
+     */
+    private function syncUnitQuotas(SchoolUnit $schoolUnit, array $quotas): void
+    {
+        foreach ($quotas as $yearId => $quota) {
+            if ($quota === null) {
+                $schoolUnit->unitQuotas()->where('academic_year_id', (int) $yearId)->delete();
+            } else {
+                $schoolUnit->unitQuotas()->updateOrCreate(
+                    ['academic_year_id' => (int) $yearId],
+                    ['quota' => (int) $quota],
+                );
+            }
+        }
     }
 
     /**

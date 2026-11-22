@@ -153,6 +153,18 @@
                         @error('admission_track_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
 
+                    <div class="mb-3 d-none" id="target-grade-wrap">
+                        <label for="target_grade" class="form-label small fw-semibold">Kelas Tujuan <span class="text-danger">*</span></label>
+                        <select class="form-select @error('target_grade') is-invalid @enderror" id="target_grade" name="target_grade">
+                            <option value="">Pilih kelas tujuan...</option>
+                            @for($grade = 1; $grade <= 12; $grade++)
+                                <option value="{{ $grade }}" {{ (string) old('target_grade') === (string) $grade ? 'selected' : '' }}>Kelas {{ $grade }}</option>
+                            @endfor
+                        </select>
+                        @error('target_grade')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        <div class="form-text">Khusus jalur pindahan: kelas yang dituju anak di tahun ajaran yang sedang berjalan.</div>
+                    </div>
+
                     <div class="mb-3 {{ $selectedUnit !== null && $selectedUnit->majors->isNotEmpty() ? '' : 'd-none' }}" id="major-wrap">
                         <label for="major_id" class="form-label small fw-semibold">Jurusan</label>
                         <select class="form-select @error('major_id') is-invalid @enderror" id="major_id" name="major_id">
@@ -212,11 +224,27 @@
 
                         const currentUnit = () => cascade.find((u) => String(u.id) === unitSel.value) || null;
 
+                        const gradeWrap = document.getElementById('target-grade-wrap');
+                        const gradeSel = document.getElementById('target_grade');
+
+                        const syncGrade = () => {
+                            const unit = currentUnit();
+                            const wave = unit ? unit.waves.find((w) => String(w.id) === waveSel.value) : null;
+                            const track = wave ? wave.tracks.find((t) => String(t.id) === trackSel.value) : null;
+                            const isTransfer = !!(track && track.is_transfer);
+                            gradeWrap.classList.toggle('d-none', !isTransfer);
+                            gradeSel.required = isTransfer;
+                            if (!isTransfer) gradeSel.value = '';
+                        };
+
                         const fillTracks = () => {
                             const unit = currentUnit();
                             const wave = unit ? unit.waves.find((w) => String(w.id) === waveSel.value) : null;
                             fill(trackSel, wave ? wave.tracks : [], 'Pilih jalur...', (t) => t.name);
+                            syncGrade();
                         };
+
+                        trackSel.addEventListener('change', syncGrade);
 
                         unitSel.addEventListener('change', () => {
                             const unit = currentUnit();
@@ -231,6 +259,7 @@
                         });
 
                         waveSel.addEventListener('change', fillTracks);
+                        syncGrade();
                     })();
                 </script>
 

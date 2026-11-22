@@ -26,6 +26,7 @@ class UpdateAdmissionTrackRequest extends FormRequest
             'name' => ['required', 'string', 'max:255', Rule::unique('admission_tracks', 'name')->where('school_unit_id', $this->input('school_unit_id'))->ignore($this->route('admission_track'))],
             'description' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
+            'is_transfer' => ['nullable', 'boolean'],
         ];
     }
 }

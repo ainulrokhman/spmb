@@ -41,7 +41,7 @@
                     <div class="col-md-6">
                         <p class="mb-1"><span class="text-muted">Unit:</span> {{ $application->schoolUnit?->name }} ({{ $application->schoolUnit?->level }} &middot; {{ $application->schoolUnit?->program?->name }})</p>
                         <p class="mb-1"><span class="text-muted">Gelombang:</span> {{ $application->admissionWave?->name }} ({{ $application->admissionWave?->academicYear?->name }})</p>
-                        <p class="mb-1"><span class="text-muted">Jalur:</span> {{ $application->admissionTrack?->name }}@if($application->major) &middot; {{ $application->major->name }}@endif</p>
+                        <p class="mb-1"><span class="text-muted">Jalur:</span> {{ $application->admissionTrack?->name }}@if($application->major) &middot; {{ $application->major->name }}@endif @if($application->target_grade) &middot; Kelas Tujuan: Kelas {{ $application->target_grade }}@endif</p>
                         <p class="mb-0"><span class="text-muted">Wali:</span> {{ $application->user?->name }} ({{ $application->user?->phone }}) — {{ \App\Models\Application::GUARDIAN_RELATIONS[$application->guardian_relation] ?? $application->guardian_relation }}</p>
                     </div>
                     <div class="col-md-6">

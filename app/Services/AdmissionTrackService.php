@@ -43,6 +43,7 @@ class AdmissionTrackService implements AdmissionTrackServiceInterface
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
             'is_active' => ! empty($data['is_active']),
+            'is_transfer' => ! empty($data['is_transfer']),
         ];
     }
 }

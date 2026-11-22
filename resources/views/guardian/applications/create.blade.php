@@ -74,12 +74,26 @@
                         <select class="form-select @error('admission_track_id') is-invalid @enderror" id="admission_track_id" name="admission_track_id" required>
                             <option value="">Pilih jalur...</option>
                             @foreach($selectedWave->admissionTracks as $track)
-                                <option value="{{ $track->id }}" {{ (string) old('admission_track_id') === (string) $track->id ? 'selected' : '' }}>{{ $track->name }}</option>
+                                <option value="{{ $track->id }}" data-transfer="{{ $track->is_transfer ? '1' : '0' }}" {{ (string) old('admission_track_id') === (string) $track->id ? 'selected' : '' }}>{{ $track->name }}</option>
                             @endforeach
                         </select>
                         @error('admission_track_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <div class="col-md-6 d-none" id="target-grade-wrap">
+                        <label for="target_grade" class="form-label fw-semibold">Kelas Tujuan <span class="text-danger">*</span></label>
+                        <select class="form-select @error('target_grade') is-invalid @enderror" id="target_grade" name="target_grade">
+                            <option value="">Pilih kelas tujuan...</option>
+                            @for($grade = 1; $grade <= 12; $grade++)
+                                <option value="{{ $grade }}" {{ (string) old('target_grade') === (string) $grade ? 'selected' : '' }}>Kelas {{ $grade }}</option>
+                            @endfor
+                        </select>
+                        @error('target_grade')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">Khusus jalur pindahan: kelas yang dituju anak di tahun ajaran yang sedang berjalan.</div>
                     </div>
 
                     @if($selectedUnit->majors->isNotEmpty())
@@ -113,5 +127,27 @@
             </form>
         </div>
     </div>
+
+    <script>
+        // Kelas tujuan hanya untuk jalur pindahan: tampilkan
+        // dan wajibkan saat jalur bertanda pindahan dipilih.
+        (function () {
+            const trackSel = document.getElementById('admission_track_id');
+            const wrap = document.getElementById('target-grade-wrap');
+            const gradeSel = document.getElementById('target_grade');
+            if (!trackSel || !wrap || !gradeSel) return;
+
+            const sync = () => {
+                const opt = trackSel.options[trackSel.selectedIndex];
+                const isTransfer = !!opt && opt.dataset.transfer === '1';
+                wrap.classList.toggle('d-none', !isTransfer);
+                gradeSel.required = isTransfer;
+                if (!isTransfer) gradeSel.value = '';
+            };
+
+            trackSel.addEventListener('change', sync);
+            sync();
+        })();
+    </script>
 @endif
 @endsection

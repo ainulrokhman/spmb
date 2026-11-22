@@ -55,6 +55,7 @@ class RegisterGuardianRequest extends FormRequest
             'admission_wave_id' => ['nullable', 'integer', 'exists:admission_waves,id'],
             'admission_track_id' => ['required', 'integer', 'exists:admission_tracks,id'],
             'major_id' => ['nullable', 'integer', 'exists:majors,id'],
+            'target_grade' => ['nullable', 'integer', 'min:1', 'max:12'],
             'otp_code' => ['nullable', 'string', 'max:10'],
         ];
     }
@@ -116,6 +117,12 @@ class RegisterGuardianRequest extends FormRequest
 
             if (! $wave->admissionTracks->contains('id', (int) $this->input('admission_track_id'))) {
                 $validator->errors()->add('admission_track_id', 'Jalur ini tidak dibuka pada gelombang yang dipilih.');
+            }
+
+            $track = $wave->admissionTracks->firstWhere('id', (int) $this->input('admission_track_id'));
+
+            if ($track !== null && $track->is_transfer && ! $this->filled('target_grade')) {
+                $validator->errors()->add('target_grade', 'Kelas tujuan wajib diisi untuk jalur pindahan.');
             }
 
             if (! empty($this->input('major_id'))) {

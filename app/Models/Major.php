@@ -20,6 +20,9 @@ class Major extends Model
         'name',
         'code',
         'is_active',
+        'quota',
+        'quota_putra',
+        'quota_putri',
     ];
 
     /**
@@ -29,6 +32,9 @@ class Major extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        'quota' => 'integer',
+        'quota_putra' => 'integer',
+        'quota_putri' => 'integer',
     ];
 
     /**
@@ -37,5 +43,31 @@ class Major extends Model
     public function schoolUnit(): BelongsTo
     {
         return $this->belongsTo(SchoolUnit::class);
+    }
+
+    public function applications(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Application::class);
+    }
+
+    /** Human-readable quota summary, e.g. "30 (Putra 12 · Putri 13)". */
+    public function quotaLabel(): string
+    {
+        if ($this->quota === null && $this->quota_putra === null && $this->quota_putri === null) {
+            return 'Tanpa batas';
+        }
+
+        $parts = [];
+        if ($this->quota !== null) {
+            $parts[] = (string) $this->quota;
+        }
+        if ($this->quota_putra !== null) {
+            $parts[] = 'Putra '.$this->quota_putra;
+        }
+        if ($this->quota_putri !== null) {
+            $parts[] = 'Putri '.$this->quota_putri;
+        }
+
+        return implode(' · ', $parts);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\DataTables;
 
+use App\Models\AcademicYear;
 use App\Models\Major;
 use Illuminate\Http\JsonResponse;
 use Yajra\DataTables\Facades\DataTables;
@@ -15,8 +16,14 @@ class MajorDataTable
      */
     public function make()
     {
+        $activeYearId = AcademicYear::query()->where('is_active', true)->value('id');
+
         $majors = Major::with('schoolUnit.program')
-            ->select(['id', 'school_unit_id', 'name', 'code', 'is_active'])
+            ->select(['id', 'school_unit_id', 'name', 'code', 'is_active', 'quota', 'quota_putra', 'quota_putri'])
+            ->withCount(['applications as registered_count' => function ($query) use ($activeYearId) {
+                $query->whereNotNull('registration_number')
+                    ->when($activeYearId !== null, fn ($q) => $q->where('academic_year_id', $activeYearId));
+            }])
             ->when(request()->filled('school_unit_id'), function ($query) {
                 $query->where('school_unit_id', request()->integer('school_unit_id'));
             })
@@ -26,10 +33,23 @@ class MajorDataTable
 
         return DataTables::of($majors)
             ->addColumn('unit_name', $this->unitNameColumn())
+            ->addColumn('quota_info', $this->quotaColumn())
             ->editColumn('is_active', $this->statusColumn())
             ->addColumn('actions', $this->actionsColumn())
-            ->rawColumns(['unit_name', 'is_active', 'actions'])
+            ->rawColumns(['unit_name', 'quota_info', 'is_active', 'actions'])
             ->make(true);
+    }
+
+    /**
+     * Build the `quota_info` column renderer: the configured
+     * quotas plus how many seats the active year already took.
+     */
+    private function quotaColumn(): \Closure
+    {
+        return function ($major) {
+            return e($major->quotaLabel())
+                .'<div class="text-muted small">Terisi: '.(int) ($major->registered_count ?? 0).'</div>';
+        };
     }
 
     /**

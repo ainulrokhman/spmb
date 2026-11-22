@@ -145,6 +145,14 @@ class SchoolUnit extends Model
     }
 
     /**
+     * Per-academic-year intake caps for this unit.
+     */
+    public function unitQuotas(): HasMany
+    {
+        return $this->hasMany(UnitQuota::class);
+    }
+
+    /**
      * The WhatsApp sender device registered for this unit, if
      * any; units without one send through the foundation device.
      */

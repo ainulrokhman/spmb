@@ -53,6 +53,11 @@
                         <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', $admissionTrack->is_active) ? 'checked' : '' }}>
                         <label class="form-check-label fw-semibold text-secondary" for="is_active">Aktif</label>
                     </div>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" name="is_transfer" id="is_transfer" value="1" {{ old('is_transfer', $admissionTrack->is_transfer) ? 'checked' : '' }}>
+                        <label class="form-check-label fw-semibold text-secondary" for="is_transfer">Jalur Pindahan</label>
+                        <div class="form-text">Wali yang memilih jalur ini wajib mengisi kelas tujuan — untuk siswa pindahan di tahun ajaran yang sedang berjalan.</div>
+                    </div>
                 </div>
             </div>
 

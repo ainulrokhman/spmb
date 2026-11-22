@@ -72,6 +72,8 @@ class ApplicationController extends Controller
                 $major,
                 $request->validated('child_name'),
                 $request->validated('guardian_relation'),
+                false,
+                $request->validated('target_grade') ? (int) $request->validated('target_grade') : null,
             );
         } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage())->withInput();

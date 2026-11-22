@@ -33,6 +33,9 @@
             @if($application->major)
                 <tr><td class="text-muted">Jurusan</td><td>{{ $application->major->name }}</td></tr>
             @endif
+            @if($application->target_grade)
+                <tr><td class="text-muted">Kelas Tujuan</td><td>Kelas {{ $application->target_grade }}</td></tr>
+            @endif
             <tr><td class="text-muted">Status Anak</td><td>{{ $application->childStatus?->name ?? 'Reguler' }}</td></tr>
             <tr><td class="text-muted">Pendaftar</td><td>{{ $application->user?->name }} ({{ $application->user?->phone }}) — {{ \App\Models\Application::GUARDIAN_RELATIONS[$application->guardian_relation] ?? $application->guardian_relation }}</td></tr>
             @if($application->submitted_at)

@@ -43,6 +43,9 @@ class MajorService implements MajorServiceInterface
             'name' => $data['name'],
             'code' => $data['code'] ?? null,
             'is_active' => ! empty($data['is_active']),
+            'quota' => $data['quota'] ?? null,
+            'quota_putra' => $data['quota_putra'] ?? null,
+            'quota_putri' => $data['quota_putri'] ?? null,
         ];
     }
 }
