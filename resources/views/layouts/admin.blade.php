@@ -453,6 +453,12 @@
                                         <p>Template WhatsApp</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.whatsapp.broadcasts.index') }}" class="nav-link {{ request()->is('admin/whatsapp/broadcasts*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                        <i class="nav-icon bi bi-megaphone me-2"></i>
+                                        <p>Broadcast WhatsApp</p>
+                                    </a>
+                                </li>
                                 @endcan
                             </ul>
                         </li>
