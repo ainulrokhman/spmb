@@ -15,10 +15,15 @@ use Illuminate\Support\Facades\Http;
  * set (from .env) guards the whole server; each device row
  * addresses one device slot through the X-Device-Id header.
  *
- * Contracts follow the project's OpenAPI (v9): calls answer
- * with a {status, code: "SUCCESS", message, results} envelope
- * and a device's connection state is read from GET /app/status,
- * whose results carry is_connected / is_logged_in / jid.
+ * Contracts mirror psb-laravel's production-proven client for
+ * the same server: calls answer with a {code: "SUCCESS",
+ * message, results} envelope, sending posts {phone, message}
+ * to /send/message with the message id coming back as
+ * results.message_id, and a device's connection state is read
+ * from GET /app/status, whose results carry is_connected /
+ * is_logged_in / jid. Device session actions use the /app/*
+ * family (logout, reconnect) with the X-Device-Id header,
+ * exactly as psb calls them.
  * Transport failures are rethrown as WhatsappGatewayException
  * so callers never see a raw HTTP client exception.
  */
@@ -56,13 +61,13 @@ class GowaGateway implements WhatsappGatewayInterface
     public function send(WhatsappDevice $device, string $phone, string $message): ?string
     {
         $response = $this->call(fn () => $this->request($device)->post($this->url('/send/message'), [
-            'phone_number' => $phone,
+            'phone' => $phone,
             'message' => $message,
         ]));
 
         $this->ensureSuccess($response, 'mengirim pesan lewat GOWA');
 
-        $id = $response->json('results.id');
+        $id = $response->json('results.message_id') ?? $response->json('results.id');
 
         return $id !== null ? (string) $id : null;
     }
@@ -135,7 +140,7 @@ class GowaGateway implements WhatsappGatewayInterface
      */
     public function reconnect(WhatsappDevice $device): void
     {
-        $response = $this->call(fn () => $this->request($device)->post($this->url("/devices/{$device->device_id}/reconnect")));
+        $response = $this->call(fn () => $this->request($device)->get($this->url('/app/reconnect')));
 
         $this->ensureSuccess($response, 'menyambung ulang device GOWA');
     }
@@ -148,7 +153,7 @@ class GowaGateway implements WhatsappGatewayInterface
      */
     public function logout(WhatsappDevice $device): void
     {
-        $response = $this->call(fn () => $this->request($device)->post($this->url("/devices/{$device->device_id}/logout")));
+        $response = $this->call(fn () => $this->request($device)->get($this->url('/app/logout')));
 
         $this->ensureSuccess($response, 'memutuskan device GOWA');
     }

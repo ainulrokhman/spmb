@@ -15,8 +15,10 @@ use Illuminate\Support\Facades\Http;
  * header; numbers are paired on Fonnte's own dashboard, so this
  * driver only validates tokens, reads device state, and sends.
  *
- * Contracts follow Fonnte's documentation: POST /send answers
- * {status: bool, id, requestid, ...} and POST /device answers
+ * The send contract mirrors ppdb-alhikmah's production-proven
+ * Fonnte usage: POST /send with a JSON {target, message} body
+ * and the token as the Authorization header; it answers
+ * {status: bool, id, requestid, ...}. POST /device answers
  * with the device's name, number, and connection status.
  * Transport failures are rethrown as WhatsappGatewayException.
  */
@@ -73,7 +75,6 @@ class FonnteGateway implements WhatsappGatewayInterface
     public function send(WhatsappDevice $device, string $phone, string $message): ?string
     {
         $response = $this->call(fn () => $this->request((string) $device->token)
-            ->asForm()
             ->post($this->url('/send'), [
                 'target' => $phone,
                 'message' => $message,

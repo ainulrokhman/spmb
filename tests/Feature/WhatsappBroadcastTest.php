@@ -91,9 +91,9 @@ class WhatsappBroadcastTest extends TestCase
                 if ($this->failMarkedMessages && str_contains($request['message'] ?? '', 'GAGAL')) {
                     return Http::response(['status' => 500, 'code' => 'ERROR', 'message' => 'boom'], 500);
                 }
-                $this->sent[] = ['phone' => $request['phone_number'] ?? null, 'message' => $request['message'] ?? ''];
+                $this->sent[] = ['phone' => $request['phone'] ?? null, 'message' => $request['message'] ?? ''];
 
-                return Http::response(['status' => 200, 'code' => 'SUCCESS', 'results' => ['id' => 'msg-1']]);
+                return Http::response(['status' => 200, 'code' => 'SUCCESS', 'results' => ['message_id' => 'msg-1']]);
             }
 
             return Http::response([], 404);

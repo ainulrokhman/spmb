@@ -261,7 +261,7 @@ class WhatsappDeviceManagementTest extends TestCase
                 ]);
             }
 
-            return Http::response(['status' => 200, 'code' => 'SUCCESS', 'results' => ['id' => 'MSG-9']]);
+            return Http::response(['status' => 200, 'code' => 'SUCCESS', 'results' => ['message_id' => 'MSG-9']]);
         });
 
         $this->actingAs($this->admin())

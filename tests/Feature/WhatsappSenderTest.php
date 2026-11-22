@@ -75,7 +75,7 @@ class WhatsappSenderTest extends TestCase
                 return Http::response([
                     'status' => 200,
                     'code' => 'SUCCESS',
-                    'results' => ['id' => 'MSG-'.$deviceId],
+                    'results' => ['message_id' => 'MSG-'.$deviceId],
                 ]);
             }
 

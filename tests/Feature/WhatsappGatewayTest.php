@@ -50,7 +50,7 @@ class WhatsappGatewayTest extends TestCase
                 'status' => 200,
                 'code' => 'SUCCESS',
                 'message' => 'ok',
-                'results' => ['id' => 'MSG-1', 'status' => 'sent'],
+                'results' => ['message_id' => 'MSG-1', 'status' => 'sent'],
             ]),
         ]);
 
@@ -61,7 +61,7 @@ class WhatsappGatewayTest extends TestCase
             return $request->url() === 'http://gowa.test/send/message'
                 && $request->header('X-Device-Id') === ['unit-33']
                 && $request->hasHeader('Authorization')
-                && $request['phone_number'] === '6281234567890'
+                && $request['phone'] === '6281234567890'
                 && $request['message'] === 'Halo';
         });
     }
@@ -130,6 +130,32 @@ class WhatsappGatewayTest extends TestCase
             && $request['device_id'] === 'unit-33');
     }
 
+    public function test_gowa_logout_uses_app_logout_with_device_header(): void
+    {
+        Http::fake([
+            'gowa.test/*' => Http::response(['status' => 200, 'code' => 'SUCCESS', 'message' => 'bye']),
+        ]);
+
+        app(GowaGateway::class)->logout($this->gowaDevice());
+
+        Http::assertSent(fn (Request $request) => $request->method() === 'GET'
+            && $request->url() === 'http://gowa.test/app/logout'
+            && $request->header('X-Device-Id') === ['unit-33']);
+    }
+
+    public function test_gowa_reconnect_uses_app_reconnect_with_device_header(): void
+    {
+        Http::fake([
+            'gowa.test/*' => Http::response(['status' => 200, 'code' => 'SUCCESS', 'message' => 'ok']),
+        ]);
+
+        app(GowaGateway::class)->reconnect($this->gowaDevice());
+
+        Http::assertSent(fn (Request $request) => $request->method() === 'GET'
+            && $request->url() === 'http://gowa.test/app/reconnect'
+            && $request->header('X-Device-Id') === ['unit-33']);
+    }
+
     public function test_gowa_without_configuration_throws_readable_error(): void
     {
         config(['whatsapp.gowa.base_url' => null]);
@@ -140,7 +166,7 @@ class WhatsappGatewayTest extends TestCase
         app(GowaGateway::class)->deviceStatus($this->gowaDevice());
     }
 
-    public function test_fonnte_send_posts_form_with_token_header(): void
+    public function test_fonnte_send_posts_json_with_token_header(): void
     {
         Http::fake([
             'api.fonnte.com/*' => Http::response([
@@ -157,6 +183,7 @@ class WhatsappGatewayTest extends TestCase
         Http::assertSent(function (Request $request) {
             return $request->url() === 'https://api.fonnte.com/send'
                 && $request->header('Authorization') === ['token-device-123']
+                && str_contains($request->header('Content-Type')[0] ?? '', 'application/json')
                 && $request['target'] === '6281234567890'
                 && $request['message'] === 'Halo';
         });
