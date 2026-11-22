@@ -205,10 +205,14 @@ class WhatsappGatewayTest extends TestCase
 
     public function test_fonnte_status_parses_device_payload(): void
     {
+        // The real Fonnte /device answer is flat: the number is
+        // the "device" string and the state is "device_status".
         Http::fake([
             'api.fonnte.com/*' => Http::response([
                 'status' => true,
-                'device' => ['name' => 'WA SMP', 'device' => '628987654321', 'status' => 'connected'],
+                'device' => '628987654321',
+                'device_status' => 'connect',
+                'name' => 'WA SMP',
             ]),
         ]);
 

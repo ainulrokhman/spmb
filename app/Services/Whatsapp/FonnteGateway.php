@@ -62,13 +62,25 @@ class FonnteGateway implements WhatsappGatewayInterface
             throw new WhatsappGatewayException('Token Fonnte tidak diterima: '.($this->reason($response) ?? 'periksa kembali token device dari dashboard Fonnte.'));
         }
 
-        $device = (array) $response->json('device', []);
-        $status = strtolower((string) ($device['status'] ?? ''));
+        // The real /device answer is flat: the number itself is
+        // the "device" string, the connection state rides in
+        // "device_status" ("connect"), and the name is top-level.
+        $body = (array) $response->json();
+        $nested = $body['device'] ?? null;
+        if (is_array($nested)) {
+            $phone = $nested['device'] ?? $nested['phone'] ?? null;
+            $name = $nested['name'] ?? null;
+            $status = strtolower((string) ($nested['device_status'] ?? $nested['status'] ?? ''));
+        } else {
+            $phone = is_string($nested) ? $nested : ($body['phone'] ?? null);
+            $name = $body['name'] ?? null;
+            $status = strtolower((string) ($body['device_status'] ?? ''));
+        }
 
         return [
             'connected' => $status !== '' && ! str_contains($status, 'disconnect') && str_contains($status, 'connect'),
-            'phone' => isset($device['device']) ? (string) $device['device'] : (isset($device['phone']) ? (string) $device['phone'] : null),
-            'name' => isset($device['name']) ? (string) $device['name'] : null,
+            'phone' => $phone !== null ? (string) $phone : null,
+            'name' => $name !== null ? (string) $name : null,
         ];
     }
 
