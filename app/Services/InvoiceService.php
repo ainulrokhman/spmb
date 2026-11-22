@@ -10,6 +10,7 @@ use App\Models\Application;
 use App\Models\Fee;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Services\Whatsapp\WhatsappNotificationService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,7 @@ class InvoiceService implements InvoiceServiceInterface
         private readonly FeeServiceInterface $fees,
         private readonly OfficerNotificationServiceInterface $officerNotifications,
         private readonly GuardianNotificationServiceInterface $guardianNotifications,
+        private readonly WhatsappNotificationService $whatsappNotifications,
     ) {}
 
     /**
@@ -232,6 +234,7 @@ class InvoiceService implements InvoiceServiceInterface
 
                 $this->officerNotifications->markInvoiceReliefHandled($invoice);
                 $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, $invoice->request_status);
+                $this->whatsappNotifications->invoiceReliefDecided($invoice, $invoice->request_status);
 
                 return $this->markPaid($invoice);
             }
@@ -243,6 +246,7 @@ class InvoiceService implements InvoiceServiceInterface
 
         $this->officerNotifications->markInvoiceReliefHandled($invoice);
         $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, $invoice->request_status);
+        $this->whatsappNotifications->invoiceReliefDecided($invoice, $invoice->request_status);
 
         return $invoice;
     }
@@ -279,6 +283,7 @@ class InvoiceService implements InvoiceServiceInterface
             $invoice->save();
 
             $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, 'approved', directGrant: true);
+            $this->whatsappNotifications->invoiceReliefDecided($invoice, 'approved', true);
 
             return $this->markPaid($invoice);
         }
@@ -287,6 +292,7 @@ class InvoiceService implements InvoiceServiceInterface
         $invoice->save();
 
         $this->guardianNotifications->notifyInvoiceReliefDecided($invoice, 'approved', directGrant: true);
+        $this->whatsappNotifications->invoiceReliefDecided($invoice, 'approved', true);
 
         return $invoice;
     }
@@ -345,6 +351,7 @@ class InvoiceService implements InvoiceServiceInterface
         }
 
         $this->guardianNotifications->notifyInvoicePaid($invoice);
+        $this->whatsappNotifications->invoicePaid($invoice);
 
         return $invoice;
     }

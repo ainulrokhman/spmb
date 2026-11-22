@@ -14,6 +14,7 @@ use App\Models\DocumentType;
 use App\Models\Major;
 use App\Models\SchoolUnit;
 use App\Models\User;
+use App\Services\Whatsapp\WhatsappNotificationService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,7 @@ class ApplicationService implements ApplicationServiceInterface
     public function __construct(
         private readonly OfficerNotificationServiceInterface $officerNotifications,
         private readonly GuardianNotificationServiceInterface $guardianNotifications,
+        private readonly WhatsappNotificationService $whatsappNotifications,
     ) {}
 
     /**
@@ -49,7 +51,7 @@ class ApplicationService implements ApplicationServiceInterface
         $fee = (int) $unit->form_fee;
         $isFree = $fee === 0;
 
-        return Application::create([
+        $application = Application::create([
             'user_id' => $guardian->id,
             'school_unit_id' => $wave->school_unit_id,
             'admission_wave_id' => $wave->id,
@@ -63,6 +65,10 @@ class ApplicationService implements ApplicationServiceInterface
             'guardian_relation' => $guardianRelation,
             'create_parent_account' => $createParentAccount,
         ]);
+
+        $this->whatsappNotifications->registrationStarted($application);
+
+        return $application;
     }
 
     /**
@@ -151,6 +157,7 @@ class ApplicationService implements ApplicationServiceInterface
 
         $this->officerNotifications->markFormFeeReliefHandled($application);
         $this->guardianNotifications->notifyFormReliefDecided($application, $application->form_fee_request_status);
+        $this->whatsappNotifications->formReliefDecided($application, $application->form_fee_request_status);
 
         return $application;
     }
@@ -182,6 +189,7 @@ class ApplicationService implements ApplicationServiceInterface
         $application->save();
 
         $this->guardianNotifications->notifyFormReliefDecided($application, 'approved', directGrant: true);
+        $this->whatsappNotifications->formReliefDecided($application, 'approved', true);
 
         return $application;
     }
@@ -248,6 +256,7 @@ class ApplicationService implements ApplicationServiceInterface
         $application->save();
 
         $this->guardianNotifications->notifyFormFeePaid($application);
+        $this->whatsappNotifications->formFeePaid($application);
 
         return $application;
     }

@@ -9,6 +9,7 @@ use App\Contracts\OfficerNotificationServiceInterface;
 use App\Models\Invoice;
 use App\Models\InvoiceInstallment;
 use App\Models\User;
+use App\Services\Whatsapp\WhatsappNotificationService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -42,6 +43,7 @@ class InstallmentService implements InstallmentServiceInterface
         private readonly InvoiceServiceInterface $invoices,
         private readonly OfficerNotificationServiceInterface $officerNotifications,
         private readonly GuardianNotificationServiceInterface $guardianNotifications,
+        private readonly WhatsappNotificationService $whatsappNotifications,
     ) {}
 
     /**
@@ -114,6 +116,7 @@ class InstallmentService implements InstallmentServiceInterface
 
             $this->officerNotifications->markInstallmentHandled($invoice);
             $this->guardianNotifications->notifyInstallmentDecided($invoice, $invoice->installment_request_status);
+            $this->whatsappNotifications->installmentDecided($invoice, $invoice->installment_request_status);
 
             return $invoice;
         }
@@ -146,6 +149,7 @@ class InstallmentService implements InstallmentServiceInterface
 
         $this->officerNotifications->markInstallmentHandled($invoice);
         $this->guardianNotifications->notifyInstallmentDecided($invoice, 'approved');
+        $this->whatsappNotifications->installmentDecided($invoice, 'approved');
 
         return $invoice;
     }
@@ -564,6 +568,7 @@ class InstallmentService implements InstallmentServiceInterface
         // own term notification.
         if ($invoice !== null && $invoice->fresh()->status !== 'paid') {
             $this->guardianNotifications->notifyInstallmentPaid($installment);
+            $this->whatsappNotifications->installmentPaid($installment);
         }
 
         return $installment;

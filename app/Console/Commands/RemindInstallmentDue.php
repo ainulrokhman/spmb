@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Contracts\GuardianNotificationServiceInterface;
 use App\Models\InvoiceInstallment;
+use App\Services\Whatsapp\WhatsappNotificationService;
 use Illuminate\Console\Command;
 
 /**
@@ -18,7 +19,7 @@ class RemindInstallmentDue extends Command
 
     protected $description = 'Remind guardians about installment terms due in 3 days or today';
 
-    public function handle(GuardianNotificationServiceInterface $notifications): int
+    public function handle(GuardianNotificationServiceInterface $notifications, WhatsappNotificationService $whatsappNotifications): int
     {
         $sent = 0;
 
@@ -31,6 +32,7 @@ class RemindInstallmentDue extends Command
 
             foreach ($due as $installment) {
                 $sent += $notifications->notifyInstallmentDue($installment, $daysBefore);
+                $whatsappNotifications->installmentDue($installment);
             }
         }
 

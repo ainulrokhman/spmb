@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 Schedule::command('notifications:prune')->daily();
 Schedule::command('notifications:remind-installments')->daily();
 Schedule::command('whatsapp:cleanup-otps')->daily();
+Schedule::command('whatsapp:notify-results')->hourly();
