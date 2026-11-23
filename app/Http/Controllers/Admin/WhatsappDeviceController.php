@@ -123,13 +123,21 @@ class WhatsappDeviceController extends Controller
     }
 
     /**
-     * The QR pairing page for a GOWA device.
+     * The QR pairing page for a GOWA device. A device that is
+     * already paired needs no QR — the server refuses to issue
+     * one — so a live status check sends the admin back to the
+     * list instead of a page whose QR cannot load.
      */
     public function login(WhatsappDevice $device): View|RedirectResponse
     {
         if ($device->provider !== WhatsappDevice::PROVIDER_GOWA) {
             return redirect()->route('admin.whatsapp.index')
                 ->with('error', 'Device Fonnte dipasangkan dari dashboard Fonnte, bukan dari halaman ini.');
+        }
+
+        if ($this->sender->refreshStatus($device)['connected']) {
+            return redirect()->route('admin.whatsapp.index')
+                ->with('success', 'Device '.$device->label().' sudah terhubung — tidak perlu memindai kode QR.');
         }
 
         return view('admin.whatsapp.login', compact('device'));

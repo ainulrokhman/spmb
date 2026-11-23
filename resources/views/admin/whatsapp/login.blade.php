@@ -33,7 +33,12 @@
     <div class="card-body px-4 pb-4">
         <div class="row g-4 align-items-start">
             <div class="col-md-5 text-center">
-                <img src="{{ route('admin.whatsapp.devices.qr', $device) }}" alt="Kode QR pemasangan WhatsApp" class="img-fluid border rounded-3 p-2" width="320" height="320">
+                <div id="qrLoading" class="py-5 text-muted">
+                    <div class="spinner-border text-primary mb-2" role="status"></div>
+                    <div class="small">Memuat kode QR dari server…</div>
+                </div>
+                <img id="qrImage" src="" alt="Kode QR pemasangan WhatsApp" class="img-fluid border rounded-3 p-2 d-none" width="320" height="320">
+                <div id="qrError" class="alert alert-warning bg-warning bg-opacity-10 text-warning-emphasis border-0 rounded-3 p-3 text-start d-none" role="alert"></div>
                 <div class="mt-2">
                     <a href="{{ route('admin.whatsapp.devices.login', $device) }}" class="btn btn-sm btn-outline-secondary">
                         <i class="bi bi-arrow-clockwise"></i> Muat Ulang Kode QR
@@ -61,3 +66,36 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var img = document.getElementById('qrImage');
+    var loading = document.getElementById('qrLoading');
+    var errorBox = document.getElementById('qrError');
+
+    // The QR endpoint answers 422 with the gateway's own message
+    // when the server refuses a code; loading through fetch lets
+    // that message reach the admin instead of a broken image.
+    fetch('{{ route('admin.whatsapp.devices.qr', $device) }}')
+        .then(function (response) {
+            if (!response.ok) {
+                return response.text().then(function (text) {
+                    throw new Error(text || 'Kode QR tidak dapat dimuat.');
+                });
+            }
+            return response.blob();
+        })
+        .then(function (blob) {
+            img.src = URL.createObjectURL(blob);
+            img.classList.remove('d-none');
+            loading.classList.add('d-none');
+        })
+        .catch(function (error) {
+            loading.classList.add('d-none');
+            errorBox.textContent = error.message + ' Tekan Periksa Status untuk melihat keadaan device, atau muat ulang halaman ini.';
+            errorBox.classList.remove('d-none');
+        });
+});
+</script>
+@endpush

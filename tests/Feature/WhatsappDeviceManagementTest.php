@@ -276,4 +276,39 @@ class WhatsappDeviceManagementTest extends TestCase
         $this->assertSame(WhatsappMessageLog::STATUS_SENT, $log->status);
         $this->assertSame('MSG-9', $log->provider_message_id);
     }
+
+    public function test_login_page_redirects_when_the_device_is_already_connected(): void
+    {
+        $device = WhatsappDevice::create(['provider' => 'gowa', 'device_id' => 'yayasan']);
+        Http::fake([
+            'gowa.test/app/status' => Http::response([
+                'status' => 200, 'code' => 'SUCCESS',
+                'results' => ['is_connected' => true, 'is_logged_in' => true, 'jid' => '628987654321@s.whatsapp.net'],
+            ]),
+        ]);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.whatsapp.devices.login', $device))
+            ->assertRedirect(route('admin.whatsapp.index'))
+            ->assertSessionHas('success');
+
+        $this->assertSame(WhatsappDevice::STATUS_CONNECTED, $device->fresh()->status);
+    }
+
+    public function test_login_page_renders_the_qr_loader_when_the_device_is_disconnected(): void
+    {
+        $device = WhatsappDevice::create(['provider' => 'gowa', 'device_id' => 'yayasan']);
+        Http::fake([
+            'gowa.test/app/status' => Http::response([
+                'status' => 200, 'code' => 'SUCCESS',
+                'results' => ['is_connected' => false, 'is_logged_in' => false, 'jid' => null],
+            ]),
+        ]);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.whatsapp.devices.login', $device))
+            ->assertOk()
+            ->assertSee('qrImage')
+            ->assertSee('Memuat kode QR dari server');
+    }
 }
