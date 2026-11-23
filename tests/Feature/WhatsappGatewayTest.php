@@ -195,6 +195,24 @@ class WhatsappGatewayTest extends TestCase
         }
     }
 
+    public function test_gowa_qr_link_with_malformed_host_is_fetched_from_the_configured_origin(): void
+    {
+        Http::fake([
+            'gowa.test/devices/unit-33/login' => Http::response([
+                'status' => 200, 'code' => 'SUCCESS',
+                'results' => ['qr_link' => 'https://wa_awebdev_my_id/statics/qrcode/scan-qr-abc.png'],
+            ]),
+            'gowa.test/statics/qrcode/scan-qr-abc.png' => Http::response('PNG-BYTES', 200, ['Content-Type' => 'image/png']),
+        ]);
+
+        $image = app(GowaGateway::class)->loginQrImage($this->gowaDevice());
+
+        $this->assertSame('PNG-BYTES', $image['bytes']);
+        $this->assertSame('image/png', $image['content_type']);
+        Http::assertSent(fn (Request $request) => $request->url() === 'http://gowa.test/statics/qrcode/scan-qr-abc.png');
+        Http::assertNotSent(fn (Request $request) => str_contains($request->url(), 'wa_awebdev_my_id'));
+    }
+
     public function test_fonnte_send_posts_json_with_token_header(): void
     {
         Http::fake([

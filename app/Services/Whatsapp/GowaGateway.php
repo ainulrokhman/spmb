@@ -129,7 +129,7 @@ class GowaGateway implements WhatsappGatewayInterface
             return ['bytes' => $bytes, 'content_type' => 'image/png'];
         }
 
-        $image = $this->call(fn () => $this->request(null)->get($link));
+        $image = $this->call(fn () => $this->request(null)->get($this->reachableQrLink($link)));
         if (! $image->successful()) {
             throw new WhatsappGatewayException('Gambar kode QR tidak dapat diambil dari server GOWA.');
         }
@@ -229,6 +229,29 @@ class GowaGateway implements WhatsappGatewayInterface
     private function url(string $path): string
     {
         return rtrim((string) config('whatsapp.gowa.base_url'), '/').$path;
+    }
+
+    /**
+     * The server builds qr_link from its own idea of its public
+     * address, which has arrived malformed in production (dots
+     * turned into underscores — "wa_awebdev_my_id" — a host no
+     * resolver can find). The path is the server's own, so only
+     * the origin is swapped for the configured base URL's before
+     * fetching; a well-formed link passes through unchanged.
+     */
+    private function reachableQrLink(string $link): string
+    {
+        $base = parse_url((string) config('whatsapp.gowa.base_url'));
+        $path = parse_url($link, PHP_URL_PATH);
+        $query = parse_url($link, PHP_URL_QUERY);
+
+        if (! is_array($base) || empty($base['scheme']) || empty($base['host']) || ! is_string($path) || $path === '') {
+            return $link;
+        }
+
+        $origin = $base['scheme'].'://'.$base['host'].(isset($base['port']) ? ':'.$base['port'] : '');
+
+        return $origin.$path.(is_string($query) && $query !== '' ? '?'.$query : '');
     }
 
     /**
