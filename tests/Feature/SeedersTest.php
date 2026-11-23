@@ -2,13 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Models\AdmissionWave;
 use App\Models\Application;
 use App\Models\DocumentType;
 use App\Models\FeeComponent;
+use App\Models\Major;
 use App\Models\Program;
 use App\Models\SchoolUnit;
 use App\Models\Setting;
 use App\Models\User;
+use Database\Seeders\AlHikmahSeeder;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -97,5 +100,47 @@ class SeedersTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         $this->seed(DemoSeeder::class);
+    }
+
+    public function test_al_hikmah_seeder_builds_the_school_setup_without_accounts(): void
+    {
+        $this->seed(AlHikmahSeeder::class);
+
+        // Master data only: no user accounts are created.
+        $this->assertSame(0, User::count());
+        $this->assertSame('SMA Al-Hikmah 2 Sirampog', Setting::get('foundation_name'));
+
+        $unit = SchoolUnit::where('code', '21')->firstOrFail();
+        $this->assertSame('SMA Al-Hikmah 2', $unit->name);
+        $this->assertSame(200000, $unit->form_fee);
+        $this->assertTrue($unit->selection_enabled);
+
+        $tahfidz = Major::where('school_unit_id', $unit->id)->where('name', 'Tahfidz')->firstOrFail();
+        $this->assertSame(25, $tahfidz->quota);
+        $this->assertSame(12, $tahfidz->quota_putra);
+        $this->assertSame(13, $tahfidz->quota_putri);
+        $this->assertSame(30, Major::where('school_unit_id', $unit->id)->where('name', 'Sains')->firstOrFail()->quota);
+        $this->assertSame(30, Major::where('school_unit_id', $unit->id)->where('name', 'Kitab Kuning')->firstOrFail()->quota);
+        $this->assertNull(Major::where('school_unit_id', $unit->id)->where('name', 'Reguler')->firstOrFail()->quota);
+
+        $wave = AdmissionWave::where('school_unit_id', $unit->id)->firstOrFail();
+        $this->assertSame('Gelombang 1', $wave->name);
+        $this->assertSame('2026/2027', $wave->academicYear->name);
+        $this->assertSame(['Reguler'], $wave->admissionTracks->pluck('name')->all());
+
+        $counts = [
+            SchoolUnit::count(),
+            Major::count(),
+            AdmissionWave::count(),
+        ];
+
+        // Re-running must not duplicate anything.
+        $this->seed(AlHikmahSeeder::class);
+
+        $this->assertSame($counts, [
+            SchoolUnit::count(),
+            Major::count(),
+            AdmissionWave::count(),
+        ]);
     }
 }
