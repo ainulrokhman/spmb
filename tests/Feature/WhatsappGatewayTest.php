@@ -7,6 +7,7 @@ use App\Services\Whatsapp\FonnteGateway;
 use App\Services\Whatsapp\GowaGateway;
 use App\Services\Whatsapp\WhatsappGatewayException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -164,6 +165,34 @@ class WhatsappGatewayTest extends TestCase
         $this->expectExceptionMessageMatches('/belum dikonfigurasi/');
 
         app(GowaGateway::class)->deviceStatus($this->gowaDevice());
+    }
+
+    public function test_gowa_connection_failure_carries_the_transport_detail(): void
+    {
+        Http::fake(fn () => throw new ConnectionException('cURL error 28: Operation timed out after 15000 milliseconds with 0 bytes received (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for http://gowa.test/app/status'));
+
+        try {
+            app(GowaGateway::class)->deviceStatus($this->gowaDevice());
+            $this->fail('WhatsappGatewayException was not thrown.');
+        } catch (WhatsappGatewayException $e) {
+            $this->assertStringContainsString('tidak dapat dihubungi', $e->getMessage());
+            $this->assertStringContainsString('cURL error 28: Operation timed out', $e->getMessage());
+            $this->assertStringContainsString('http://gowa.test/app/status', $e->getMessage());
+            $this->assertStringNotContainsString('curl.haxx.se', $e->getMessage());
+        }
+    }
+
+    public function test_gowa_qr_connection_failure_carries_the_transport_detail(): void
+    {
+        Http::fake(fn () => throw new ConnectionException('cURL error 7: Failed to connect to gowa.test port 3000 after 12 ms'));
+
+        try {
+            app(GowaGateway::class)->loginQrImage($this->gowaDevice());
+            $this->fail('WhatsappGatewayException was not thrown.');
+        } catch (WhatsappGatewayException $e) {
+            $this->assertStringContainsString('tidak dapat dihubungi', $e->getMessage());
+            $this->assertStringContainsString('cURL error 7: Failed to connect', $e->getMessage());
+        }
     }
 
     public function test_fonnte_send_posts_json_with_token_header(): void

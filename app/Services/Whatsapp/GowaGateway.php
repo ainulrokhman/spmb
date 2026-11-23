@@ -29,6 +29,13 @@ use Illuminate\Support\Facades\Http;
  */
 class GowaGateway implements WhatsappGatewayInterface
 {
+    /**
+     * Login makes the server start a WhatsApp session and wait
+     * for its first QR code, which routinely outlasts the short
+     * everyday timeout; psb allows this call 30 seconds.
+     */
+    private const LOGIN_TIMEOUT_SECONDS = 30;
+
     public function key(): string
     {
         return WhatsappDevice::PROVIDER_GOWA;
@@ -99,7 +106,7 @@ class GowaGateway implements WhatsappGatewayInterface
      */
     public function loginQrImage(WhatsappDevice $device): array
     {
-        $response = $this->call(fn () => $this->request($device)->get($this->url("/devices/{$device->device_id}/login")));
+        $response = $this->call(fn () => $this->request($device, self::LOGIN_TIMEOUT_SECONDS)->get($this->url("/devices/{$device->device_id}/login")));
 
         $contentType = (string) $response->header('Content-Type');
         if (str_starts_with($contentType, 'image/')) {
@@ -183,7 +190,13 @@ class GowaGateway implements WhatsappGatewayInterface
         try {
             return $send();
         } catch (ConnectionException $e) {
-            throw new WhatsappGatewayException('Server GOWA tidak dapat dihubungi. Periksa alamat server dan jaringan, lalu coba lagi.', previous: $e);
+            // Carry the transport detail (cURL error number and
+            // target URL) into the message: "timed out" and
+            // "connection refused" need different remedies, and a
+            // handled gateway error never reaches the error log.
+            $detail = preg_replace('/\s*\(see https?:\/\/[^)]+\)/', '', $e->getMessage()) ?? $e->getMessage();
+
+            throw new WhatsappGatewayException('Server GOWA tidak dapat dihubungi ('.$detail.'). Periksa alamat server dan jaringan, lalu coba lagi.', previous: $e);
         }
     }
 
@@ -193,13 +206,13 @@ class GowaGateway implements WhatsappGatewayInterface
      *
      * @throws WhatsappGatewayException when the server is not configured
      */
-    private function request(?WhatsappDevice $device): PendingRequest
+    private function request(?WhatsappDevice $device, ?int $timeout = null): PendingRequest
     {
         if (! config('whatsapp.gowa.base_url')) {
             throw new WhatsappGatewayException('Server GOWA belum dikonfigurasi. Isi GOWA_BASE_URL, GOWA_USERNAME, dan GOWA_PASSWORD di .env.');
         }
 
-        $request = Http::timeout((int) config('whatsapp.gowa.timeout', 15))
+        $request = Http::timeout($timeout ?? (int) config('whatsapp.gowa.timeout', 15))
             ->acceptJson()
             ->withBasicAuth(
                 (string) config('whatsapp.gowa.username'),
